@@ -1,0 +1,46 @@
+name: JevVoiceTurn
+options:
+  bundleIdPrefix: com.devin.typesafe
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: YES
+targets:
+  JevVoiceTurn:
+    type: application
+    platform: macOS
+    sources:
+      - Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.devin.typesafe.jev-voice-turn
+        INFOPLIST_KEY_CFBundleDisplayName: Jev Voice Turn
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: Jev Voice Turn listens to the microphone so on-device speech recognition can stream a live transcript. Audio never leaves this Mac.
+        INFOPLIST_KEY_NSSpeechRecognitionUsageDescription: Jev Voice Turn uses on-device speech recognition to turn your speech into text. Only the transcript text and timing metadata are sent to Jev.
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        ENABLE_HARDENED_RUNTIME: NO
+  JevVoiceTurnTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: JevVoiceTurn
+schemes:
+  JevVoiceTurn:
+    build:
+      targets:
+        JevVoiceTurn: all
+        JevVoiceTurnTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - JevVoiceTurnTests
