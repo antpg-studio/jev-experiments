@@ -1,0 +1,502 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		034ED7B951A098B35CFEB2C4 /* AXReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B74692026FAEECBD26BBBBA /* AXReader.swift */; };
+		069F534269E3F10692D36576 /* TreeFlattenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EE34C0E9E5E5D9488DE10B /* TreeFlattenerTests.swift */; };
+		205C79835207731F020D93DF /* Calculator.json in Resources */ = {isa = PBXBuildFile; fileRef = 0070D78737525D2643FE4411 /* Calculator.json */; };
+		3989EA55D039D40F58C914D8 /* JevClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88FD27D9D03F1F540F8A1B3 /* JevClient.swift */; };
+		3E5CE8CE529FE4B73E939C6E /* StateBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C2299E5743F7A6A782609BD /* StateBuilder.swift */; };
+		503D747E56C3C0AE1179E064 /* JevAXPilotApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A1BA60843AE10F6FC9DED1 /* JevAXPilotApp.swift */; };
+		6B2C8E56F08C4F6435F57053 /* Notes.json in Resources */ = {isa = PBXBuildFile; fileRef = 666E2FFFF8D2EEE201AEE4AB /* Notes.json */; };
+		726B9FD17E16E7AC05AAA769 /* SystemSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = FEAFB951263989B6656CF327 /* SystemSettings.json */; };
+		7586DBC58BCDAEC6A7EB481F /* Safari.json in Resources */ = {isa = PBXBuildFile; fileRef = A2DD0DCD2AD96FC1CC5E79A1 /* Safari.json */; };
+		7E6BA0CFCD1FA3DA9C4C7B02 /* FixtureLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33A2CA2D65EB85F2F2B82CCA /* FixtureLoader.swift */; };
+		8051D873D833F9C03789B6CB /* TextEdit.json in Resources */ = {isa = PBXBuildFile; fileRef = 762572F0130FD9105E0BB5F1 /* TextEdit.json */; };
+		8427C2E46CBA6F98971C7E3F /* AXNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28E8150B0FD06671F7BC43A /* AXNode.swift */; };
+		87CEC5FB35044C44CCF676CB /* Pilot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C7658DA5AD73163DA9CB84B /* Pilot.swift */; };
+		8BACADB98CB3188E85F5D6C4 /* StateAndAnswerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8552D7C7DBD7E4E411AB7243 /* StateAndAnswerTests.swift */; };
+		90FE266F2569F0C32A553DFA /* AnswerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ED420BC7D5FDF51FF9BC68C /* AnswerHandler.swift */; };
+		A0F51504D483C488772C566C /* Metrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45FF9AAFA54CD6D81DCCDA21 /* Metrics.swift */; };
+		AABC4DF49A13A9B972817B22 /* TextCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502527410E1FD3E33EF42034 /* TextCandidates.swift */; };
+		AEEFA4C760A992FAD57AE541 /* Fixtures in Resources */ = {isa = PBXBuildFile; fileRef = 0A8F7533A01F62AE8C554F9F /* Fixtures */; };
+		D64AA39590924B4E3B48B864 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69486BC26E64F37C0A4940B /* ContentView.swift */; };
+		ED7492EE9AB2C0BD1EFA2A4E /* JevTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D6672D7E93EE381D0FE3F92 /* JevTypes.swift */; };
+		F9466E17F722C4AD8018D164 /* HUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98CF67A9829FD50E2E3361B7 /* HUDView.swift */; };
+		F9D339D196968D22523BAB71 /* TreeFlattener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E2DD0D0F9202235808BBADE /* TreeFlattener.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		74648BE43D45657DEAABC0A0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C2B88F29471CD0226BECDBA3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F75AEA636F2D311839723C70;
+			remoteInfo = JevAXPilot;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0070D78737525D2643FE4411 /* Calculator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Calculator.json; sourceTree = "<group>"; };
+		04B601C4A8076928D016B9E6 /* JevAXPilot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JevAXPilot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A8F7533A01F62AE8C554F9F /* Fixtures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fixtures; path = Tests/Fixtures; sourceTree = SOURCE_ROOT; };
+		0D6672D7E93EE381D0FE3F92 /* JevTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevTypes.swift; sourceTree = "<group>"; };
+		11A1BA60843AE10F6FC9DED1 /* JevAXPilotApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevAXPilotApp.swift; sourceTree = "<group>"; };
+		33A2CA2D65EB85F2F2B82CCA /* FixtureLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixtureLoader.swift; sourceTree = "<group>"; };
+		3B74692026FAEECBD26BBBBA /* AXReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AXReader.swift; sourceTree = "<group>"; };
+		45FF9AAFA54CD6D81DCCDA21 /* Metrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metrics.swift; sourceTree = "<group>"; };
+		46EE34C0E9E5E5D9488DE10B /* TreeFlattenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeFlattenerTests.swift; sourceTree = "<group>"; };
+		502527410E1FD3E33EF42034 /* TextCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCandidates.swift; sourceTree = "<group>"; };
+		5C2299E5743F7A6A782609BD /* StateBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateBuilder.swift; sourceTree = "<group>"; };
+		5E2DD0D0F9202235808BBADE /* TreeFlattener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeFlattener.swift; sourceTree = "<group>"; };
+		5ED420BC7D5FDF51FF9BC68C /* AnswerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnswerHandler.swift; sourceTree = "<group>"; };
+		666E2FFFF8D2EEE201AEE4AB /* Notes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Notes.json; sourceTree = "<group>"; };
+		6C7658DA5AD73163DA9CB84B /* Pilot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pilot.swift; sourceTree = "<group>"; };
+		762572F0130FD9105E0BB5F1 /* TextEdit.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TextEdit.json; sourceTree = "<group>"; };
+		8552D7C7DBD7E4E411AB7243 /* StateAndAnswerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateAndAnswerTests.swift; sourceTree = "<group>"; };
+		98CF67A9829FD50E2E3361B7 /* HUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDView.swift; sourceTree = "<group>"; };
+		A2DD0DCD2AD96FC1CC5E79A1 /* Safari.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Safari.json; sourceTree = "<group>"; };
+		C69486BC26E64F37C0A4940B /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C7ABF289FDAADD9FD2270B0E /* JevAXPilotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JevAXPilotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D28E8150B0FD06671F7BC43A /* AXNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AXNode.swift; sourceTree = "<group>"; };
+		D88FD27D9D03F1F540F8A1B3 /* JevClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevClient.swift; sourceTree = "<group>"; };
+		FEAFB951263989B6656CF327 /* SystemSettings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SystemSettings.json; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		1B60DB51EF28575FC754CAF3 = {
+			isa = PBXGroup;
+			children = (
+				0A8F7533A01F62AE8C554F9F /* Fixtures */,
+				E094E2EDEA45B485B9CADB80 /* Sources */,
+				6224AF0ADA4EB118B5BDE697 /* Tests */,
+				CDC96411166B4697E9CA8051 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6224AF0ADA4EB118B5BDE697 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				33A2CA2D65EB85F2F2B82CCA /* FixtureLoader.swift */,
+				8552D7C7DBD7E4E411AB7243 /* StateAndAnswerTests.swift */,
+				46EE34C0E9E5E5D9488DE10B /* TreeFlattenerTests.swift */,
+				B94DD4409A65D4E2CC8A82D8 /* Fixtures */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		B94DD4409A65D4E2CC8A82D8 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				0070D78737525D2643FE4411 /* Calculator.json */,
+				666E2FFFF8D2EEE201AEE4AB /* Notes.json */,
+				A2DD0DCD2AD96FC1CC5E79A1 /* Safari.json */,
+				FEAFB951263989B6656CF327 /* SystemSettings.json */,
+				762572F0130FD9105E0BB5F1 /* TextEdit.json */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		CDC96411166B4697E9CA8051 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				04B601C4A8076928D016B9E6 /* JevAXPilot.app */,
+				C7ABF289FDAADD9FD2270B0E /* JevAXPilotTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E094E2EDEA45B485B9CADB80 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				5ED420BC7D5FDF51FF9BC68C /* AnswerHandler.swift */,
+				D28E8150B0FD06671F7BC43A /* AXNode.swift */,
+				3B74692026FAEECBD26BBBBA /* AXReader.swift */,
+				C69486BC26E64F37C0A4940B /* ContentView.swift */,
+				98CF67A9829FD50E2E3361B7 /* HUDView.swift */,
+				11A1BA60843AE10F6FC9DED1 /* JevAXPilotApp.swift */,
+				D88FD27D9D03F1F540F8A1B3 /* JevClient.swift */,
+				0D6672D7E93EE381D0FE3F92 /* JevTypes.swift */,
+				45FF9AAFA54CD6D81DCCDA21 /* Metrics.swift */,
+				6C7658DA5AD73163DA9CB84B /* Pilot.swift */,
+				5C2299E5743F7A6A782609BD /* StateBuilder.swift */,
+				502527410E1FD3E33EF42034 /* TextCandidates.swift */,
+				5E2DD0D0F9202235808BBADE /* TreeFlattener.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		05A321E63F9BEDFCC29956F6 /* JevAXPilotTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E65048F87C04F3158D0BED72 /* Build configuration list for PBXNativeTarget "JevAXPilotTests" */;
+			buildPhases = (
+				9E8BA96FF377C16A19D446AA /* Sources */,
+				2E72E1AB65349600A1CABA3E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9EA3A26F61946D8DA4615C98 /* PBXTargetDependency */,
+			);
+			name = JevAXPilotTests;
+			packageProductDependencies = (
+			);
+			productName = JevAXPilotTests;
+			productReference = C7ABF289FDAADD9FD2270B0E /* JevAXPilotTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		F75AEA636F2D311839723C70 /* JevAXPilot */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D14E89505115A89D7BEE9EB2 /* Build configuration list for PBXNativeTarget "JevAXPilot" */;
+			buildPhases = (
+				9075AF8F039B7DBF36609864 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JevAXPilot;
+			packageProductDependencies = (
+			);
+			productName = JevAXPilot;
+			productReference = 04B601C4A8076928D016B9E6 /* JevAXPilot.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C2B88F29471CD0226BECDBA3 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					05A321E63F9BEDFCC29956F6 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					F75AEA636F2D311839723C70 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = B355723C66FA4BBFEE99E2F9 /* Build configuration list for PBXProject "JevAXPilot" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1B60DB51EF28575FC754CAF3;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CDC96411166B4697E9CA8051 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F75AEA636F2D311839723C70 /* JevAXPilot */,
+				05A321E63F9BEDFCC29956F6 /* JevAXPilotTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2E72E1AB65349600A1CABA3E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				205C79835207731F020D93DF /* Calculator.json in Resources */,
+				AEEFA4C760A992FAD57AE541 /* Fixtures in Resources */,
+				6B2C8E56F08C4F6435F57053 /* Notes.json in Resources */,
+				7586DBC58BCDAEC6A7EB481F /* Safari.json in Resources */,
+				726B9FD17E16E7AC05AAA769 /* SystemSettings.json in Resources */,
+				8051D873D833F9C03789B6CB /* TextEdit.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9075AF8F039B7DBF36609864 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8427C2E46CBA6F98971C7E3F /* AXNode.swift in Sources */,
+				034ED7B951A098B35CFEB2C4 /* AXReader.swift in Sources */,
+				90FE266F2569F0C32A553DFA /* AnswerHandler.swift in Sources */,
+				D64AA39590924B4E3B48B864 /* ContentView.swift in Sources */,
+				F9466E17F722C4AD8018D164 /* HUDView.swift in Sources */,
+				503D747E56C3C0AE1179E064 /* JevAXPilotApp.swift in Sources */,
+				3989EA55D039D40F58C914D8 /* JevClient.swift in Sources */,
+				ED7492EE9AB2C0BD1EFA2A4E /* JevTypes.swift in Sources */,
+				A0F51504D483C488772C566C /* Metrics.swift in Sources */,
+				87CEC5FB35044C44CCF676CB /* Pilot.swift in Sources */,
+				3E5CE8CE529FE4B73E939C6E /* StateBuilder.swift in Sources */,
+				AABC4DF49A13A9B972817B22 /* TextCandidates.swift in Sources */,
+				F9D339D196968D22523BAB71 /* TreeFlattener.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9E8BA96FF377C16A19D446AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7E6BA0CFCD1FA3DA9C4C7B02 /* FixtureLoader.swift in Sources */,
+				8BACADB98CB3188E85F5D6C4 /* StateAndAnswerTests.swift in Sources */,
+				069F534269E3F10692D36576 /* TreeFlattenerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9EA3A26F61946D8DA4615C98 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F75AEA636F2D311839723C70 /* JevAXPilot */;
+			targetProxy = 74648BE43D45657DEAABC0A0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		06362C6B94D8724148B0CDF3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.devin.typesafe.JevAXPilotTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JevAXPilot.app/Contents/MacOS/JevAXPilot";
+			};
+			name = Debug;
+		};
+		09DEFC6D88118E646120054A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jev AX Pilot";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSAccessibilityUsageDescription = "Jev AX Pilot reads the Accessibility tree of the frontmost app and presses its controls to carry out the goal you type. No screenshots are taken.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.devin.typesafe.jev-ax-pilot";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6E1EA95AC94591A3F6407EB8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		BA0594731184405F51CFD04D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C1BFA9087F183E4E3A3126DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jev AX Pilot";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSAccessibilityUsageDescription = "Jev AX Pilot reads the Accessibility tree of the frontmost app and presses its controls to carry out the goal you type. No screenshots are taken.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.devin.typesafe.jev-ax-pilot";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E5B1CAE094110791DEED03FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.devin.typesafe.JevAXPilotTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JevAXPilot.app/Contents/MacOS/JevAXPilot";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B355723C66FA4BBFEE99E2F9 /* Build configuration list for PBXProject "JevAXPilot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA0594731184405F51CFD04D /* Debug */,
+				6E1EA95AC94591A3F6407EB8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D14E89505115A89D7BEE9EB2 /* Build configuration list for PBXNativeTarget "JevAXPilot" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09DEFC6D88118E646120054A /* Debug */,
+				C1BFA9087F183E4E3A3126DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E65048F87C04F3158D0BED72 /* Build configuration list for PBXNativeTarget "JevAXPilotTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				06362C6B94D8724148B0CDF3 /* Debug */,
+				E5B1CAE094110791DEED03FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C2B88F29471CD0226BECDBA3 /* Project object */;
+}

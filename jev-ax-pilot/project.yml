@@ -1,0 +1,50 @@
+name: JevAXPilot
+options:
+  bundleIdPrefix: com.devin.typesafe
+  deploymentTarget:
+    macOS: "14.0"
+  xcodeVersion: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    GENERATE_INFOPLIST_FILE: YES
+    SWIFT_STRICT_CONCURRENCY: minimal
+targets:
+  JevAXPilot:
+    type: application
+    platform: macOS
+    sources:
+      - Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.devin.typesafe.jev-ax-pilot
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
+        INFOPLIST_KEY_CFBundleDisplayName: Jev AX Pilot
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+        INFOPLIST_KEY_NSAccessibilityUsageDescription: Jev AX Pilot reads the Accessibility tree of the frontmost app and presses its controls to carry out the goal you type. No screenshots are taken.
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+  JevAXPilotTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+      - path: Tests/Fixtures
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - target: JevAXPilot
+schemes:
+  JevAXPilot:
+    build:
+      targets:
+        JevAXPilot: all
+        JevAXPilotTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - JevAXPilotTests
