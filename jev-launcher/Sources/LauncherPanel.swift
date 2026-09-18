@@ -16,7 +16,7 @@ final class LauncherPanelController: NSObject, NSWindowDelegate {
   static let rowHeight: CGFloat = 56
   static let footerHeight: CGFloat = 40
   static let maxRows = 7
-  static let emptyHeight: CGFloat = 132
+  static let emptyHeight: CGFloat = 76
 
   /// The panel grows and shrinks with its content, like Spotlight, instead of sitting in a fixed box.
   static func height(rows: Int, empty: Bool) -> CGFloat {

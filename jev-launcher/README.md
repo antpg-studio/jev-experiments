@@ -10,7 +10,7 @@ The recording above is one uninterrupted session against the live API: 58 reques
 
 ## Why speed matters
 
-A launcher is judged per keystroke. Anything above ~200 ms feels like lag, which is why nobody puts a general LLM (2–4 s) between the keyboard and the results list. Jev returns a full three-question judgment in about 100 ms on this VM, so the list can re-rank on every character with **no debounce**: the app fires a request per keystroke, tags each with a sequence number, applies whatever comes back newest-first and drops the rest. The footer shows the round-trip live: last / p50 / p95 ms, decision count with stale and failed counts, and the running cost estimate; hovering it shows decisions per second and tokens per decision.
+A launcher is judged per keystroke. Anything above ~200 ms feels like lag, which is why nobody puts a general LLM (2–4 s) between the keyboard and the results list. Jev returns a full three-question judgment in about 100 ms on this VM, so the list can re-rank on every character with **no debounce**: the app fires a request per keystroke, tags each with a sequence number, applies whatever comes back newest-first and drops the rest. The footer shows two live numbers: the last round-trip in ms and the running cost estimate; hovering it shows p50 / p95, decision count and tokens per decision.
 
 ## Measured numbers
 
@@ -38,7 +38,7 @@ Each screenshot is the live panel after typing the query at human speed (~120 ms
 | `dark` | Toggle Dark Mode | 99% | ![dark](docs/query-dark.png) |
 | `wifi off` | Turn Wi-Fi Off (not "Turn Wi-Fi On", which has the same fuzzy score) | 100% | ![wifi off](docs/query-wifi-off.png) |
 | `15% of 240` | `= 36` (code-evaluated; Enter copies it) | 100% | ![calc](docs/query-calc.png) |
-| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (modified 6 h ago) over two older PDFs, a DMG and a PNG | 100% | ![pdf](docs/query-pdf.png) |
+| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (modified 58 min ago) over five older PDFs and a DMG | 100% | ![pdf](docs/query-pdf.png) |
 | `sleep` | Sleep | 99% | ![sleep](docs/query-sleep.png) |
 
 For comparison, the pure fuzzy matcher scores `invoice-2026-08.pdf` and `Q3-Roadmap-Review.pdf` identically on that PDF query and wins the tie by list order; the same fuzzy order is what the panel falls back to when Jev is unreachable (see Failure handling in TESTING.md).
@@ -67,12 +67,12 @@ Candidates are the top 13 fuzzy matches from the local index plus synthetic entr
 **Questions** (all three in one `questions` object):
 
 1. `target` — **Choice** over `c0…cN` plus `none`. "Which entry in `candidates` is the item they intend to open or run? Treat `query` as a possibly incomplete prefix or paraphrase… Match on meaning." The full probability distribution is used, not just the argmax: each row's bar is `probabilities[cK]`.
-2. `action` — **Choice** over `open_app`, `open_file`, `web_search`, `calculate`, `system_toggle`, `run_shortcut`, `unclear`, each with a one-line rubric. Used as a secondary ranking signal (a candidate whose `kind` matches the chosen action gets a boost) and shown in the footer.
+2. `action` — **Choice** over `open_app`, `open_file`, `web_search`, `calculate`, `system_toggle`, `run_shortcut`, `unclear`, each with a one-line rubric. Used as a secondary ranking signal (a candidate whose `kind` matches the chosen action gets a boost).
 3. `ready` — **Noul**. "The launcher is about to run the best-matching candidate the instant the user presses Enter. Is `query` already unambiguous enough for that?" with explicit yes/no criteria. The top row gets the green ↵ badge when this is ≥ 0.6, or when Jev gives one target ≥ 90% probability. The second rule exists because on the PDF query Jev's `ready` hedges at ~0.4 (three PDFs "fit roughly equally" by title) while its `target` distribution is 98–100% on the newest one; a target that certain is, by construction, one where the remaining candidates are not plausible.
 
 **Ranking** is deterministic given the answer: `score = 0.65 · P(target) + 0.20 · P(action matches kind) + 0.15 · fuzzy`. Without an answer (request failed, no key, or nothing back yet) the score is just `fuzzy`, so the panel always has a sensible order and never waits on the network.
 
-**In-flight handling**: every query change increments a sequence number and starts a `Task`. A response is applied only if its sequence is newer than the last one applied; otherwise it is counted as stale in the footer. While a newer request is in flight the previous judgment is kept, dimmed, so the list does not flicker back to fuzzy order between keystrokes.
+**In-flight handling**: every query change increments a sequence number and starts a `Task`. A response is applied only if its sequence is newer than the last one applied; otherwise it is discarded as stale. While a newer request is in flight the previous judgment is kept, dimmed, so the list does not flicker back to fuzzy order between keystrokes.
 
 **Iteration notes.** The `ready` wording went through several rounds against the five queries plus deliberately ambiguous ones, probed with a small `curl` harness outside the app. The first version ("is this unambiguous?") scored 0.3–0.4 even for `dark`. Telling Jev that `candidates` is the complete option set, that `web_search` is only a fallback, and giving one concrete example of a short-but-unambiguous prefix produced this spread with the final wording (one probe each, same candidate sets as the app):
 
