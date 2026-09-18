@@ -1,0 +1,469 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0A3131FD056A9BB77AE2531C /* CalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EC08356D4BB9015E71450EC /* CalculatorTests.swift */; };
+		1CEBFF657F1C9BD8042BE33B /* StatsAndIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */; };
+		2F25A06D065A6FC73ABD5DF5 /* Ranker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */; };
+		5152F52E9FF4C8C1AC4735D1 /* Fuzzy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364AB77D4E5E2C84224EF6D8 /* Fuzzy.swift */; };
+		7422E3AACC95E38E9CAD294C /* JevQuestionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */; };
+		7624E1801292443844BA082F /* JevQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5AE9F9DB8086F755633ACB /* JevQuestions.swift */; };
+		7AEE5718C424116E00571207 /* JevLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA4F2A3387CD6B7EE692C12 /* JevLauncherApp.swift */; };
+		84AA30C3BBE5B1D2AD7F48BA /* Candidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D5C1AB51EC9E299A063CF0 /* Candidate.swift */; };
+		8C8263B1CF8EB2DDB286D370 /* JevClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D7E1A1227797B76B6AB81 /* JevClient.swift */; };
+		B47E380FA12909D19DD56F72 /* LatencyStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA2B0083CA208C66E94437 /* LatencyStats.swift */; };
+		C2F425CB423982628531693B /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E414ABBE8C4B65435AF1DEE /* LauncherView.swift */; };
+		CC4E85F50160876CA6E08C02 /* HotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AE5996EE56BBE0F79713E4 /* HotKey.swift */; };
+		CD888953163671058C582738 /* LauncherPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC611D803571AD8C3726794 /* LauncherPanel.swift */; };
+		D8B05EF6F16144F72EAFBA2A /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11F9739CE18CF22459CEF03 /* Calculator.swift */; };
+		D9B426A897460853DD0863F9 /* LauncherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8691C35182559D9EA1BF1175 /* LauncherModel.swift */; };
+		DFFD9F58A57B977DB52D3D0D /* LocalIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3611FA2E6B7D612B0B19F1 /* LocalIndex.swift */; };
+		F7788AB8E529DF9AC18D6B7D /* RankingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */; };
+		F9198A994AC8E40D74BACD3B /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FAB00F4D64BADE280B59A3 /* Executor.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0EA9934CE47A748A71268ACB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5563A9BADC7A654A11774557 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34C127E4865169DC0BCBCA51;
+			remoteInfo = JevLauncher;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		02A9FD28BE80F28E48D0EEF0 /* JevLauncher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JevLauncher.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BFA2B0083CA208C66E94437 /* LatencyStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyStats.swift; sourceTree = "<group>"; };
+		1CA4F2A3387CD6B7EE692C12 /* JevLauncherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevLauncherApp.swift; sourceTree = "<group>"; };
+		1E1EE11CC567F925116ACF1C /* JevLauncherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JevLauncherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		29D5C1AB51EC9E299A063CF0 /* Candidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Candidate.swift; sourceTree = "<group>"; };
+		2EC611D803571AD8C3726794 /* LauncherPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherPanel.swift; sourceTree = "<group>"; };
+		364AB77D4E5E2C84224EF6D8 /* Fuzzy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fuzzy.swift; sourceTree = "<group>"; };
+		4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RankingTests.swift; sourceTree = "<group>"; };
+		781D7E1A1227797B76B6AB81 /* JevClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevClient.swift; sourceTree = "<group>"; };
+		7E414ABBE8C4B65435AF1DEE /* LauncherView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherView.swift; sourceTree = "<group>"; };
+		85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevQuestionsTests.swift; sourceTree = "<group>"; };
+		8691C35182559D9EA1BF1175 /* LauncherModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherModel.swift; sourceTree = "<group>"; };
+		9C3611FA2E6B7D612B0B19F1 /* LocalIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalIndex.swift; sourceTree = "<group>"; };
+		9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ranker.swift; sourceTree = "<group>"; };
+		9EC08356D4BB9015E71450EC /* CalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTests.swift; sourceTree = "<group>"; };
+		A4AE5996EE56BBE0F79713E4 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
+		B11F9739CE18CF22459CEF03 /* Calculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculator.swift; sourceTree = "<group>"; };
+		B6FAB00F4D64BADE280B59A3 /* Executor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Executor.swift; sourceTree = "<group>"; };
+		CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsAndIndexTests.swift; sourceTree = "<group>"; };
+		CC5AE9F9DB8086F755633ACB /* JevQuestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevQuestions.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		016F95D0677F17C50C9D87B0 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				9EC08356D4BB9015E71450EC /* CalculatorTests.swift */,
+				85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */,
+				4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */,
+				CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		18DB0A24DD04D54254D66D28 = {
+			isa = PBXGroup;
+			children = (
+				EBCB00B73FEE13EE1BFC2029 /* Sources */,
+				016F95D0677F17C50C9D87B0 /* Tests */,
+				D4B3EFDD88CB850E55F52F69 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D4B3EFDD88CB850E55F52F69 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				02A9FD28BE80F28E48D0EEF0 /* JevLauncher.app */,
+				1E1EE11CC567F925116ACF1C /* JevLauncherTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EBCB00B73FEE13EE1BFC2029 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				B11F9739CE18CF22459CEF03 /* Calculator.swift */,
+				29D5C1AB51EC9E299A063CF0 /* Candidate.swift */,
+				B6FAB00F4D64BADE280B59A3 /* Executor.swift */,
+				364AB77D4E5E2C84224EF6D8 /* Fuzzy.swift */,
+				A4AE5996EE56BBE0F79713E4 /* HotKey.swift */,
+				781D7E1A1227797B76B6AB81 /* JevClient.swift */,
+				1CA4F2A3387CD6B7EE692C12 /* JevLauncherApp.swift */,
+				CC5AE9F9DB8086F755633ACB /* JevQuestions.swift */,
+				1BFA2B0083CA208C66E94437 /* LatencyStats.swift */,
+				8691C35182559D9EA1BF1175 /* LauncherModel.swift */,
+				2EC611D803571AD8C3726794 /* LauncherPanel.swift */,
+				7E414ABBE8C4B65435AF1DEE /* LauncherView.swift */,
+				9C3611FA2E6B7D612B0B19F1 /* LocalIndex.swift */,
+				9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		34C127E4865169DC0BCBCA51 /* JevLauncher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 975260E82BABF97B2778C382 /* Build configuration list for PBXNativeTarget "JevLauncher" */;
+			buildPhases = (
+				2EDA236775F784BE317B79C7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JevLauncher;
+			packageProductDependencies = (
+			);
+			productName = JevLauncher;
+			productReference = 02A9FD28BE80F28E48D0EEF0 /* JevLauncher.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D8302BE84E4A12453739CC6D /* JevLauncherTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD3FCDF26A96675CA9131A58 /* Build configuration list for PBXNativeTarget "JevLauncherTests" */;
+			buildPhases = (
+				201E8C7876E2DDD1C8E6665C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7EB661539A270697B3D6467F /* PBXTargetDependency */,
+			);
+			name = JevLauncherTests;
+			packageProductDependencies = (
+			);
+			productName = JevLauncherTests;
+			productReference = 1E1EE11CC567F925116ACF1C /* JevLauncherTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5563A9BADC7A654A11774557 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					34C127E4865169DC0BCBCA51 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					D8302BE84E4A12453739CC6D = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A2B8E35BA2E30A98E5C56FA6 /* Build configuration list for PBXProject "JevLauncher" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 18DB0A24DD04D54254D66D28;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D4B3EFDD88CB850E55F52F69 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				34C127E4865169DC0BCBCA51 /* JevLauncher */,
+				D8302BE84E4A12453739CC6D /* JevLauncherTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		201E8C7876E2DDD1C8E6665C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0A3131FD056A9BB77AE2531C /* CalculatorTests.swift in Sources */,
+				7422E3AACC95E38E9CAD294C /* JevQuestionsTests.swift in Sources */,
+				F7788AB8E529DF9AC18D6B7D /* RankingTests.swift in Sources */,
+				1CEBFF657F1C9BD8042BE33B /* StatsAndIndexTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2EDA236775F784BE317B79C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8B05EF6F16144F72EAFBA2A /* Calculator.swift in Sources */,
+				84AA30C3BBE5B1D2AD7F48BA /* Candidate.swift in Sources */,
+				F9198A994AC8E40D74BACD3B /* Executor.swift in Sources */,
+				5152F52E9FF4C8C1AC4735D1 /* Fuzzy.swift in Sources */,
+				CC4E85F50160876CA6E08C02 /* HotKey.swift in Sources */,
+				8C8263B1CF8EB2DDB286D370 /* JevClient.swift in Sources */,
+				7AEE5718C424116E00571207 /* JevLauncherApp.swift in Sources */,
+				7624E1801292443844BA082F /* JevQuestions.swift in Sources */,
+				B47E380FA12909D19DD56F72 /* LatencyStats.swift in Sources */,
+				D9B426A897460853DD0863F9 /* LauncherModel.swift in Sources */,
+				CD888953163671058C582738 /* LauncherPanel.swift in Sources */,
+				C2F425CB423982628531693B /* LauncherView.swift in Sources */,
+				DFFD9F58A57B977DB52D3D0D /* LocalIndex.swift in Sources */,
+				2F25A06D065A6FC73ABD5DF5 /* Ranker.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7EB661539A270697B3D6467F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34C127E4865169DC0BCBCA51 /* JevLauncher */;
+			targetProxy = 0EA9934CE47A748A71268ACB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		252B524E864BD674F19479A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		82E145260489D2DCDEDC894F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jev Launcher";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Jev Launcher sends Apple Events to System Events and Finder to run system toggles such as Dark Mode, Sleep and Empty Trash.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.devin.typesafe.jev-launcher";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		97E98948C57EC550A22009C9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.devin.typesafe.JevLauncherTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JevLauncher.app/Contents/MacOS/JevLauncher";
+			};
+			name = Release;
+		};
+		A2AC47DC25FF50EE27418E1D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.devin.typesafe.JevLauncherTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/JevLauncher.app/Contents/MacOS/JevLauncher";
+			};
+			name = Debug;
+		};
+		CCB964B3924C80723F07EF21 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F33227B88B8666730D552F52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_KEY_CFBundleDisplayName = "Jev Launcher";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Jev Launcher sends Apple Events to System Events and Finder to run system toggles such as Dark Mode, Sleep and Empty Trash.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.devin.typesafe.jev-launcher";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		975260E82BABF97B2778C382 /* Build configuration list for PBXNativeTarget "JevLauncher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				82E145260489D2DCDEDC894F /* Debug */,
+				F33227B88B8666730D552F52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A2B8E35BA2E30A98E5C56FA6 /* Build configuration list for PBXProject "JevLauncher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCB964B3924C80723F07EF21 /* Debug */,
+				252B524E864BD674F19479A1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AD3FCDF26A96675CA9131A58 /* Build configuration list for PBXNativeTarget "JevLauncherTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2AC47DC25FF50EE27418E1D /* Debug */,
+				97E98948C57EC550A22009C9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5563A9BADC7A654A11774557 /* Project object */;
+}
