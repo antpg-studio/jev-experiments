@@ -48,7 +48,7 @@ node render.mjs --still 6.0 12.5 28.6
 node render.mjs --range 8 11
 ```
 
-Encoding uses `-c:v libx264 -pix_fmt yuv420p -crf 16 -r 30 -movflags +faststart`. The contact sheet is `fps=1,scale=320:-1,tile=6x5`; for a denser check run `ffmpeg -i out/margin-notes.mp4 -vf "fps=2,scale=320:-1,tile=6x10" -frames:v 1 -update 1 sheet.png`.
+Encoding uses `-c:v libx264 -pix_fmt yuv420p -crf 16 -r 30 -movflags +faststart`. The contact sheet is 1920x1080 (`fps=1.21,scale=320:180,tile=6x6`); for a denser check run `ffmpeg -i out/margin-notes.mp4 -vf "fps=2,scale=320:-1,tile=6x10" -frames:v 1 -update 1 sheet.png`.
 
 ## Editing
 

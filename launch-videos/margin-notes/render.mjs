@@ -63,6 +63,6 @@ if (range) process.exit(0);
 const mp4 = resolve(OUT, 'margin-notes.mp4');
 execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', `${framesOut}/%05d.png`,
   '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '16', '-r', String(FPS), '-movflags', '+faststart', mp4], { stdio: 'inherit' });
-execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', mp4, '-vf', 'fps=1,scale=320:-1,tile=6x5', '-frames:v', '1', '-update', '1',
+execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', mp4, '-vf', 'fps=1.21,scale=320:180,tile=6x6', '-frames:v', '1', '-update', '1',
   resolve(OUT, 'contact-sheet.png')], { stdio: 'inherit' });
 console.log(`wrote ${mp4}`);
