@@ -53,7 +53,7 @@ ignored by git; `video` recreates them when missing.
 - `TIMING` every beat: title, UI enter, typing, send, Changes/Computer tab switches, launch,
   observation window in/out, final message, end card.
 - `CAMERA` the camera path over the Devin UI: keys of `{ t, x, y, s, ease }` (UI point at frame
-  center, scale, glide seconds). Full view is `s: 1`; push-ins for the composer and code, and the
+  center, scale, glide seconds). Full view is `s: 1`; the composer hero beat is `s: 2`, the code view `s: 1.4`, and the
   pan that opens the right margin for the inspection window.
 - `INSPECTION` window position, size, stroke, caption position and size, fade and move easing.
 - `FOCUS` the inspection path: `{ t, cx, cy, w, caption }` in normalized Simulator screen

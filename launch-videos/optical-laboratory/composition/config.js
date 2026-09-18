@@ -111,7 +111,7 @@ export const TIMING = {
 // camera holds. At s = 1 the UI fills the frame exactly.
 export const CAMERA = [
   { t: 2.5, x: 960, y: 540, s: 1.0, ease: 0 },             // full session, edge to edge
-  { t: 4.3, x: 770, y: 660, s: 1.28, ease: 1.0 },        // push in on the composer while typing
+  { t: 4.3, x: 480, y: 810, s: 2.0, ease: 1.0 },          // composer hero: 60% of frame width while typing
   { t: 7.5, x: 1234, y: 382, s: 1.4, ease: 0.9 },          // Changes tab and the Swift being written
   { t: 11.6, x: 960, y: 540, s: 1.0, ease: 0.9 },          // Computer tab, Simulator large
   { t: 12.9, x: 1580, y: 540, s: 1.0, ease: 0.9 },        // pan left: margin opens for the inspection window
