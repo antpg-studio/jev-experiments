@@ -4,7 +4,7 @@
 cancel"*, *"sarcastic or passive-aggressive tone"* — and [TypeSafe Jev](https://docs.typesafe.ai)
 judges all 500 emails against that description in ~5.5 s (p50 ≈ 115 ms), labelling and filtering
 the inbox live as answers stream in. Stack labels to AND them. Plus the fixed triage pass:
-**500 emails × 7 judgments = 3,500 judgments in 5.3 s**, re-ranked instantly with sliders, with a
+**500 emails × 7 judgments = 3,500 judgments in 5.3 s**, sorted into a priority queue computed in code, with a
 keyword-rule baseline on screen so you can see where regex fails.
 
 ![Sift — “someone asking for a refund” labelled across 500 emails in 4.9 s](screenshots/inbox-blitz.jpg)
@@ -23,8 +23,8 @@ score) with probabilities in ~100–300 ms. That changes the shape of the soluti
 
 - **All seven questions about one email go in one request.** Extra questions cost tokens, not
   latency. Seven dimensions arrive together in one round-trip.
-- **Judgments are data.** The priority score is computed *in code* from the raw judgments. Move a
-  weight slider and the queue re-sorts in the same frame — no new inference, no re-run.
+- **Judgments are data.** The priority score is computed *in code* from the raw judgments, so
+  changing the weighting re-sorts the queue with no new inference, no re-run.
 - **Confidence is a first-class value.** Category confidence below 0.7 routes the email to a
   "needs human" lane instead of guessing.
 - **Whole-inbox re-triage is cheap.** A full pass over 500 emails is ~5 s and ~$0.03, so changing
@@ -136,7 +136,7 @@ browser (Vite + React 19)  ──/api/triage──▶  node server (tsx)  ──
 - `src/useTriage.ts` — consumes the triage stream, batches UI updates every 50 ms, tracks live p50/p95.
 - `src/useLabels.ts` + `src/lib/labels.ts` — intent labels: queued runs, match threshold, label
   naming, AND-intersection, sort-by-match, histogram summary; pure parts unit-tested.
-- `src/lib/priority.ts` — priority score from raw judgments + slider weights; lane routing
+- `src/lib/priority.ts` — priority score from raw judgments + weights; lane routing
   (priority / needs-human / FYI / spam); pure and unit-tested.
 - `src/lib/rules.ts` — the keyword baseline and agreement/disagreement stats.
 - `src/lib/stats.ts` — percentiles, throughput, token cost.

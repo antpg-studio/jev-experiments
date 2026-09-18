@@ -329,34 +329,6 @@ kbd {
   line-height: 16px;
   color: var(--fg-mute);
 }
-.slider {
-  display: grid;
-  grid-template-columns: 1fr 28px;
-  grid-template-areas:
-    "label value"
-    "input input";
-  align-items: center;
-  gap: 0 6px;
-  padding: 2px 12px 4px;
-  font-size: 13px;
-  color: var(--fg-2);
-}
-.slider > span {
-  grid-area: label;
-}
-.slider b {
-  grid-area: value;
-  font-size: 12px;
-  text-align: right;
-  color: var(--accent);
-}
-.slider input {
-  grid-area: input;
-  width: 100%;
-  height: 16px;
-  margin: 0;
-  accent-color: var(--accent);
-}
 .toggle {
   cursor: pointer;
   gap: 12px;

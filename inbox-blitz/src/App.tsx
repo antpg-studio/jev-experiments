@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { EMAILS } from "./data/emails";
 import type { Category, Email, Judgment, JudgmentResult } from "./lib/types";
 import { SENTIMENT_LEVELS, URGENCY_LEVELS } from "./lib/types";
-import { DEFAULT_WEIGHTS, HUMAN_CONFIDENCE, WEIGHT_LABELS, lane, priority, rank, type Lane, type Weights } from "./lib/priority";
+import { DEFAULT_WEIGHTS, HUMAN_CONFIDENCE, lane, priority, rank, type Lane } from "./lib/priority";
 import { fmtMs, fmtUsd, QUESTIONS_PER_EMAIL } from "./lib/stats";
 import { agreement, classifyRules, DIMENSIONS, disagreements, type Dimension, type RuleVerdict } from "./lib/rules";
 import { useTriage } from "./useTriage";
@@ -58,7 +58,6 @@ export default function App() {
   const { phase, results, errors, stats, meta, fatal } = triage;
 
   const [concurrency, setConcurrency] = useState(12);
-  const [weights, setWeights] = useState<Weights>(DEFAULT_WEIGHTS);
   const [laneFilter, setLaneFilter] = useState<LaneFilter>("all");
   const [rulesOn, setRulesOn] = useState(false);
   const [archived, setArchived] = useState<Set<string>>(new Set());
@@ -99,11 +98,6 @@ export default function App() {
     setLabelFilter([]);
   };
 
-  const updateWeight = (k: keyof Weights, v: number) => {
-    setWeights((w) => ({ ...w, [k]: v }));
-    if (phase === "done") setRerankTick((t) => t + 1);
-  };
-
   useEffect(() => {
     fetch("/api/health")
       .then((r) => r.json())
@@ -121,7 +115,7 @@ export default function App() {
     [results],
   );
 
-  const sorted = useMemo(() => (phase === "done" ? rank(rows, weights) : rows), [rows, weights, phase]);
+  const sorted = useMemo(() => (phase === "done" ? rank(rows, DEFAULT_WEIGHTS) : rows), [rows, phase]);
 
   const done = phase === "done";
   useEffect(() => {
@@ -133,7 +127,7 @@ export default function App() {
     // Only fire on completion; stats are read once at that moment.
   }, [done]);
 
-  // Every re-rank (completion, slider, reset) jumps to the new top of the queue.
+  // Every re-rank (triage or label run completing) jumps to the new top of the queue.
   useEffect(() => {
     if (rerankTick === 0) return;
     if (sorted[0]) setSelectedId(sorted[0].email.id);
@@ -454,30 +448,6 @@ export default function App() {
           </div>
 
           <div className="nav-section">
-            <div className="nav-h">
-              <span>Priority weights</span>
-              <button
-                className="ib sm"
-                title="Reset weights"
-                onClick={() => {
-                  setWeights(DEFAULT_WEIGHTS);
-                  if (phase === "done") setRerankTick((t) => t + 1);
-                }}
-              >
-                <Icon d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
-              </button>
-            </div>
-            <div className="nav-hint">Re-ranks instantly · no inference</div>
-            {(Object.keys(weights) as Array<keyof Weights>).map((k) => (
-              <label key={k} className="slider">
-                <span>{WEIGHT_LABELS[k]}</span>
-                <b>{weights[k]}</b>
-                <input type="range" min={0} max={100} value={weights[k]} onChange={(e) => updateWeight(k, Number(e.target.value))} />
-              </label>
-            ))}
-          </div>
-
-          <div className="nav-section">
             <label className="nav-item toggle">
               <input type="checkbox" checked={rulesOn} onChange={(e) => setRulesOn(e.target.checked)} />
               <span className="lbl">Keyword rules</span>
@@ -572,7 +542,6 @@ export default function App() {
                 row={r}
                 selected={r.email.id === selectedId}
                 onSelect={() => setSelectedId(r.email.id)}
-                weights={weights}
                 rulesOn={rulesOn}
                 error={errors.get(r.email.id)}
                 replyFlag={replyFlag.has(r.email.id)}
@@ -585,7 +554,7 @@ export default function App() {
           </div>
         </section>
 
-        <section className="reader">{selected ? <Preview row={selected} rulesOn={rulesOn} weights={weights} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} labels={labels.labels} /> : null}</section>
+        <section className="reader">{selected ? <Preview row={selected} rulesOn={rulesOn} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} labels={labels.labels} /> : null}</section>
 
         <aside className="rail">
           <span className="rail-ic" style={{ background: "#1a73e8" }}>
@@ -731,7 +700,7 @@ function clock(iso: string): string {
   return `${h}:${m} ${ap}`;
 }
 
-function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, replyFlag, archived, done, labels, filterLabels }: { row: Row; index: number; selected: boolean; onSelect: () => void; weights: Weights; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
+function EmailRow({ row, index, selected, onSelect, rulesOn, error, replyFlag, archived, done, labels, filterLabels }: { row: Row; index: number; selected: boolean; onSelect: () => void; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
   const { email, judgment, result } = row;
   const lastFilter = filterLabels[filterLabels.length - 1];
   const shownLatency = lastFilter ? lastFilter.matches.get(email.id)?.latencyMs : result?.latencyMs;
@@ -743,7 +712,7 @@ function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, rep
   return (
     <div className={`row ${selected ? "selected" : ""} ${judgment ? "judged" : ""} ${dis ? "disagree" : ""} ${archived ? "archived" : ""} ${error ? "errored" : ""} ${unread ? "unread" : ""}`} data-id={email.id} onClick={onSelect} style={style}>
       <span className="cb" />
-      <span className={`star ${judgment && priority(judgment, weights) >= 90 ? "on" : ""}`}>
+      <span className={`star ${judgment && priority(judgment, DEFAULT_WEIGHTS) >= 90 ? "on" : ""}`}>
         <Icon d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z" />
       </span>
       <span className="from">{email.from}</span>
@@ -761,7 +730,7 @@ function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, rep
         <span className="snip"> - {snippet}</span>
       </span>
       <span className="meta">
-        {judgment && done && <span className="prio" title="priority score (computed locally from the judgments)">{priority(judgment, weights).toFixed(0)}</span>}
+        {judgment && done && <span className="prio" title="priority score (computed locally from the judgments)">{priority(judgment, DEFAULT_WEIGHTS).toFixed(0)}</span>}
         {shownLatency !== undefined && <span className="lat" title="request latency, server-measured">{shownLatency.toFixed(0)} ms</span>}
       </span>
       <span className="date">{clock(email.receivedAt)}</span>
@@ -778,7 +747,7 @@ function Prob({ label, p }: { label: string; p: number }) {
   );
 }
 
-function Preview({ row, rulesOn, weights, replyFlag, error, labels }: { row: Row; rulesOn: boolean; weights: Weights; replyFlag: boolean; error?: string; labels: IntentLabel[] }) {
+function Preview({ row, rulesOn, replyFlag, error, labels }: { row: Row; rulesOn: boolean; replyFlag: boolean; error?: string; labels: IntentLabel[] }) {
   const { email, judgment, result, rule } = row;
   const dis = new Set(row.disagree);
   const judgedLabels = labels.filter((l) => l.matches.has(email.id));
@@ -834,7 +803,7 @@ function Preview({ row, rulesOn, weights, replyFlag, error, labels }: { row: Row
           Sift judgments
           {result && (
             <span className="hint">
-              {result.latencyMs.toFixed(0)} ms · {result.inputTokens} tok{result.retries ? ` · ${result.retries} retries` : ""} · priority {judgment ? priority(judgment, weights).toFixed(1) : ""}
+              {result.latencyMs.toFixed(0)} ms · {result.inputTokens} tok{result.retries ? ` · ${result.retries} retries` : ""} · priority {judgment ? priority(judgment, DEFAULT_WEIGHTS).toFixed(1) : ""}
             </span>
           )}
         </div>
