@@ -1,0 +1,29 @@
+{
+  "name": "commit-sentry",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sub-second semantic pre-commit hook: every staged hunk judged by Jev (TypeSafe) in parallel.",
+  "type": "module",
+  "bin": {
+    "commit-sentry": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "demo": "tsx src/cli.ts demo",
+    "demo:mock": "tsx src/cli.ts demo --mock",
+    "start": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint --deny-warnings src test",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.2",
+    "oxlint": "1.19.0",
+    "tsx": "4.23.13",
+    "typescript": "5.9.2",
+    "vitest": "4.1.11"
+  }
+}

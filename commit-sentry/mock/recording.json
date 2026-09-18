@@ -1,0 +1,346 @@
+{
+  "recordedAt": "2026-09-17T21:45:38.351Z",
+  "hunks": {
+    "df411766": {
+      "hunkId": "README.md#0",
+      "risk": 0,
+      "riskLevel": "cosmetic",
+      "riskConfidence": 1,
+      "kind": "docs",
+      "kindConfidence": 1,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.01,
+        "destructive_data_change": 0.01,
+        "changes_public_api_shape": 0.02,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 136.41289700000002,
+      "inputTokens": 1816,
+      "outputTokens": 276,
+      "attempts": 1
+    },
+    "690fdad4": {
+      "hunkId": "src/jobs/cleanup.ts#0",
+      "risk": 3.94,
+      "riskLevel": "dangerous",
+      "riskConfidence": 0.95,
+      "kind": "bugfix",
+      "kindConfidence": 0.56,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.98,
+        "changes_public_api_shape": 0.04,
+        "leftover_debug_or_temp": 0.05,
+        "hardcoded_env_specific_value": 0.03
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 116.50540900000001,
+      "inputTokens": 1819,
+      "outputTokens": 254,
+      "attempts": 1
+    },
+    "b874a5ae": {
+      "hunkId": "src/api/orders.ts#0",
+      "risk": 2.92,
+      "riskLevel": "high",
+      "riskConfidence": 0.93,
+      "kind": "refactor",
+      "kindConfidence": 0.47,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.98,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 120.21428300000002,
+      "inputTokens": 1770,
+      "outputTokens": 253,
+      "attempts": 1
+    },
+    "2d46881b": {
+      "hunkId": "src/api/users.ts#0",
+      "risk": 3.99,
+      "riskLevel": "dangerous",
+      "riskConfidence": 0.99,
+      "kind": "chore",
+      "kindConfidence": 0.99,
+      "findings": {
+        "leaks_secret_or_token": 0.49,
+        "logs_sensitive_data": 0.99,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.05,
+        "leftover_debug_or_temp": 0.48,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 119.80699499999997,
+      "inputTokens": 1831,
+      "outputTokens": 254,
+      "attempts": 1
+    },
+    "5003554f": {
+      "hunkId": "migrations/0007_drop_legacy_email.sql#0",
+      "risk": 3.12,
+      "riskLevel": "high",
+      "riskConfidence": 0.89,
+      "kind": "refactor",
+      "kindConfidence": 0.49,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.98,
+        "changes_public_api_shape": 0.51,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": 1,
+      "latencyMs": 122.08690900000002,
+      "inputTokens": 1800,
+      "outputTokens": 262,
+      "attempts": 1
+    },
+    "4a5dfdc3": {
+      "hunkId": "src/logger.ts#0",
+      "risk": 0.09,
+      "riskLevel": "cosmetic",
+      "riskConfidence": 0.92,
+      "kind": "refactor",
+      "kindConfidence": 0.96,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.01,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.03,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 118.09838100000002,
+      "inputTokens": 1747,
+      "outputTokens": 253,
+      "attempts": 1
+    },
+    "579b925d": {
+      "hunkId": "test/payments.test.ts#0",
+      "risk": 1.04,
+      "riskLevel": "low",
+      "riskConfidence": 0.96,
+      "kind": "test",
+      "kindConfidence": 1,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.99,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.02,
+        "leftover_debug_or_temp": 0.81,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": 1,
+      "latencyMs": 118.26399100000003,
+      "inputTokens": 1875,
+      "outputTokens": 261,
+      "attempts": 1
+    },
+    "ef2fb9fe": {
+      "hunkId": "src/utils/format.ts#0",
+      "risk": 1.09,
+      "riskLevel": "low",
+      "riskConfidence": 0.93,
+      "kind": "bugfix",
+      "kindConfidence": 0.95,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.02,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.11,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 126.29998,
+      "inputTokens": 1776,
+      "outputTokens": 253,
+      "attempts": 1
+    },
+    "93cf471b": {
+      "hunkId": "src/api/orders.ts#1",
+      "risk": 2.76,
+      "riskLevel": "high",
+      "riskConfidence": 0.8,
+      "kind": "feature",
+      "kindConfidence": 0.29,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.03,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.96,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 131.14241199999998,
+      "inputTokens": 1796,
+      "outputTokens": 252,
+      "attempts": 1
+    },
+    "440ca827": {
+      "hunkId": "src/config.ts#0",
+      "risk": 3.97,
+      "riskLevel": "dangerous",
+      "riskConfidence": 0.97,
+      "kind": "config",
+      "kindConfidence": 0.87,
+      "findings": {
+        "leaks_secret_or_token": 0.91,
+        "logs_sensitive_data": 0.05,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.03,
+        "leftover_debug_or_temp": 0.46,
+        "hardcoded_env_specific_value": 0.84
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 139.323124,
+      "inputTokens": 1904,
+      "outputTokens": 261,
+      "attempts": 1
+    },
+    "07eac4b4": {
+      "hunkId": "src/config.ts#1",
+      "risk": 3.32,
+      "riskLevel": "high",
+      "riskConfidence": 0.72,
+      "kind": "config",
+      "kindConfidence": 0.98,
+      "findings": {
+        "leaks_secret_or_token": 0.07,
+        "logs_sensitive_data": 0.04,
+        "disables_or_skips_tests": 0.03,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.05,
+        "leftover_debug_or_temp": 0.74,
+        "hardcoded_env_specific_value": 0.98
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 142.449246,
+      "inputTokens": 1927,
+      "outputTokens": 261,
+      "attempts": 1
+    },
+    "501ef8c2": {
+      "hunkId": "src/auth/session.ts#1",
+      "risk": 3.99,
+      "riskLevel": "dangerous",
+      "riskConfidence": 0.99,
+      "kind": "feature",
+      "kindConfidence": 0.95,
+      "findings": {
+        "leaks_secret_or_token": 0.69,
+        "logs_sensitive_data": 0.03,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.06,
+        "leftover_debug_or_temp": 0.95,
+        "hardcoded_env_specific_value": 0.08
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 145.82226400000002,
+      "inputTokens": 1968,
+      "outputTokens": 269,
+      "attempts": 1
+    },
+    "631085c4": {
+      "hunkId": "package.json#0",
+      "risk": 1.01,
+      "riskLevel": "low",
+      "riskConfidence": 0.99,
+      "kind": "config",
+      "kindConfidence": 0.98,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.01,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.03,
+        "leftover_debug_or_temp": 0.02,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": null,
+      "latencyMs": 190.62843900000001,
+      "inputTokens": 1784,
+      "outputTokens": 252,
+      "attempts": 1
+    },
+    "101906d6": {
+      "hunkId": "src/auth/session.ts#0",
+      "risk": 3.56,
+      "riskLevel": "dangerous",
+      "riskConfidence": 0.64,
+      "kind": "chore",
+      "kindConfidence": 1,
+      "findings": {
+        "leaks_secret_or_token": 0.12,
+        "logs_sensitive_data": 0.98,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.03,
+        "leftover_debug_or_temp": 0.87,
+        "hardcoded_env_specific_value": 0.02
+      },
+      "offendingLineIndex": 0,
+      "latencyMs": 229.85300800000002,
+      "inputTokens": 1791,
+      "outputTokens": 254,
+      "attempts": 1
+    },
+    "1acf57e1": {
+      "hunkId": "src/jobs/cleanup.ts#1",
+      "risk": 2.19,
+      "riskLevel": "moderate",
+      "riskConfidence": 0.64,
+      "kind": "chore",
+      "kindConfidence": 0.94,
+      "findings": {
+        "leaks_secret_or_token": 0.02,
+        "logs_sensitive_data": 0.04,
+        "disables_or_skips_tests": 0.02,
+        "destructive_data_change": 0.02,
+        "changes_public_api_shape": 0.07,
+        "leftover_debug_or_temp": 0.99,
+        "hardcoded_env_specific_value": 0.07
+      },
+      "offendingLineIndex": 1,
+      "latencyMs": 245.978273,
+      "inputTokens": 1914,
+      "outputTokens": 270,
+      "attempts": 1
+    }
+  },
+  "messages": {
+    "chore: tidy up logging and small fixes": {
+      "matchesChanges": 0.02,
+      "quality": 1.02,
+      "qualityLevel": "vague",
+      "qualityConfidence": 0.97,
+      "latencyMs": 121.29223700000006,
+      "inputTokens": 1783,
+      "outputTokens": 36
+    }
+  }
+}
