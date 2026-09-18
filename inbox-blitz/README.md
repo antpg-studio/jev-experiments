@@ -1,10 +1,10 @@
-# Inbox Blitz
+# Sift
 
 **500 emails × 7 judgments = 3,500 judgments in 5.3 s** — a whole support/sales inbox triaged
 with [TypeSafe Jev](https://docs.typesafe.ai) at ~95 emails/sec, then re-ranked instantly when
 the policy changes, with a keyword-rule baseline on screen so you can see where regex fails.
 
-![Inbox Blitz after triaging 500 emails](screenshots/inbox-blitz.jpg)
+![Sift — Gmail-style inbox after triaging 500 emails](screenshots/inbox-blitz.jpg)
 
 ![Live run: triage, re-rank with sliders, keyword-rules comparison](screenshots/inbox-blitz-demo.webp)
 
