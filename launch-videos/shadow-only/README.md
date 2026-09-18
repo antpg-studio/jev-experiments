@@ -2,7 +2,7 @@
 
 A 28.4 second, 1920x1080, 30 fps H.264 launch video. Every scene change is carried by a soft diagonal shadow from an unseen plane; the interface stays spatially calm underneath it.
 
-Story: shadow reveals the headline -> shadow carries in a reconstructed Devin composer -> environment switches Ubuntu to macOS -> the Lumen Drift request types in and sends -> a Devin session shows Swift being written -> a shadow crossing turns the Changes pane into the Computer pane -> genuine Lumen Drift Simulator footage plays at 1x inside an iPhone frame on Devin's Mac desktop -> a second shadow crossing swaps to a later excerpt of the same take while the phone keeps its crop and anchor -> a final shadow settles into the Devin lockup, one capability line and devin.ai.
+Story: shadow reveals the headline -> shadow carries in a reconstructed Devin composer -> environment switches Ubuntu to macOS -> the Lumen Drift request types in and sends -> a Devin session shows Swift being written -> a shadow crossing turns the Changes pane into the Computer pane -> genuine Lumen Drift Simulator footage plays at 1x inside an iPhone frame on Devin's Mac desktop -> a second shadow crossing swaps to a later excerpt of the same take while the phone keeps its crop and anchor -> a final shadow settles into the Devin lockup, and devin.ai.
 
 ## Files
 

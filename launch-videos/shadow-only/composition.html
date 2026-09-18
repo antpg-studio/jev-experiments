@@ -55,7 +55,7 @@ body { font-family: "Inter Tight", "Inter", "Helvetica Neue", sans-serif; color:
 .segmented div.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 
 #composer { background: #fff; border-radius: 28px; box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 20px 60px rgba(20,20,30,0.10), 0 2px 10px rgba(20,20,30,0.05); padding: 34px 36px 26px; }
-#promptText { font-size: 30px; line-height: 1.35; min-height: 124px; font-weight: 400; color: var(--ink); white-space: pre-wrap; }
+#promptText { font-size: 34px; line-height: 1.35; min-height: 124px; font-weight: 400; color: var(--ink); white-space: pre-wrap; }
 #promptText .ph { color: #a3a3a3; }
 #promptText .caret { display: inline-block; width: 3px; height: 34px; background: var(--ink); vertical-align: -6px; margin-left: 2px; }
 #composerBar { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
@@ -161,9 +161,8 @@ body { font-family: "Inter Tight", "Inter", "Helvetica Neue", sans-serif; color:
 
 /* ---------- scene 4: end card ---------- */
 #s4 { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
-#s4 .lockup { width: 620px; }
-#s4 .cap { font-size: 46px; font-weight: 500; letter-spacing: -0.02em; color: var(--ink-2); }
-#s4 .url { font-size: 54px; font-weight: 600; letter-spacing: -0.03em; margin-top: 10px; }
+#s4 .lockup { width: 768px; }
+#s4 .url { font-size: 64px; font-weight: 600; letter-spacing: -0.03em; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -297,7 +296,6 @@ body { font-family: "Inter Tight", "Inter", "Helvetica Neue", sans-serif; color:
   <!-- Scene 4 -->
   <section id="s4" class="hidden">
     <img class="lockup el" src="assets/lockup-black.png" alt="Devin" />
-    <div class="cap el">Build, run and test native Apple apps.</div>
     <div class="url el">devin.ai</div>
   </section>
 
@@ -337,7 +335,7 @@ const T = {
   sweep4: [13.7, 14.8],        // code view to Computer
   clipAStart: 14.25,
   sweep5: [20.0, 21.1],        // clip A to clip B (outer only)
-  clipBStart: 20.55,
+  clipBStart: 20.5,
   sweep6: [26.05, 27.25],      // final shadow, end card
   sessionOut: 26.15,
   endIn: 26.85,
@@ -393,22 +391,20 @@ const CODE = [
 
 const CAMERA = [ // t, scale, focusX, focusY (world coords mapped to frame center)
   { t: 0.0, s: 1.0, x: 960, y: 540 },
-  { t: 5.1, s: 1.0, x: 960, y: 540 },
-  { t: 5.9, s: 1.6, x: 660, y: 790 },
-  { t: 6.75, s: 1.6, x: 660, y: 790 },
-  { t: 7.5, s: 1.0, x: 960, y: 540 },
-  { t: 10.6, s: 1.0, x: 960, y: 540 },
+  { t: 4.0, s: 1.0, x: 960, y: 540 },
+  { t: 5.2, s: 1.12, x: 960, y: 570 },
+  { t: 9.9, s: 1.12, x: 960, y: 570 },
+  { t: 10.7, s: 1.0, x: 960, y: 540 },
   { t: 12.2, s: 1.28, x: 1230, y: 470 },
   { t: 13.0, s: 1.28, x: 1230, y: 470 },
   { t: 13.9, s: 1.0, x: 960, y: 540 },
-  { t: 14.6, s: 1.0, x: 960, y: 540 },
-  { t: 17.6, s: 1.35, x: 1280, y: 516 },
-  { t: 18.4, s: 1.35, x: 1280, y: 516 },
-  { t: 19.9, s: 1.0, x: 960, y: 540 },
-  { t: 21.1, s: 1.0, x: 960, y: 540 },
-  { t: 23.8, s: 1.35, x: 1280, y: 516 },
-  { t: 24.6, s: 1.35, x: 1280, y: 516 },
-  { t: 26.0, s: 1.0, x: 960, y: 540 },
+  { t: 14.4, s: 1.0, x: 960, y: 540 },
+  { t: 17.2, s: 1.38, x: 1236, y: 516 },
+  { t: 19.6, s: 1.40, x: 1236, y: 500 },
+  { t: 21.6, s: 1.40, x: 1236, y: 500 },
+  { t: 24.4, s: 1.38, x: 1236, y: 530 },
+  { t: 25.4, s: 1.38, x: 1236, y: 530 },
+  { t: 26.2, s: 1.0, x: 960, y: 540 },
   { t: 28.4, s: 1.0, x: 960, y: 540 },
 ];
 /* ================================================================== */
