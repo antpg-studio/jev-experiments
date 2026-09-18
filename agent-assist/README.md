@@ -1,6 +1,6 @@
 # Agent Assist
 
-![Agent Assist after a full 8-chat run](screenshots/agent-assist.jpg)
+![Agent Assist console](screenshots/agent-assist.jpg)
 
 ![Live run — 40 messages across 8 concurrent chats](screenshots/agent-assist-demo.webp)
 

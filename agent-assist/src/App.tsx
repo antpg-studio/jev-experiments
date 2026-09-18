@@ -157,35 +157,36 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <Activity size={18} />
+          <Activity size={20} />
           <span>Agent Assist</span>
-          <span className="sub">live copilot · 8 concurrent chats · powered by Jev (TypeSafe)</span>
+          <span className="sub">8 live chats · judged by Jev</span>
         </div>
         {health === null && <span className="pill warn">proxy offline — run `npm run dev`</span>}
         {health && !health.mock && !health.hasKey && <span className="pill warn">TYPESAFE_API_KEY not set</span>}
-        {mock && <span className="pill mock">MOCK MODE — canned answers, not Jev</span>}
+        {mock && <span className="pill mock">Mock mode — canned answers, not Jev</span>}
+
+        <MetricsBar state={state} total={totalMessages()} />
+
         <div className="controls">
           <label className={`toggle ${state.baseline ? "on" : ""}`} title="Grey out the panel for 4 s after each message to simulate a typical LLM copilot. Jev numbers are still real.">
             <input type="checkbox" checked={state.baseline} onChange={() => dispatch({ type: "toggle_baseline" })} />
-            <Timer size={14} />
-            LLM baseline (simulated {(LLM_BASELINE_MS / 1000).toFixed(0)} s)
+            <Timer size={15} />
+            Simulate {(LLM_BASELINE_MS / 1000).toFixed(0)} s LLM
           </label>
           {anyPlaying ? (
             <button className="btn" onClick={stop}>
-              <Pause size={14} /> Stop
+              <Pause size={15} /> Stop
             </button>
           ) : (
             <button className="btn primary" onClick={() => play(state.chats.map((c) => c.id))} disabled={remaining === 0}>
-              <Play size={14} /> Run all 8 conversations
+              <Play size={15} /> Run all 8 chats
             </button>
           )}
-          <button className="btn" onClick={reset} title="Clear all chats and metrics">
-            <RotateCcw size={14} /> Reset
+          <button className="btn icon" onClick={reset} title="Reset all chats and metrics" aria-label="Reset">
+            <RotateCcw size={15} />
           </button>
         </div>
       </header>
-
-      <MetricsBar state={state} total={totalMessages()} />
 
       <main className="columns">
         <Queue chats={state.chats} activeId={active.id} onSelect={(id) => dispatch({ type: "select", chatId: id })} />
