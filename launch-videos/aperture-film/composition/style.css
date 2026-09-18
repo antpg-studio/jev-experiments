@@ -37,10 +37,10 @@ body {
 
 /* Headline on the matte */
 #headline {
-  position: absolute; left: 0; right: 0; top: 306px; text-align: center; will-change: transform, opacity;
+  position: absolute; left: 0; right: 0; top: 366px; text-align: center; will-change: transform, opacity; transform-origin: 50% 50%;
 }
-#headline-logo { height: 132px; display: block; margin: 0 auto -6px; }
-#headline-text { font-size: 92px; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; color: var(--ink); }
+#headline-logo { height: 200px; display: block; margin: 0 auto 6px; }
+#headline-text { font-size: 124px; font-weight: 600; letter-spacing: -0.035em; line-height: 1.05; color: var(--ink); }
 
 /* Aperture and camera */
 #aperture { position: absolute; inset: 0; overflow: hidden; will-change: clip-path; }
@@ -111,15 +111,15 @@ body {
 
 /* ---------- Code ---------- */
 #code { background: var(--page); }
-.editor { position: absolute; left: 160px; top: 90px; width: 1600px; height: 900px; background: var(--surface); border-radius: 22px; border: 1px solid var(--hairline); box-shadow: 0 24px 70px rgba(20,20,20,0.08); overflow: hidden; }
+.editor { position: absolute; left: 110px; top: 20px; width: 1700px; height: 1040px; background: var(--surface); border-radius: 22px; border: 1px solid var(--hairline); box-shadow: 0 24px 70px rgba(20,20,20,0.08); overflow: hidden; }
 .editor-tabs { height: 68px; display: flex; align-items: center; gap: 8px; padding: 0 20px; border-bottom: 1px solid var(--hairline); font-size: 25px; font-weight: 500; color: var(--ink-soft); }
 .editor-tabs .tab { padding: 9px 18px; border-radius: 10px; display: flex; align-items: center; gap: 12px; }
 .editor-tabs .tab.on { background: var(--pill); color: var(--ink); }
 .swift-dot { width: 14px; height: 14px; border-radius: 50%; background: #f05138; display: inline-block; }
-.editor-body { display: flex; padding: 28px 0 0 48px; height: calc(100% - 68px); font-family: "JetBrains Mono", monospace; font-size: 30px; line-height: 44px; letter-spacing: 0; }
+.editor-body { display: flex; padding: 28px 0 0 48px; height: calc(100% - 68px); font-family: "JetBrains Mono", monospace; font-size: 36px; line-height: 52px; letter-spacing: 0; }
 #code-lines { flex: 1; margin: 0; white-space: pre; color: var(--ink); }
 .k { color: #9b2393; } .s { color: #c41a16; } .n { color: #1c00cf; } .t { color: #0b4f79; } .f { color: #326d74; } .c { color: #6c7986; }
-.code-caret { display: inline-block; width: 2px; height: 34px; background: var(--ink); vertical-align: -7px; }
+.code-caret { display: inline-block; width: 2px; height: 40px; background: var(--ink); vertical-align: -8px; }
 
 /* ---------- Session ---------- */
 #session { background: var(--paper); }

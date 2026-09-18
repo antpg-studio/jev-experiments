@@ -50,15 +50,21 @@ window.CONFIG = {
     takeFrameCount: 464,
   },
 
+  // Code editor metrics (px, must match .editor-tabs height, .editor-body padding-top and line-height).
+  editorTabsH: 68,
+  editorPadTop: 28,
+  editorLineH: 52,
+
   // Timeline (seconds). Edit these to retime the film.
   t: {
-    headlineOut: 1.9,
-    apertureToComposer: [1.9, 2.8],
-    cursorIn: 2.6,
-    chipClick: 3.15,
-    menuOpen: 3.2,
-    macClick: 4.05,
-    menuClose: 4.15,
+    headlineOut: 1.5, // headline and lockup alone on the matte until here
+    slitIn: 1.85, // aperture opens as a slit on the environment selector
+    apertureToComposer: [2.4, 3.15],
+    cursorIn: 2.95,
+    chipClick: 3.45,
+    menuOpen: 3.5,
+    macClick: 4.25,
+    menuClose: 4.35,
     typeStart: 4.8,
     typeEnd: 7.2,
     submitPress: 7.45,

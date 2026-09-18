@@ -131,10 +131,10 @@
   const codeTotal = CODE.reduce((n, line) => n + line.reduce((m, tok) => m + tok[1].length, 0), 0);
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
   function renderCode(chars) {
-    let left = chars, html = "", nums = "";
+    let left = chars, html = "", lines = 0;
     for (let i = 0; i < CODE.length; i++) {
       if (left <= 0 && i > 0) break;
-      nums += i + 1 + "\n";
+      lines++;
       for (const [cls, txt] of CODE[i]) {
         if (left <= 0) break;
         const part = txt.slice(0, left);
@@ -145,6 +145,7 @@
       html += "\n";
     }
     $("code-lines").innerHTML = html;
+    return lines;
   }
 
   // ---------- Per-scene state ----------
@@ -227,8 +228,9 @@
     const compR = pad(S(union(R.head, R.box)), 40, 36);
     const compMenuR = pad(S(union(union(R.head, R.box), R.menu)), 40, 36);
     const keys = [
-      [0, slit],
-      [0.4, chipR],
+      [T.slitIn, zeroAt(center(slit))],
+      [T.slitIn + 0.12, slit],
+      [T.slitIn + 0.45, chipR],
       [T.apertureToComposer[0], chipR],
       [T.apertureToComposer[1], compR],
       [T.menuOpen - 0.05, compR],
@@ -243,17 +245,20 @@
 
   function codeState(t) {
     const chars = Math.round(seg(t, T.codeType[0], T.codeType[1], lin) * codeTotal);
-    renderCode(chars);
+    const lines = renderCode(chars);
     const camera = track(
       [
-        [T.codeOpen[0], { x: W / 2, y: H / 2, z: 1.06 }],
-        [T.apertureClose2[1], { x: W / 2 + 12, y: H / 2 + 8, z: 1.12 }],
+        [T.codeOpen[0], { x: W / 2, y: H / 2 - 30, z: 1.0 }],
+        [T.apertureClose2[1], { x: W / 2 + 10, y: H / 2 + 10, z: 1.05 }],
       ],
       t,
       lin
     );
     applyCamera(camera);
-    const ed = pad(rectToScreen(camera, R.editor), 20, 18);
+    // The opening only ever shows the tab bar plus the lines typed so far; it grows with the code.
+    const typedH = (C.editorTabsH + C.editorPadTop + lines * C.editorLineH + 26) * camera.z;
+    const full = rectToScreen(camera, R.editor);
+    const ed = pad({ x: full.x, y: full.y, w: full.w, h: Math.min(full.h, typedH) }, 20, 18);
     const keys = [
       [T.codeOpen[0], zeroAt(center(ed))],
       [T.codeOpen[1], ed],
@@ -382,11 +387,13 @@
   }
 
   function headlineState(t) {
-    const out = seg(t, T.headlineOut, T.headlineOut + 0.55);
-    const inn = seg(t, 0, 0.6);
+    const out = seg(t, T.headlineOut, T.headlineOut + 0.5);
+    const inn = seg(t, 0, 0.7);
+    const drift = 1 + 0.02 * seg(t, 0, T.headlineOut, lin);
     const el = $("headline");
     el.style.opacity = inn * (1 - out);
-    el.style.transform = `translateY(${18 * (1 - inn) - 70 * out}px)`;
+    el.style.transform = `translateY(${24 * (1 - inn) - 60 * out}px) scale(${drift * (1 - 0.04 * out)})`;
+    $("aperture").style.visibility = t < T.slitIn ? "hidden" : "visible";
   }
 
   function apply(t) {
