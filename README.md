@@ -1,4 +1,4 @@
-# jev-experiments
+# Jev experiments
 
 [![Built by Devin](assets/built-by-devin.svg)](https://www.devin.ai)
 
