@@ -50,7 +50,7 @@ export const COPY = {
   // Genuine xcodebuild result captured while building this app on the Devin Mac.
   buildResult: '** BUILD SUCCEEDED **',
   steps: [
-    { at: 13.0, text: 'Launching RTX Afterdark in the iOS Simulator' },
+    { at: 13.2, text: 'Launching RTX Afterdark in the iOS Simulator' },
     { at: 16.2, text: 'Driving: steering, boost and brake respond' },
     { at: 21.9, text: 'Tapping Pause run' },
     { at: 23.0, text: 'Pause menu shows RESUME' },
@@ -60,7 +60,7 @@ export const COPY = {
   sectionLabels: [
     { at: 3.6, text: 'prompt' },
     { at: 8.9, text: 'build' },
-    { at: 12.6, text: 'run in the simulator' },
+    { at: 12.8, text: 'run in the simulator' },
     { at: 21.4, text: 'verify pause and resume' },
     { at: 26.0, text: 'delivered' },
   ],
@@ -97,19 +97,19 @@ export const T = {
   // Caret drops and expands into the product window
   caretToLine: [3.15, 3.7],
   lineToWindow: [3.6, 4.35],
-  uiIn: [4.2, 4.8],
+  uiIn: [4.05, 4.5],
   // Prompt
   promptType: [4.9, 7.9],
   cursorToSend: [8.0, 8.55],
   sendClick: 8.6,
   // Build
-  planIn: 9.1,
-  editorIn: [9.2, 9.7],
-  codeType: [9.7, 12.0],
-  buildResultIn: 12.1,
+  planIn: 9.0,
+  editorIn: [8.95, 9.45],
+  codeType: [9.7, 11.8],
+  buildResultIn: 11.9,
   // Run
-  computerIn: [12.6, 13.1],
-  footageStart: 12.8,
+  computerIn: [12.8, 13.3],
+  footageStart: 13.0,
   // Result
   resultIn: 26.1,
   windowToLine: [27.0, 27.55],
@@ -122,13 +122,12 @@ export const T = {
 export const CAMERA = [
   [0.0, 960, 540, 1.0],
   [4.8, 960, 540, 1.0],
-  [5.6, 807, 665, 1.32],   // composer while typing
-  [7.9, 807, 665, 1.32],
-  [8.7, 960, 540, 1.0],
-  [9.6, 960, 540, 1.0],
-  [10.4, 1090, 600, 1.28], // editor while code types
-  [12.2, 1090, 600, 1.28],
-  [12.9, 960, 540, 1.0],
+  [6.2, 960, 620, 1.18],   // slow push into the home composer while typing
+  [8.7, 960, 620, 1.18],
+  [9.8, 1270, 577, 1.5],   // Swift editor fills the frame while code types
+  [11.7, 1270, 577, 1.5],
+  [12.2, 1270, 665, 1.5],  // settle on the build result line
+  [12.8, 1270, 665, 1.5],
   [13.9, 1134, 590, 1.36], // simulator running
   [21.4, 1134, 590, 1.36],
   [22.2, 1247, 600, 1.62], // pause menu

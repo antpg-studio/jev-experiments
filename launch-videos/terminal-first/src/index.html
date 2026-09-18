@@ -15,8 +15,8 @@
   .hidden { opacity: 0; }
 
   /* Opening */
-  #opening { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 64px; }
-  #openLogo { width: 300px; }
+  #opening { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 72px; }
+  #openLogo { width: 560px; }
   #headline { position: relative; font-size: 104px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.05; white-space: nowrap; }
   #headline .ghost { visibility: hidden; }
   #headline .typed { position: absolute; left: 0; top: 0; white-space: nowrap; }
@@ -33,52 +33,64 @@
   #win { position: absolute; left: 80px; top: 100px; width: 1760px; height: 940px; border-radius: 18px; background: var(--panel); border: 1px solid var(--lineStrong); box-sizing: border-box; overflow: hidden; box-shadow: 0 40px 120px rgba(0,0,0,0.6); }
   #left { position: absolute; left: 0; top: 0; width: 620px; height: 100%; border-right: 1px solid var(--line); box-sizing: border-box; }
   #right { position: absolute; left: 620px; top: 0; width: 1140px; height: 100%; }
-  .bar { position: absolute; left: 0; top: 0; right: 0; height: 60px; display: flex; align-items: center; padding: 0 22px; gap: 14px; font-size: 18px; color: var(--text); box-sizing: border-box; }
-  .bar .title { font-weight: 500; letter-spacing: -0.01em; }
-  .chip { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 8px; background: rgba(123,108,255,0.16); color: var(--accentSoft); font-weight: 500; font-size: 17px; }
-  .ico { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .bar { position: absolute; left: 0; top: 0; right: 0; height: 68px; display: flex; align-items: center; padding: 0 22px; gap: 14px; font-size: 22px; color: var(--text); box-sizing: border-box; }
+  .bar .title { font-weight: 500; letter-spacing: -0.01em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar .ico { flex: none; }
+  .chip { flex: none; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 9px; background: rgba(123,108,255,0.16); color: var(--accentSoft); font-weight: 500; font-size: 20px; }
+  .ico { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
   .tabs { display: flex; gap: 6px; align-items: center; }
-  .tab { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 10px; color: var(--muted); font-size: 18px; }
+  .tab { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border-radius: 10px; color: var(--muted); font-size: 22px; }
   .tab.on { background: rgba(255,255,255,0.08); color: var(--text); }
 
   /* Chat */
-  #chat { position: absolute; left: 24px; right: 24px; top: 76px; bottom: 206px; display: flex; flex-direction: column; gap: 22px; font-size: 19px; line-height: 1.4; color: var(--text); }
+  #chat { position: absolute; left: 24px; right: 24px; top: 86px; bottom: 206px; display: flex; flex-direction: column; gap: 20px; font-size: 22px; line-height: 1.35; color: var(--text); }
   .msg { opacity: 0; transform: translateY(14px); }
   .user { align-self: flex-end; max-width: 520px; background: rgba(255,255,255,0.07); border-radius: 16px; padding: 14px 18px; }
-  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .steps { display: flex; flex-direction: column; gap: 12px; }
   .step { display: flex; align-items: center; gap: 12px; color: var(--muted); }
   .step .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex: none; }
   .step.live { color: var(--text); }
   .step.live .dot { background: var(--accentSoft); box-shadow: 0 0 0 6px rgba(123,108,255,0.18); }
   .result { display: flex; gap: 12px; align-items: flex-start; }
-  .result img { width: 26px; height: 26px; margin-top: 2px; }
+  .result img { width: 30px; height: 30px; margin-top: 1px; }
 
   /* Composer */
-  #composer { position: absolute; left: 24px; right: 24px; bottom: 24px; height: 160px; border-radius: 22px; background: var(--raised); border: 1px solid var(--line); box-sizing: border-box; padding: 20px 22px; font-size: 20px; line-height: 1.4; }
-  #promptText { min-height: 58px; color: var(--text); white-space: pre-wrap; }
-  #promptText.placeholder { color: var(--faint); }
-  #composerRow { position: absolute; left: 22px; right: 22px; bottom: 16px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 17px; }
-  #envChip { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 9px; background: rgba(123,108,255,0.16); color: var(--accentSoft); font-weight: 500; }
-  #send { margin-left: auto; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; color: var(--text); }
-  #send.armed { background: var(--text); color: #111; }
+  #composer { position: absolute; left: 24px; right: 24px; bottom: 24px; height: 160px; border-radius: 22px; background: var(--raised); border: 1px solid var(--line); box-sizing: border-box; padding: 20px 22px; font-size: 22px; line-height: 1.35; }
+  #promptText { min-height: 58px; color: var(--faint); white-space: pre-wrap; }
+  #composerRow { position: absolute; left: 22px; right: 22px; bottom: 16px; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 20px; }
+  .envChip { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border-radius: 9px; background: rgba(123,108,255,0.16); color: var(--accentSoft); font-weight: 500; }
+  .send { margin-left: auto; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center; color: var(--text); }
+  .send.armed { background: var(--text); color: #111; }
+
+  /* Home: the new-session composer is the hero before the session view exists */
+  #home { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; }
+  #homeMark { width: 64px; height: 64px; }
+  #homeComposer { position: relative; width: 1100px; height: 260px; border-radius: 28px; background: var(--raised); border: 1px solid var(--lineStrong); box-sizing: border-box; padding: 28px 30px; font-size: 36px; line-height: 1.35; letter-spacing: -0.01em; box-shadow: 0 30px 90px rgba(0,0,0,0.45); }
+  #homePrompt { color: var(--text); white-space: pre-wrap; }
+  #homePrompt.placeholder { color: var(--faint); }
+  #homeRow { position: absolute; left: 28px; right: 28px; bottom: 22px; display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 22px; }
+  #homeRow .ico { width: 26px; height: 26px; }
+  #homeRow .envChip { height: 42px; padding: 0 14px; border-radius: 11px; }
+  #homeRow .send { width: 54px; height: 54px; }
+  #homeRow .send .ico { width: 28px; height: 28px; }
 
   /* Editor */
-  #editor { position: absolute; left: 20px; right: 20px; top: 76px; bottom: 20px; border-radius: 14px; background: #121215; border: 1px solid var(--line); box-sizing: border-box; overflow: hidden; }
-  #editorHead { height: 48px; display: flex; align-items: center; padding: 0 18px; gap: 10px; font-size: 17px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  #editor { position: absolute; left: 20px; right: 20px; top: 84px; bottom: 20px; border-radius: 14px; background: #121215; border: 1px solid var(--line); box-sizing: border-box; overflow: hidden; }
+  #editorHead { height: 56px; display: flex; align-items: center; padding: 0 20px; gap: 10px; font-size: 22px; color: var(--muted); border-bottom: 1px solid var(--line); }
   #editorHead b { color: var(--text); font-weight: 500; }
-  #code { padding: 22px 0; font-family: var(--mono); font-size: 22px; line-height: 36px; color: #d9d9de; font-variant-ligatures: none; }
-  .ln { display: flex; height: 36px; white-space: pre; }
-  .ln .n { width: 78px; text-align: right; padding-right: 26px; color: rgba(255,255,255,0.22); flex: none; }
+  #code { padding: 22px 0; font-family: var(--mono); font-size: 25px; line-height: 38px; color: #d9d9de; font-variant-ligatures: none; }
+  .ln { display: flex; height: 38px; white-space: pre; }
+  .ln .n { width: 92px; text-align: right; padding-right: 30px; color: rgba(255,255,255,0.22); flex: none; }
   .kw { color: #ff7ab2; } .fn { color: #7fd6ff; } .en { color: #c8a5ff; } .num { color: #ffd479; }
-  .ccaret { display: inline-block; width: 11px; height: 26px; background: #d9d9de; vertical-align: -5px; }
-  #buildBar { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; border-top: 1px solid var(--line); display: flex; align-items: center; padding: 0 18px; gap: 14px; font-family: var(--mono); font-size: 18px; color: var(--muted); background: #121215; }
+  .ccaret { display: inline-block; width: 13px; height: 29px; background: #d9d9de; vertical-align: -5px; }
+  #buildBar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; border-top: 1px solid var(--line); display: flex; align-items: center; padding: 0 20px; gap: 14px; font-family: var(--mono); font-size: 24px; color: var(--muted); background: #121215; }
   #buildBar .ok { margin-left: auto; color: var(--green); }
 
   /* Computer pane: Mac desktop with Simulator */
-  #computer { position: absolute; left: 20px; right: 20px; top: 76px; bottom: 20px; border-radius: 14px; overflow: hidden; background: radial-gradient(900px 600px at 30% 0%, #2a2340 0%, #14131c 55%, #0c0c10 100%); border: 1px solid var(--line); box-sizing: border-box; }
-  #menubar { position: absolute; left: 0; right: 0; top: 0; height: 30px; background: rgba(0,0,0,0.35); display: flex; align-items: center; gap: 20px; padding: 0 16px; font-size: 14px; color: rgba(255,255,255,0.8); }
+  #computer { position: absolute; left: 20px; right: 20px; top: 84px; bottom: 20px; border-radius: 14px; overflow: hidden; background: radial-gradient(900px 600px at 30% 0%, #2a2340 0%, #14131c 55%, #0c0c10 100%); border: 1px solid var(--line); box-sizing: border-box; }
+  #menubar { position: absolute; left: 0; right: 0; top: 0; height: 34px; background: rgba(0,0,0,0.35); display: flex; align-items: center; gap: 22px; padding: 0 18px; font-size: 18px; color: rgba(255,255,255,0.8); }
   #menubar b { font-weight: 600; }
-  #simTitle { position: absolute; left: 50%; transform: translateX(-50%); top: 90px; height: 40px; padding: 0 16px; border-radius: 12px; background: rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; font-size: 15px; color: rgba(255,255,255,0.85); }
+  #simTitle { position: absolute; left: 50%; transform: translateX(-50%); top: 88px; height: 44px; padding: 0 18px; border-radius: 12px; background: rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; font-size: 18px; color: rgba(255,255,255,0.85); }
   #simTitle .lights { display: flex; gap: 7px; } #simTitle .lights i { width: 11px; height: 11px; border-radius: 50%; display: block; }
   #phone { position: absolute; left: 50%; top: 50%; width: 1052px; height: 508px; transform: translate(-50%, -46%); border-radius: 76px; background: #0b0b0d; box-shadow: 0 0 0 2px #2a2a2e, 0 0 0 4px #0b0b0d, 0 50px 120px rgba(0,0,0,0.7); }
   #screen { position: absolute; left: 22px; top: 22px; width: 1008px; height: 464px; border-radius: 56px; overflow: hidden; background: #000; }
@@ -111,11 +123,22 @@
           <div class="msg result" id="mResult"><img id="resultAvatar" alt="" /><span id="resultText"></span></div>
         </div>
         <div id="composer">
-          <div id="promptText" class="placeholder"></div>
+          <div id="promptText"></div>
           <div id="composerRow">
             <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            <span id="envChip"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg><span id="envText"></span></span>
-            <span id="send"><svg class="ico" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
+            <span class="envChip"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg><span class="envText"></span></span>
+            <span class="send"><svg class="ico" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
+          </div>
+        </div>
+      </div>
+      <div id="home">
+        <img id="homeMark" alt="" />
+        <div id="homeComposer">
+          <div id="homePrompt" class="placeholder"></div>
+          <div id="homeRow">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="envChip"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg><span class="envText"></span></span>
+            <span class="send" id="homeSend"><svg class="ico" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
           </div>
         </div>
       </div>
@@ -130,7 +153,7 @@
         <div id="editor" class="hidden">
           <div id="editorHead"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span>Sources /</span><b id="fileName"></b></div>
           <div id="code"></div>
-          <div id="buildBar"><span id="buildCmd">xcodebuild -scheme RTXAfterdark -sdk iphonesimulator build</span><span class="ok" id="buildOk"></span></div>
+          <div id="buildBar"><span id="buildCmd">xcodebuild</span><span class="ok" id="buildOk"></span></div>
         </div>
         <div id="computer" class="hidden">
           <div id="menubar"><span>&#63743;</span><b>Simulator</b><span>File</span><span>Edit</span><span>Device</span><span>I/O</span><span>Features</span><span>Debug</span><span>Window</span><span>Help</span></div>
@@ -183,7 +206,9 @@ $('resultAvatar').src = MEDIA.avatar;
 $('headGhost').textContent = COPY.headline;
 $('sessionTitle').textContent = COPY.sessionTitle;
 $('chipText').textContent = COPY.environment;
-$('envText').textContent = COPY.environment;
+for (const el of document.querySelectorAll('.envText')) el.textContent = COPY.environment;
+$('homeMark').src = MEDIA.avatar;
+$('promptText').textContent = COPY.composerPlaceholder;
 $('fileName').textContent = COPY.buildFile;
 $('buildOk').textContent = COPY.buildResult;
 $('cta').textContent = COPY.cta;
@@ -244,9 +269,10 @@ function camera(t) {
   return CAMERA[CAMERA.length - 1].slice(1);
 }
 
-// Stage-space positions used by the cursor
-const SEND_POS = [80 + 620 - 24 - 22 - 20, 100 + 940 - 24 - 16 - 20];
-const PROMPT_END_POS = [80 + 24 + 22 + 380, 100 + 940 - 24 - 160 + 20 + 58];
+// Stage-space positions used by the cursor (home composer: 1100x260 centered in the window, below the mark)
+const HOME_C = { x: 80 + (1760 - 1100) / 2, y: 100 + (940 - (64 + 44 + 260)) / 2 + 64 + 44 };
+const SEND_POS = [HOME_C.x + 1100 - 28 - 27, HOME_C.y + 260 - 22 - 27];
+const PROMPT_END_POS = [HOME_C.x + 30 + 560, HOME_C.y + 28 + 36 + 60];
 
 const footageImg = $('footage');
 const footageFrameFile = (i) => MEDIA.footageFramesDir + '/' + MEDIA.footageFramePattern.replace('%05d', String(i + 1).padStart(5, '0'));
@@ -325,7 +351,12 @@ window.seek = async function seek(t) {
   const winVisible = t >= T.uiIn[0] && t < T.windowToLine[0];
   win.style.opacity = winVisible ? uiIn : 0;
   const contentOut = 1 - prog(t, [T.windowToLine[0] - 0.3, T.windowToLine[0]], easeInOut);
-  $('left').style.opacity = contentOut; $('right').style.opacity = contentOut;
+  const sessionIn = prog(t, [T.sendClick + 0.2, T.sendClick + 0.65], easeOut);
+  $('left').style.opacity = Math.min(contentOut, sessionIn); $('right').style.opacity = Math.min(contentOut, sessionIn);
+  const home = $('home');
+  const homeOut = prog(t, [T.sendClick + 0.05, T.sendClick + 0.4], easeInOut);
+  home.style.opacity = t < T.sendClick + 0.4 ? 1 - homeOut : 0;
+  home.style.transform = `scale(${lerp(1, 0.94, homeOut)})`;
 
   // Section label
   const label = $('label');
@@ -336,13 +367,13 @@ window.seek = async function seek(t) {
     const n = Math.floor(x * lab.text.length);
     $('labelText').textContent = lab.text.slice(0, n);
     // Captions live outside the product: hide them while the camera is pushed into the UI.
-    const zoomFade = clamp01((1.1 - s) / 0.1);
+    const zoomFade = clamp01((1.28 - s) / 0.1);
     label.style.opacity = Math.min(1, uiIn, zoomFade, 1 - prog(t, [T.windowToLine[0], T.windowToLine[0] + 0.2], easeOut));
     label.querySelector('.caret').style.opacity = x >= 1 ? blink(t - lab.at, 0.9) : 1;
   } else label.style.opacity = 0;
 
-  // Composer + prompt
-  const promptEl = $('promptText');
+  // Home composer + prompt
+  const promptEl = $('homePrompt');
   const pChars = Math.floor(prog(t, T.promptType, (x) => x) * COPY.prompt.length);
   const sent = t >= T.sendClick;
   if (sent || pChars === 0) {
@@ -355,9 +386,9 @@ window.seek = async function seek(t) {
     c.style.opacity = pChars >= COPY.prompt.length ? blink(t - T.promptType[1], 0.9) : 1;
     promptEl.appendChild(c);
   }
-  $('send').classList.toggle('armed', pChars > 0 && !sent);
+  $('homeSend').classList.toggle('armed', pChars > 0 && !sent);
   const clickScale = t >= T.sendClick && t < T.sendClick + 0.25 ? lerp(0.86, 1, easeOut(clamp01((t - T.sendClick) / 0.25))) : 1;
-  $('send').style.transform = `scale(${clickScale})`;
+  $('homeSend').style.transform = `scale(${clickScale})`;
 
   // Cursor
   const cursor = $('cursor');
