@@ -49,13 +49,12 @@ Everything editable is in `config.js`:
 - `fps`, `width`, `height`, `duration`
 - `headline`, `endUrl`, `captions` (text and the time each one appears)
 - `t.*` stage timings (title, layout in, environment pick, typing, send, building, running, result, hero, end)
+- `t.zooms`: the three camera push-ins on the primary Simulator (play, pause, resume), each `[in start, in end, out start, out end]`
+- `layout`: primary display geometry, bay geometry as small status tiles during the request and full bays afterwards, and `zoomPhoneWidth` (fraction of the frame the phone spans when pushed in)
 - `colors` (sampled from the Devin dark UI)
 - `clips` (frame folders, frame counts, device kind)
 - `sessions.*` per app: typed prompt, Devin reply, timeline steps, file name and Swift code shown in the Changes tab
-- `environments`, `mac.finderMenu`, `bayStatus`
-
-Panel geometry (`L.primary`, `L.bay1`, `L.bay2`, camera push target) is at the top of the
-script in `index.html`.
+- `environments`, `mac.*` menus, `bayStatus`, per-app `blurb` shown on the request tiles
 
 ## Output
 

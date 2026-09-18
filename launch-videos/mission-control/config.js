@@ -42,40 +42,57 @@ window.CONFIG = {
     aster: { dir: "frames/aster", frames: 450, w: 1400, h: 900, sourceStart: 6.5 },
   },
 
+  // Panel geometry in stage pixels. The primary display stays put; bays start as
+  // small status tiles during the request and expand to full bays when it is sent.
+  layout: {
+    primary: { x: 60, y: 52, w: 1240, h: 880 },
+    bayFull: [{ x: 1330, y: 52, w: 530, h: 412 }, { x: 1330, y: 520, w: 530, h: 412 }],
+    bayTile: [{ x: 1330, y: 52, w: 530, h: 124 }, { x: 1330, y: 204, w: 530, h: 124 }],
+    // Push-in on the Simulator: how much of the frame width the phone should span
+    zoomPhoneWidth: 0.78,
+    zoomTopInset: 6,        // primary panel top edge while pushed in
+    zoomBottomLimit: 984,   // phone bottom must stay above the caption
+  },
+
   // Stage boundaries. The primary display and both bays move through them together.
   t: {
     titleIn: 0.0,
     titleOut: 2.5,
     layoutIn: 2.7,
-    request: 3.3,     // camera pushes into the composer
-    envOpen: 3.5,     // environment menu opens
+    envOpen: 3.5,     // environment menu opens in the composer
     envPick: 4.15,    // cursor clicks macOS
-    typeStart: 4.6,   // typing the request into the composer
-    send: 6.95,       // request leaves the composer and appears in the chat
+    typeStart: 4.6,   // typing the request
+    send: 6.95,       // request sent, home composer becomes the session view
     building: 7.9,    // Changes tab, Swift being written
     running: 11.9,    // Computer tab, real recordings start
-    result: 22.0,     // Devin reports the verified result
-    hero: 24.2,       // bays consolidate away, primary becomes the hero
-    endIn: 26.0,      // end card starts crossfading in
+    result: 23.4,     // Devin reports the verified result
+    hero: 24.0,       // bays consolidate away, primary becomes the hero
+    endIn: 26.3,      // end card starts crossfading in
     end: 28.0,
+    // Camera push-ins on the primary Simulator: [in start, in end, out start, out end]
+    zooms: [
+      [12.4, 13.3, 15.4, 16.3],   // playing
+      [17.6, 18.3, 19.4, 20.1],   // pause (pause menu appears at 18.4)
+      [20.7, 21.4, 23.2, 24.3],   // resume (driving again at 21.4)
+    ],
   },
 
-  // Header caption above the primary display. Each entry replaces the previous one.
+  // Caption under the primary display. Each entry replaces the previous one.
   captions: [
     { t: 3.3,  text: "Pick macOS, ask for a native iPhone game" },
     { t: 7.9,  text: "Devin writes the Swift" },
     { t: 11.9, text: "Devin plays it in the iOS Simulator" },
-    { t: 18.3, text: "Pauses the run" },
-    { t: 21.3, text: "Resumes and verifies it" },
+    { t: 18.1, text: "Pauses the run" },
+    { t: 21.1, text: "Resumes and verifies it" },
     { t: 24.2, text: "Built, run and verified on a Mac in Devin Cloud" },
   ],
 
-  // Short stage word shown on each bay header, in a fixed position.
+  // Short stage word shown on each bay, in a fixed position.
   bayStatus: [
-    { t: 3.3,  text: "Request" },
+    { t: 2.7,  text: "Request" },
     { t: 7.9,  text: "Building" },
     { t: 11.9, text: "Running" },
-    { t: 22.0, text: "Verified" },
+    { t: 23.4, text: "Verified" },
   ],
 
   headline: "macOS. Now in Devin Cloud.",
@@ -84,13 +101,12 @@ window.CONFIG = {
 
   sessions: {
     rtx: {
-      title: "Build RTX Afterdark",
       app: "RTX Afterdark",
       device: "iphone-landscape",
       clip: "rtx",
       prompt: "Build RTX Afterdark, a night driving arcade game for iPhone, run it in the Simulator and verify pause and resume",
-      reply: "On it. Building a landscape night driver in SwiftUI and Core Graphics, then running it in the iPhone 17 Simulator.",
-      finalReply: "RTX Afterdark is running in the Simulator. Pause and resume verified.",
+      reply: "On it. Building it in SwiftUI, then running it in the iPhone 17 Simulator.",
+      finalReply: "RTX Afterdark runs in the Simulator. Pause and resume verified.",
       file: "GameSession.swift",
       code: [
         "final class GameSession: ObservableObject {",
@@ -100,10 +116,12 @@ window.CONFIG = {
         "    private let audio = EngineAudio()",
         "",
         "    func pause() {",
-        "        guard race.phase == .racing else { return }",
+        "        guard race.phase == .racing",
+        "        else { return }",
         "        clearControls()",
         "        race.phase = .paused",
-        "        audio.update(enabled: false, speed: 0, boosting: false)",
+        "        audio.update(enabled: false,",
+        "                     speed: 0)",
         "    }",
         "",
         "    func resume() {",
@@ -117,20 +135,18 @@ window.CONFIG = {
         { t: 8.8,  text: "Created RaceEngine.swift", diff: "+212" },
         { t: 9.5,  text: "Created RoadRenderer.swift", diff: "+164" },
         { t: 10.2, text: "Created GameSession.swift", diff: "+131" },
-        { t: 11.0, text: "xcodebuild succeeded for iPhone 17 Simulator" },
-        { t: 12.1, text: "Launched RTX Afterdark in the Simulator" },
-        { t: 13.1, text: "Tapped Start Run, holding steer and boost" },
-        { t: 18.6, text: "Tapped pause, pause menu visible" },
-        { t: 21.6, text: "Tapped Resume, driving continues" },
+        { t: 11.0, text: "Built for the iPhone 17 Simulator" },
+        { t: 12.1, text: "Launched it in the Simulator" },
+        { t: 13.1, text: "Tapped Start Run and drove" },
+        { t: 18.5, text: "Tapped pause, menu shown" },
+        { t: 21.5, text: "Tapped Resume, driving again" },
       ],
     },
     lumen: {
-      title: "Build Lumen Drift",
       app: "Lumen Drift",
+      blurb: "Native iPhone arcade game",
       device: "iphone-portrait",
       clip: "lumen",
-      prompt: "Build Lumen Drift, a glowing lane dodging arcade game for iPhone, and play it in the Simulator",
-      reply: "Building it in Xcode for the iPhone 17 Simulator.",
       file: "GameScene.swift",
       code: [
         "final class GameScene: SKScene {",
@@ -139,20 +155,16 @@ window.CONFIG = {
         "",
         "    func shift(to next: Int) {",
         "        lane = clamp(next, 0, 2)",
-        "        ship.run(.moveTo(",
-        "            x: laneX(lane),",
-        "            duration: 0.12))",
+        "        ship.run(.moveTo(x: laneX(lane),",
+        "                         duration: 0.12))",
         "    }",
-        "}",
       ],
     },
     aster: {
-      title: "Build Aster",
       app: "Aster",
+      blurb: "Native macOS orbital lab",
       device: "mac",
       clip: "aster",
-      prompt: "Build Aster, an orbital mechanics lab for macOS, and run it on the Mac",
-      reply: "Building a native macOS app with SwiftUI.",
       file: "MissionController.swift",
       code: [
         "final class MissionController {",
@@ -172,9 +184,6 @@ window.CONFIG = {
   mac: {
     finderMenu: ["Finder", "File", "Edit", "View", "Go", "Window", "Help"],
     simulatorMenu: ["Simulator", "File", "Edit", "Device", "I/O", "Features", "Debug", "Window", "Help"],
-    asterMenu: ["Aster", "File", "Edit", "View", "Window", "Help"],
     clock: "Thu 17 Sep  11:41 PM",
-    simulatorDevice: "iPhone 17",
-    simulatorOS: "iOS 26.5",
   },
 };
