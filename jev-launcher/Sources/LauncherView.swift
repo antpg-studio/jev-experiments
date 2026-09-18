@@ -241,41 +241,24 @@ struct EmptyHint: View {
   private let examples = ["dark", "wifi off", "15% of 240", "the pdf I just downloaded", "sleep"]
 
   var body: some View {
-    VStack(spacing: 18) {
-      Text("Type a few characters of what you mean. Jev picks the target on every keystroke.")
-        .font(.system(size: 13))
-        .foregroundStyle(Theme.dim)
-        .multilineTextAlignment(.center)
-      HStack(spacing: 8) {
-        ForEach(examples, id: \.self) { example in
-          Text(example)
-            .font(.system(size: 12, weight: .medium, design: .monospaced))
-            .foregroundStyle(Theme.text)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(Theme.surface, in: Capsule())
-            .onTapGesture { model.query = example }
-        }
+    HStack(spacing: 8) {
+      ForEach(examples, id: \.self) { example in
+        Text(example)
+          .font(.system(size: 12, weight: .medium, design: .monospaced))
+          .foregroundStyle(Theme.dim)
+          .padding(.horizontal, 11)
+          .padding(.vertical, 6)
+          .background(Theme.surface, in: Capsule())
+          .onTapGesture { model.query = example }
       }
-      Group {
-        if !model.hasAPIKey {
-          Text("TYPESAFE_API_KEY is not set — local matching only")
-            .foregroundStyle(Theme.danger)
-        } else if let status = model.status {
-          Text(status)
-        } else {
-          Text("\(model.indexSize) apps, files and settings indexed")
-        }
-      }
-      .font(.system(size: 11, design: .monospaced))
-      .foregroundStyle(Theme.faint)
     }
     .padding(.horizontal, 24)
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }
 
-/// One quiet line of live numbers: the round-trip is the whole point, so it is always on screen.
+/// Two numbers, nothing else: the last round-trip on the left, the running cost on the right.
+/// Everything else (p50/p95, decisions, tokens) lives in the hover tooltip.
 struct StatsFooter: View {
   @ObservedObject var model: LauncherModel
 
@@ -286,39 +269,29 @@ struct StatsFooter: View {
         Text(error)
           .foregroundStyle(Theme.danger)
           .lineLimit(1)
+      } else if !model.hasAPIKey {
+        Text("TYPESAFE_API_KEY not set")
+          .foregroundStyle(Theme.danger)
       } else if let last = stats.lastMs {
         Text("\(ms(last)) ms")
           .foregroundStyle(tint(last))
           .fontWeight(.semibold)
-        Text(
-          "  ·  p50 \(ms(stats.p50Ms))  ·  p95 \(ms(stats.p95Ms))  ·  \(stats.requests) decisions"
-            + detail(stats) + String(format: "  ·  $%.4f", stats.estimatedCostUSD)
-        )
-        .foregroundStyle(Theme.dim)
-        .lineLimit(1)
-        .help(
-          String(
-            format: "%.1f decisions/s · %.0f input tokens per decision · %d input tokens total",
-            stats.decisionsPerSecond(now: Date().timeIntervalSince1970), stats.tokensPerDecision,
-            stats.inputTokens))
       } else {
-        Text("Jev · one judgment per keystroke")
+        Text("— ms")
           .foregroundStyle(Theme.faint)
       }
       Spacer(minLength: 12)
-      Text("↑↓  ↵  esc")
-        .foregroundStyle(Theme.faint)
+      Text(String(format: "$%.4f", stats.estimatedCostUSD))
+        .foregroundStyle(stats.requests > 0 ? Theme.dim : Theme.faint)
     }
-    .font(.system(size: 11, weight: .regular, design: .monospaced))
+    .help(
+      String(
+        format: "p50 %@ ms · p95 %@ ms · %d decisions · %.0f input tokens per decision",
+        ms(stats.p50Ms), ms(stats.p95Ms), stats.requests, stats.tokensPerDecision)
+    )
+    .font(.system(size: 12, weight: .regular, design: .monospaced))
     .monospacedDigit()
     .padding(.horizontal, 22)
-  }
-
-  private func detail(_ stats: LatencyStats) -> String {
-    var parts: [String] = []
-    if stats.staleDiscarded > 0 { parts.append("\(stats.staleDiscarded) stale") }
-    if stats.failures > 0 { parts.append("\(stats.failures) failed") }
-    return parts.isEmpty ? "" : " (" + parts.joined(separator: ", ") + ")"
   }
 
   private func ms(_ value: Double?) -> String {
