@@ -38,15 +38,18 @@ const CONFIG = {
   },
 
   // demo poses, in video seconds (absolute). Camera = focus point in scene px + scale.
+  // The Devin shell is 1840x1000 at (40,40); the phone is 380x788 inside the Computer pane. Every pose keeps the
+  // phone inside the Devin session: full-pane poses show the tab bar, sidebar edge and Live bar; detail poses stay
+  // inside the phone screen.
   poses: [
     { name: 'looks-detail', start: 10.6, simX: 'right', crop: null,
-      cam: { from: { fx: 1604, fy: 684, s: 4.2 }, to: { fx: 1604, fy: 684, s: 4.33 } } },
+      cam: { from: { fx: 1627, fy: 728, s: 4.0 }, to: { fx: 1627, fy: 736, s: 4.12 } } },
     { name: 'phone-right-strip', start: 13.0, simX: 'right', crop: 'strip',
-      cam: { from: { fx: 1280, fy: 560, s: 1.6 }, to: { fx: 1340, fy: 620, s: 1.74 } } },
+      cam: { from: { fx: 980, fy: 532, s: 1.0 }, to: { fx: 1010, fy: 572, s: 1.08 } } },
     { name: 'phone-left-compare', start: 15.5, simX: 'left', crop: 'photo',
-      cam: { from: { fx: 1280, fy: 560, s: 1.6 }, to: { fx: 1250, fy: 600, s: 1.68 } } },
-    { name: 'frame-push', start: 18.2, simX: 'left', crop: 'photo', continuous: true,
-      cam: { from: { fx: 1250, fy: 600, s: 1.68 }, mid: { fx: 1030, fy: 600, s: 2.6 }, to: { fx: 1030, fy: 630, s: 3.0 }, midAt: 0.55 } },
+      cam: { from: { fx: 940, fy: 532, s: 1.0 }, to: { fx: 930, fy: 560, s: 1.08 } } },
+    { name: 'frame-push', start: 18.2, simX: 'left', crop: 'photo', continuous: true, cropOut: 0.5,
+      cam: { from: { fx: 930, fy: 560, s: 1.08 }, mid: { fx: 1000, fy: 700, s: 1.7 }, to: { fx: 987, fy: 790, s: 4.0 }, midAt: 0.45 } },
     { name: 'full-phone', start: 22.1, simX: 'center', crop: null, paper: true,
       cam: { from: { fx: 960, fy: 540, s: 1.05 }, to: { fx: 960, fy: 540, s: 1.0 }, settle: 0.9, drift: 0.99 } },
   ],
@@ -54,14 +57,14 @@ const CONFIG = {
   // hierarchical motion
   motion: { primary: 0.55, childDelay: 0.15, child: 0.45, push: 0.03 },
 
-  // Simulator window positions inside the Computer pane (pane px, left edge of the 328px phone)
-  simLeft: { right: 683, left: 96, center: 389 },
-  simTop: 50,
+  // Simulator window positions inside the Computer pane (pane px, left edge of the 380px phone)
+  simLeft: { right: 680, left: 40, center: 363 },
+  simTop: 6,
 
-  // enlarged live crops: region of the 300x652 phone screen and magnification, placed in pane px
+  // enlarged live crops: region of the phone screen in 300x652 units and magnification, placed in pane px
   crops: {
-    strip: { x: 0, y: 365, w: 300, h: 183, mag: 2.0, left: 40, top: 194 },
-    photo: { x: 24, y: 102, w: 252, h: 176, mag: 2.1, left: 540, top: 236 },
+    strip: { x: 0, y: 365, w: 300, h: 183, mag: 2.0, left: 40, top: 420 },
+    photo: { x: 24, y: 102, w: 252, h: 176, mag: 2.1, left: 520, top: 260 },
   },
 
   code: [
@@ -195,7 +198,7 @@ function sceneCompose(t) {
   txt.style.transform = `translateY(${-clear * 70}px)`;
   txt.style.opacity = 1 - clear;
   const k = clamp01(local / dur);
-  camera(sc, 960, lerp(520, 500, k), lerp(1.0, 1 + M.push, k));
+  camera(sc, 960, lerp(478, 462, k), lerp(1.0, 1 + M.push, k));
 }
 
 let chatBuilt = false;
@@ -287,7 +290,7 @@ async function sceneDemo(t) {
   const simLeft = CONFIG.simLeft[pose.simX];
   sim.style.left = `${simLeft}px`;
   sim.style.top = `${CONFIG.simTop}px`;
-  sim.style.width = '328px';
+  sim.style.width = '380px';
   const sk = cutHere ? prog(local, 0, M.primary) : 1;
   const dir = pose.simX === 'left' ? -1 : 1;
   sim.style.opacity = 1;
@@ -306,8 +309,9 @@ async function sceneDemo(t) {
     img.style.height = `${652 * c.mag}px`;
     img.style.left = `${-c.x * c.mag}px`;
     img.style.top = `${-c.y * c.mag}px`;
-    const ck = cutHere || (prev && prev.crop !== pose.crop) ? prog(local, M.childDelay, M.child) : 1;
-    crop.style.opacity = 1;
+    let ck = cutHere || (prev && prev.crop !== pose.crop) ? prog(local, M.childDelay, M.child) : 1;
+    if (pose.cropOut) ck = 1 - prog(local, 0, pose.cropOut);   // child leaves as the camera pushes into the phone
+    crop.style.opacity = ck;
     crop.style.transform = `translateX(${(1 - ck) * -40 * dir}px)`;
   } else {
     crop.style.display = 'none';

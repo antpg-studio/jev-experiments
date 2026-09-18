@@ -37,7 +37,6 @@ Everything tunable lives in `CONFIG` at the top of `composition.js`:
 - `code`: the syntax highlighted Swift lines typed in the build pose.
 
 Colors and type are CSS custom properties at the top of `index.html` (`--paper`, `--ink`, `--accent`, `--font`, ...).
-Logos live in `assets/` (black on paper, white on the dark end card). `assets/mac-desktop.png` is the desktop behind the Simulator.
 
 ## Recording the take
 
