@@ -35,8 +35,8 @@ export default function Latency({ samples, cancelled }: Props) {
         <Stat label="judgments" value={String(totalJudgments)} />
         <Stat label="p50 end-to-end" value={ms(client.p50)} accent />
         <Stat label="p95 end-to-end" value={ms(client.p95)} accent />
-        <Stat label="p50 API round trip" value={ms(api.p50)} />
-        <Stat label="p95 API round trip" value={ms(api.p95)} />
+        <Stat label="p50 API" value={ms(api.p50)} />
+        <Stat label="p95 API" value={ms(api.p95)} />
         <Stat label="judgments / s" value={client.judgmentsPerSecond.toFixed(0)} />
         <Stat label="stale cancelled" value={String(cancelled)} />
       </div>
