@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import SwiftUI
 
 /// Borderless windows refuse key status by default; a launcher must accept it to receive typing.
@@ -10,17 +11,29 @@ final class KeyablePanel: NSPanel {
 /// A floating, non-activating panel that sits above every window and every Space, like Spotlight.
 @MainActor
 final class LauncherPanelController: NSObject, NSWindowDelegate {
-  static let panelWidth: CGFloat = 720
-  static let panelHeight: CGFloat = 520
+  static let panelWidth: CGFloat = 680
+  static let headerHeight: CGFloat = 72
+  static let rowHeight: CGFloat = 56
+  static let footerHeight: CGFloat = 40
+  static let maxRows = 7
+  static let emptyHeight: CGFloat = 132
+
+  /// The panel grows and shrinks with its content, like Spotlight, instead of sitting in a fixed box.
+  static func height(rows: Int, empty: Bool) -> CGFloat {
+    let body = empty ? emptyHeight : rowHeight * CGFloat(min(max(rows, 1), maxRows)) + 12
+    return headerHeight + body + footerHeight
+  }
 
   let model: LauncherModel
   private let panel: KeyablePanel
   private var keyMonitor: Any?
+  private var subscriptions: Set<AnyCancellable> = []
 
   init(model: LauncherModel) {
     self.model = model
     panel = KeyablePanel(
-      contentRect: NSRect(x: 0, y: 0, width: Self.panelWidth, height: Self.panelHeight),
+      contentRect: NSRect(
+        x: 0, y: 0, width: Self.panelWidth, height: Self.height(rows: 0, empty: true)),
       styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView], backing: .buffered,
       defer: false)
     super.init()
@@ -38,6 +51,26 @@ final class LauncherPanelController: NSObject, NSWindowDelegate {
     host.autoresizingMask = [.width, .height]
     panel.contentView = host
     model.onExecute = { [weak self] in self?.hide() }
+    model.$hits.combineLatest(model.$query)
+      .map { hits, query in
+        Self.height(rows: hits.count, empty: query.trimmingCharacters(in: .whitespaces).isEmpty)
+      }
+      .removeDuplicates()
+      .sink { [weak self] height in self?.resize(to: height) }
+      .store(in: &subscriptions)
+  }
+
+  /// Keeps the top edge pinned so the query field never jumps while the list changes size.
+  private func resize(to height: CGFloat) {
+    guard panel.isVisible else { return }
+    var frame = panel.frame
+    frame.origin.y += frame.height - height
+    frame.size.height = height
+    NSAnimationContext.runAnimationGroup { context in
+      context.duration = 0.16
+      context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+      panel.animator().setFrame(frame, display: true)
+    }
   }
 
   var isVisible: Bool { panel.isVisible }
@@ -50,10 +83,13 @@ final class LauncherPanelController: NSObject, NSWindowDelegate {
     model.panelWillShow()
     if let screen = NSScreen.main {
       let frame = screen.visibleFrame
-      let origin = NSPoint(
-        x: frame.midX - Self.panelWidth / 2,
-        y: frame.midY - Self.panelHeight / 2 + frame.height * 0.12)
-      panel.setFrameOrigin(origin)
+      let height = Self.height(rows: 0, empty: true)
+      let top = frame.midY + frame.height * 0.22
+      panel.setFrame(
+        NSRect(
+          x: frame.midX - Self.panelWidth / 2, y: top - height, width: Self.panelWidth,
+          height: height),
+        display: false)
     }
     panel.makeKeyAndOrderFront(nil)
     installKeyMonitor()

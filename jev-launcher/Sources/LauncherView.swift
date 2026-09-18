@@ -1,35 +1,48 @@
+import AppKit
 import SwiftUI
 
 enum Theme {
-  static let background = Color(red: 0.055, green: 0.06, blue: 0.075)
-  static let surface = Color(red: 0.09, green: 0.10, blue: 0.125)
-  static let border = Color.white.opacity(0.08)
-  static let text = Color(red: 0.92, green: 0.93, blue: 0.95)
-  static let dim = Color(red: 0.55, green: 0.58, blue: 0.65)
-  static let accent = Color(red: 0.36, green: 0.85, blue: 1.0)
-  static let ready = Color(red: 0.45, green: 0.95, blue: 0.55)
-  static let warn = Color(red: 1.0, green: 0.68, blue: 0.3)
-  static let danger = Color(red: 1.0, green: 0.42, blue: 0.42)
+  static let background = Color(red: 0.07, green: 0.075, blue: 0.09)
+  static let surface = Color.white.opacity(0.07)
+  static let border = Color.white.opacity(0.10)
+  static let text = Color(red: 0.94, green: 0.945, blue: 0.96)
+  static let dim = Color(red: 0.56, green: 0.58, blue: 0.64)
+  static let faint = Color(red: 0.38, green: 0.40, blue: 0.46)
+  static let accent = Color(red: 0.42, green: 0.78, blue: 1.0)
+  static let ready = Color(red: 0.45, green: 0.92, blue: 0.58)
+  static let warn = Color(red: 1.0, green: 0.72, blue: 0.36)
+  static let danger = Color(red: 1.0, green: 0.46, blue: 0.46)
 }
 
 struct LauncherView: View {
   @ObservedObject var model: LauncherModel
   @FocusState private var focused: Bool
 
+  private var isEmptyQuery: Bool { model.query.trimmingCharacters(in: .whitespaces).isEmpty }
+
   var body: some View {
     VStack(spacing: 0) {
       header
+        .frame(height: LauncherPanelController.headerHeight)
       Divider().overlay(Theme.border)
       content
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       Divider().overlay(Theme.border)
       StatsFooter(model: model)
+        .frame(height: LauncherPanelController.footerHeight)
     }
-    .frame(width: LauncherPanelController.panelWidth, height: LauncherPanelController.panelHeight)
-    .background(Theme.background)
-    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    .frame(width: LauncherPanelController.panelWidth)
+    .frame(maxHeight: .infinity)
+    .background {
+      ZStack {
+        Blur()
+        Theme.background.opacity(0.86)
+      }
+    }
+    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     .overlay(
-      RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(
-        Theme.border, lineWidth: 1)
+      RoundedRectangle(cornerRadius: 18, style: .continuous)
+        .strokeBorder(Theme.border, lineWidth: 1)
     )
     .preferredColorScheme(.dark)
     .onAppear { focused = true }
@@ -38,51 +51,43 @@ struct LauncherView: View {
   private var header: some View {
     HStack(spacing: 14) {
       Image(systemName: "bolt.fill")
-        .font(.system(size: 22, weight: .semibold))
-        .foregroundStyle(model.isReady ? Theme.ready : Theme.accent)
+        .font(.system(size: 20, weight: .medium))
+        .foregroundStyle(model.isReady ? Theme.ready : Theme.faint)
         .animation(.easeOut(duration: 0.15), value: model.isReady)
-      TextField("Apps, files, settings, math…", text: $model.query)
+      TextField("Say what you mean…", text: $model.query)
         .textFieldStyle(.plain)
-        .font(.system(size: 26, weight: .regular, design: .rounded))
+        .font(.system(size: 24, weight: .regular, design: .rounded))
         .foregroundStyle(Theme.text)
         .focused($focused)
-      if model.inFlight > 0 {
-        Circle().fill(Theme.accent).frame(width: 8, height: 8)
-          .accessibilityLabel("Request in flight")
-      }
-      Picker("Mode", selection: $model.mode) {
-        ForEach(RankingMode.allCases) { mode in
-          Text(mode.rawValue).tag(mode)
-        }
-      }
-      .pickerStyle(.segmented)
-      .labelsHidden()
-      .frame(width: 210)
-      .help(model.mode.help)
+      Circle()
+        .fill(Theme.accent)
+        .frame(width: 6, height: 6)
+        .opacity(model.inFlight > 0 ? 1 : 0)
+        .animation(.easeOut(duration: 0.12), value: model.inFlight > 0)
+        .accessibilityHidden(true)
     }
-    .padding(.horizontal, 20)
-    .padding(.vertical, 16)
+    .padding(.horizontal, 22)
   }
 
   @ViewBuilder
   private var content: some View {
-    if model.query.trimmingCharacters(in: .whitespaces).isEmpty {
+    if isEmptyQuery {
       EmptyHint(model: model)
     } else if model.hits.isEmpty {
-      Text("Nothing in the local index matches yet.")
-        .foregroundStyle(Theme.dim)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+      Text("Nothing here matches yet")
+        .font(.system(size: 14))
+        .foregroundStyle(Theme.faint)
     } else {
       ScrollViewReader { proxy in
-        ScrollView {
-          LazyVStack(spacing: 4) {
+        ScrollView(showsIndicators: false) {
+          LazyVStack(spacing: 0) {
             ForEach(Array(model.hits.enumerated()), id: \.element.id) { index, hit in
               HitRow(
-                hit: hit, index: index, selected: index == model.selection,
-                ready: model.isReady && index == 0, showJev: model.mode != .fuzzyOnly,
-                stale: !model.judgmentIsFresh && hit.jevProbability != nil,
-                action: model.judgment?.action
+                hit: hit, selected: index == model.selection,
+                ready: model.isReady && index == 0,
+                stale: !model.judgmentIsFresh && hit.jevProbability != nil
               )
+              .frame(height: LauncherPanelController.rowHeight)
               .id(hit.id)
               .onTapGesture {
                 model.selection = index
@@ -90,7 +95,8 @@ struct LauncherView: View {
               }
             }
           }
-          .padding(12)
+          .padding(.horizontal, 8)
+          .padding(.vertical, 6)
         }
         .onChange(of: model.selection) { _, selection in
           if model.hits.indices.contains(selection) {
@@ -102,21 +108,31 @@ struct LauncherView: View {
   }
 }
 
+/// Native window blur behind the panel so it reads as part of the desktop, like Spotlight.
+struct Blur: NSViewRepresentable {
+  func makeNSView(context: Context) -> NSVisualEffectView {
+    let view = NSVisualEffectView()
+    view.material = .hudWindow
+    view.blendingMode = .behindWindow
+    view.state = .active
+    return view
+  }
+
+  func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
 struct HitRow: View {
   let hit: RankedHit
-  let index: Int
   let selected: Bool
   let ready: Bool
-  let showJev: Bool
   let stale: Bool
-  let action: ActionKind?
 
   var body: some View {
     HStack(spacing: 14) {
-      KindBadge(kind: hit.candidate.kind, highlighted: action == hit.candidate.kind && index == 0)
-      VStack(alignment: .leading, spacing: 3) {
+      CandidateIcon(candidate: hit.candidate)
+      VStack(alignment: .leading, spacing: 2) {
         Text(hit.candidate.title)
-          .font(.system(size: ready ? 20 : 16, weight: .semibold, design: .rounded))
+          .font(.system(size: 15, weight: .medium, design: .rounded))
           .foregroundStyle(Theme.text)
           .lineLimit(1)
         Text(hit.candidate.subtitle)
@@ -124,29 +140,22 @@ struct HitRow: View {
           .foregroundStyle(Theme.dim)
           .lineLimit(1)
       }
-      Spacer(minLength: 8)
+      Spacer(minLength: 12)
+      Confidence(probability: hit.jevProbability, emphasized: selected, stale: stale)
       if ready {
-        Text("READY ↵")
-          .font(.system(size: 11, weight: .bold, design: .monospaced))
-          .padding(.horizontal, 8).padding(.vertical, 4)
-          .background(Theme.ready.opacity(0.18), in: Capsule())
+        Text("↵")
+          .font(.system(size: 12, weight: .bold, design: .rounded))
+          .frame(width: 24, height: 22)
+          .background(Theme.ready.opacity(0.18), in: RoundedRectangle(cornerRadius: 6))
           .foregroundStyle(Theme.ready)
+          .transition(.opacity)
       }
-      ConfidenceBar(hit: hit, showJev: showJev, stale: stale)
     }
-    .padding(.horizontal, 14)
-    .padding(.vertical, ready ? 14 : 9)
+    .padding(.horizontal, 12)
     .background(
       RoundedRectangle(cornerRadius: 10, style: .continuous)
         .fill(selected ? Theme.surface : Color.clear)
     )
-    .overlay(
-      RoundedRectangle(cornerRadius: 10, style: .continuous)
-        .strokeBorder(
-          selected ? (ready ? Theme.ready.opacity(0.6) : Theme.accent.opacity(0.45)) : Color.clear,
-          lineWidth: 1)
-    )
-    .opacity(ready && index > 0 ? 0.45 : 1)
     .animation(.easeOut(duration: 0.12), value: ready)
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
@@ -154,137 +163,162 @@ struct HitRow: View {
   }
 }
 
-struct KindBadge: View {
-  let kind: ActionKind
-  let highlighted: Bool
-
-  var body: some View {
-    Text(kind.label.uppercased())
-      .font(.system(size: 10, weight: .bold, design: .monospaced))
-      .foregroundStyle(highlighted ? Theme.background : Theme.dim)
-      .frame(width: 62, height: 22)
-      .background(
-        RoundedRectangle(cornerRadius: 5).fill(highlighted ? Theme.accent : Theme.surface))
-  }
-}
-
-struct ConfidenceBar: View {
-  let hit: RankedHit
-  let showJev: Bool
+/// Jev's probability that this row is the intended target. Quiet on every row but the selected one.
+struct Confidence: View {
+  let probability: Double?
+  let emphasized: Bool
   let stale: Bool
 
   var body: some View {
-    let hasJev = showJev && hit.jevProbability != nil
-    let value = hasJev ? (hit.jevProbability ?? 0) : hit.fuzzy
-    let label = hasJev ? "jev" : "fuzzy"
-    VStack(alignment: .trailing, spacing: 3) {
-      Text("\(Int((value * 100).rounded()))%")
-        .font(.system(size: 15, weight: .bold, design: .monospaced))
-        .foregroundStyle(showJev && !hasJev ? Theme.dim : Theme.text)
-        .monospacedDigit()
-      HStack(spacing: 6) {
-        Text(label)
-          .font(.system(size: 9, weight: .medium, design: .monospaced))
-          .foregroundStyle(Theme.dim)
-        GeometryReader { geometry in
-          ZStack(alignment: .leading) {
-            Capsule().fill(Theme.surface)
+    if let probability {
+      let percent = Int((probability * 100).rounded())
+      HStack(spacing: 8) {
+        Capsule()
+          .fill(Theme.faint.opacity(0.35))
+          .frame(width: 40, height: 3)
+          .overlay(alignment: .leading) {
             Capsule()
-              .fill(hasJev ? Theme.accent : Theme.warn)
-              .frame(width: geometry.size.width * CGFloat(min(max(value, 0), 1)))
-              .animation(.easeOut(duration: 0.15), value: value)
+              .fill(emphasized ? Theme.accent : Theme.faint)
+              .frame(width: 40 * CGFloat(min(max(probability, 0), 1)))
+              .animation(.easeOut(duration: 0.15), value: probability)
           }
-        }
-        .frame(width: 64, height: 5)
+        Text("\(percent)%")
+          .font(.system(size: 12, weight: .medium, design: .monospaced))
+          .monospacedDigit()
+          .foregroundStyle(emphasized ? Theme.text : Theme.faint)
+          .frame(width: 38, alignment: .trailing)
       }
+      .opacity(stale ? 0.45 : 1)
     }
-    .opacity(stale ? 0.5 : 1)
-    .frame(width: 110)
+  }
+}
+
+/// The real app or document icon where one exists; a tinted glyph for everything synthetic.
+struct CandidateIcon: View {
+  let candidate: Candidate
+
+  var body: some View {
+    switch candidate.payload {
+    case .app(let url), .file(let url):
+      Image(nsImage: NSWorkspace.shared.icon(forFile: url.path))
+        .resizable()
+        .interpolation(.high)
+        .frame(width: 32, height: 32)
+    default:
+      Image(systemName: symbol)
+        .font(.system(size: 14, weight: .semibold))
+        .foregroundStyle(Theme.text)
+        .frame(width: 32, height: 32)
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(tint))
+    }
+  }
+
+  private var symbol: String {
+    switch candidate.kind {
+    case .openApp: return "app.fill"
+    case .openFile: return "doc.fill"
+    case .webSearch: return "globe"
+    case .calculate: return "equal"
+    case .systemToggle: return "switch.2"
+    case .runShortcut: return "command"
+    case .unclear: return "questionmark"
+    }
+  }
+
+  private var tint: Color {
+    switch candidate.kind {
+    case .calculate: return Color(red: 0.95, green: 0.55, blue: 0.25)
+    case .webSearch: return Color(red: 0.30, green: 0.55, blue: 0.95)
+    case .systemToggle: return Color(red: 0.50, green: 0.52, blue: 0.60)
+    case .runShortcut: return Color(red: 0.62, green: 0.40, blue: 0.95)
+    default: return Theme.faint
+    }
   }
 }
 
 struct EmptyHint: View {
   @ObservedObject var model: LauncherModel
-  private let examples = [
-    "dark", "wifi off", "calc 15% of 240", "the pdf I just downloaded", "sleep",
-  ]
+  private let examples = ["dark", "wifi off", "15% of 240", "the pdf I just downloaded", "sleep"]
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 14) {
-      Text("Try typing two or three characters of:")
-        .foregroundStyle(Theme.dim)
+    VStack(spacing: 18) {
+      Text("Type a few characters of what you mean. Jev picks the target on every keystroke.")
         .font(.system(size: 13))
-      ForEach(examples, id: \.self) { example in
-        Text(example)
-          .font(.system(size: 15, weight: .medium, design: .monospaced))
-          .foregroundStyle(Theme.text)
+        .foregroundStyle(Theme.dim)
+        .multilineTextAlignment(.center)
+      HStack(spacing: 8) {
+        ForEach(examples, id: \.self) { example in
+          Text(example)
+            .font(.system(size: 12, weight: .medium, design: .monospaced))
+            .foregroundStyle(Theme.text)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Theme.surface, in: Capsule())
+            .onTapGesture { model.query = example }
+        }
       }
-      Spacer()
-      HStack {
-        Text("\(model.indexSize) local candidates indexed")
-        Spacer()
+      Group {
         if !model.hasAPIKey {
-          Text("No TYPESAFE_API_KEY — Jev disabled").foregroundStyle(Theme.danger)
+          Text("TYPESAFE_API_KEY is not set — local matching only")
+            .foregroundStyle(Theme.danger)
         } else if let status = model.status {
           Text(status)
+        } else {
+          Text("\(model.indexSize) apps, files and settings indexed")
         }
       }
       .font(.system(size: 11, design: .monospaced))
-      .foregroundStyle(Theme.dim)
+      .foregroundStyle(Theme.faint)
     }
-    .padding(20)
-    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    .padding(.horizontal, 24)
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
 }
 
+/// One quiet line of live numbers: the round-trip is the whole point, so it is always on screen.
 struct StatsFooter: View {
   @ObservedObject var model: LauncherModel
 
   var body: some View {
-    TimelineView(.periodic(from: .now, by: 0.5)) { timeline in
-      let now = timeline.date.timeIntervalSince1970
-      let stats = model.stats
-      HStack(spacing: 0) {
-        Metric(title: "LAST", value: ms(stats.lastMs), tint: tint(stats.lastMs))
-        Metric(title: "P50", value: ms(stats.p50Ms), tint: tint(stats.p50Ms))
-        Metric(title: "P95", value: ms(stats.p95Ms), tint: tint(stats.p95Ms))
-        Metric(title: "DEC/S", value: String(format: "%.1f", stats.decisionsPerSecond(now: now)))
-        Metric(
-          title: "REQS", value: "\(stats.requests)",
-          detail: requestDetail(stats))
-        Metric(
-          title: "TOKENS", value: compact(stats.inputTokens + stats.outputTokens),
-          detail: String(format: "%.0f/dec", stats.tokensPerDecision), width: 70)
-        Metric(
-          title: "EST. COST", value: String(format: "$%.5f", stats.estimatedCostUSD),
-          detail: "$0.042/Mtok in", width: 100)
-        Spacer(minLength: 0)
-        VStack(alignment: .trailing, spacing: 3) {
-          if let error = model.lastError {
-            Text(error).foregroundStyle(Theme.danger).lineLimit(1)
-          } else if let judgment = model.judgment, model.mode != .fuzzyOnly {
-            Text("\(judgment.action.rawValue) · ready \(Int((judgment.ready * 100).rounded()))%")
-              .foregroundStyle(model.judgmentIsFresh ? Theme.dim : Theme.dim.opacity(0.5))
-          } else {
-            Text(model.mode.help).foregroundStyle(Theme.dim)
-          }
-          Text("⌥Space · ↑↓ · ↵ · esc").foregroundStyle(Theme.dim.opacity(0.7))
-        }
-        .font(.system(size: 10, design: .monospaced))
+    let stats = model.stats
+    HStack(spacing: 0) {
+      if let error = model.lastError {
+        Text(error)
+          .foregroundStyle(Theme.danger)
+          .lineLimit(1)
+      } else if let last = stats.lastMs {
+        Text("\(ms(last)) ms")
+          .foregroundStyle(tint(last))
+          .fontWeight(.semibold)
+        Text(
+          "  ·  p50 \(ms(stats.p50Ms))  ·  p95 \(ms(stats.p95Ms))  ·  \(stats.requests) decisions"
+            + detail(stats) + String(format: "  ·  $%.4f", stats.estimatedCostUSD)
+        )
+        .foregroundStyle(Theme.dim)
         .lineLimit(1)
-        .frame(maxWidth: 190, alignment: .trailing)
+        .help(
+          String(
+            format: "%.1f decisions/s · %.0f input tokens per decision · %d input tokens total",
+            stats.decisionsPerSecond(now: Date().timeIntervalSince1970), stats.tokensPerDecision,
+            stats.inputTokens))
+      } else {
+        Text("Jev · one judgment per keystroke")
+          .foregroundStyle(Theme.faint)
       }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .padding(.horizontal, 16)
-      .padding(.vertical, 10)
+      Spacer(minLength: 12)
+      Text("↑↓  ↵  esc")
+        .foregroundStyle(Theme.faint)
     }
+    .font(.system(size: 11, weight: .regular, design: .monospaced))
+    .monospacedDigit()
+    .padding(.horizontal, 22)
   }
 
-  private func requestDetail(_ stats: LatencyStats) -> String? {
+  private func detail(_ stats: LatencyStats) -> String {
     var parts: [String] = []
     if stats.staleDiscarded > 0 { parts.append("\(stats.staleDiscarded) stale") }
-    if stats.failures > 0 { parts.append("\(stats.failures) fail") }
-    return parts.isEmpty ? nil : parts.joined(separator: " ")
+    if stats.failures > 0 { parts.append("\(stats.failures) failed") }
+    return parts.isEmpty ? "" : " (" + parts.joined(separator: ", ") + ")"
   }
 
   private func ms(_ value: Double?) -> String {
@@ -292,42 +326,9 @@ struct StatsFooter: View {
     return String(format: "%.0f", value)
   }
 
-  private func tint(_ value: Double?) -> Color {
-    guard let value else { return Theme.dim }
+  private func tint(_ value: Double) -> Color {
     if value < 250 { return Theme.ready }
     if value < 600 { return Theme.warn }
     return Theme.danger
-  }
-
-  private func compact(_ tokens: Int) -> String {
-    if tokens >= 1_000_000 { return String(format: "%.2fM", Double(tokens) / 1_000_000) }
-    if tokens >= 100_000 { return "\(tokens / 1000)k" }
-    if tokens >= 10_000 { return String(format: "%.1fk", Double(tokens) / 1000) }
-    return "\(tokens)"
-  }
-}
-
-struct Metric: View {
-  let title: String
-  let value: String
-  var detail: String? = nil
-  var tint: Color = Theme.text
-  var width: CGFloat = 58
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 1) {
-      Text(title)
-        .font(.system(size: 9, weight: .semibold, design: .monospaced))
-        .foregroundStyle(Theme.dim)
-      Text(value)
-        .font(.system(size: 20, weight: .bold, design: .monospaced))
-        .foregroundStyle(tint)
-        .monospacedDigit()
-      Text(detail ?? " ")
-        .font(.system(size: 9, design: .monospaced))
-        .foregroundStyle(Theme.dim.opacity(0.8))
-    }
-    .frame(width: width, alignment: .leading)
-    .padding(.trailing, 6)
   }
 }
