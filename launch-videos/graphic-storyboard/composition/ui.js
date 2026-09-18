@@ -6,7 +6,6 @@
   const appleGlyph =
     '<svg viewBox="0 0 24 24"><path d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.1.8 1.3 0 2.1-1.2 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.7-1-2.7-4.1zM14.3 5.9c.6-.8 1.1-1.9.9-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.2-.6 2.9-1.4z"/></svg>';
   const sendGlyph = '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
-  const checkGlyph = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   const monitorGlyph = '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>';
   const listGlyph = '<svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>';
   const diffGlyph = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
@@ -109,18 +108,23 @@
   }
 
   // Panels 3, 4, 6: the Devin session view with chat on the left and Computer on the right.
-  // mode: "mac" or "iphone". Footage images get ids so storyboard.js can swap frames.
-  function session(mode, imgId, done) {
-    const screen = mode === "mac"
-      ? `<img class="mac" id="${imgId}" alt="">`
-      : `<div class="simscene">
+  const simscene = (imgId) => `<div class="simscene">
            <div class="simtitle"><div class="lights"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div><div class="name">iPhone 17<small>iOS 26.5</small></div></div>
            <div class="phone"><div class="glass"><img id="${imgId}" alt=""></div></div>
          </div>`;
+
+  // mode: "mac", "iphone" or "both" (Mac desktop and Simulator side by side).
+  // Footage images get ids so storyboard.js can swap frames; for "both" the ids are `${imgId}Mac` and `${imgId}Phone`.
+  function session(mode, imgId, done) {
+    const screen = mode === "mac"
+      ? `<img class="mac" id="${imgId}" alt="">`
+      : mode === "iphone"
+        ? simscene(imgId)
+        : `<div class="split"><div class="half"><img class="mac" id="${imgId}Mac" alt=""></div><div class="half">${simscene(imgId + "Phone")}</div></div>`;
     const reply = done ? C.text.devinDone : C.text.devinReply;
     const status = done
       ? `<div class="status"><span class="dot" style="background:${C.colors.green}"></span>Devin is awaiting instructions</div>`
-      : `<div class="status"><span class="dot"></span>Devin is playing VoxelHearth on ${mode === "mac" ? "the Mac desktop" : "the iPhone Simulator"}</div>`;
+      : `<div class="status"><span class="dot"></span>Devin is playing VoxelHearth ${mode === "mac" ? "on the Mac desktop" : "in the iPhone Simulator"}</div>`;
     return `
       <div class="session">
         <div class="chat">
@@ -154,19 +158,5 @@
       </div>`;
   }
 
-  // Panel 5: verification card.
-  function verified(step) {
-    const checks = C.text.checks.map((c, i) => `
-      <div class="check" style="opacity:${step > i ? 1 : 0}; transform: translateY(${step > i ? 0 : 14}px)">
-        ${checkGlyph}<span>${esc(c[0])}</span><span class="sub">${esc(c[1])}</span>
-      </div>`).join("");
-    return `
-      <div class="verified">
-        <div class="devin"><img src="${C.media.avatar}" alt=""><p>${esc(C.text.devinDone)}</p></div>
-        <div class="checks">${checks}</div>
-        <div class="shot"><img src="${C.media.lobby}" alt=""></div>
-      </div>`;
-  }
-
-  window.UI = { composer, editor, session, verified, CODE_TOTAL };
+  window.UI = { composer, editor, session, CODE_TOTAL };
 })();

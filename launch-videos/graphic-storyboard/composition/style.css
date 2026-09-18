@@ -69,8 +69,8 @@ html, body {
 /* Captions */
 .caption {
   position: absolute;
-  top: 936px;
-  font-size: 38px;
+  top: 984px;
+  font-size: 40px;
   font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--text);
@@ -243,19 +243,11 @@ html, body {
 .phone .glass img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ---------- Verified card (panel 5) ---------- */
-.verified {
-  width: 888px; height: 654px; background: var(--ui); padding: 40px 46px; display: flex; flex-direction: column; gap: 26px;
-  color: var(--ui-text);
-}
-.verified .devin { display: flex; gap: 16px; align-items: flex-start; font-size: 23px; line-height: 1.4; }
-.verified .devin img { width: 36px; height: 36px; flex: none; margin-top: 2px; }
-.verified .checks { display: flex; flex-direction: column; gap: 14px; }
-.verified .check {
-  display: flex; align-items: center; gap: 16px; font-size: 24px; padding: 14px 18px; border-radius: 14px; background: var(--ui-raised);
-}
-.verified .check svg { width: 26px; height: 26px; stroke: var(--green); fill: none; stroke-width: 2.6; flex: none; }
-.verified .check span.sub { margin-left: auto; color: var(--ui-muted); }
-.verified .shot {
-  flex: 1; border-radius: 14px; overflow: hidden; box-shadow: 0 0 0 1px var(--ui-line); position: relative; background: #000;
-}
-.verified .shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 10% 30%; }
+
+/* Final panel: Mac desktop and Simulator side by side inside the Computer pane. */
+.session .split { position: absolute; inset: 0; display: flex; }
+.session .split .half { position: relative; flex: 1; overflow: hidden; }
+.session .split .half:first-child { flex: 0 0 720px; }
+.session .split .half img.mac { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; }
+.session .split .half .simscene { position: absolute; inset: 0; }
+.session .split .half .phone { top: 42px; }

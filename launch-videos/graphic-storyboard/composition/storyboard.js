@@ -71,7 +71,7 @@
   }
   setHtml(panels.mac, UI.session("mac", "macImg", false));
   setHtml(panels.iphone, UI.session("iphone", "iphoneImg", false));
-  setHtml(panels.final, UI.session("mac", "finalImg", true));
+  setHtml(panels.both, UI.session("both", "both", true));
 
   for (const c of C.captions) {
     const el = document.createElement("div");
@@ -97,8 +97,12 @@
     p.content.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
   }
 
-  function layoutPanel(p, t) {
+  // Quiet panels fade while another panel is at hero size so no partial text peeks out behind it.
+  const heroK = (w) => clamp01((w - 1100) / 400);
+
+  function layoutPanel(p, t, dim) {
     const s = sample(p.def.keys, t);
+    s.o *= 1 - dim;
     const visible = !(s.pre || s.post) || s.o > 0;
     p.el.style.display = visible && s.o > 0.001 ? "block" : "none";
     if (!visible) return s;
@@ -138,12 +142,18 @@
     }
 
     // Panels
-    const prompt = layoutPanel(panels.prompt, t);
-    const code = layoutPanel(panels.code, t);
-    const mac = layoutPanel(panels.mac, t);
-    const iphone = layoutPanel(panels.iphone, t);
-    const verified = layoutPanel(panels.verified, t);
-    const fin = layoutPanel(panels.final, t);
+    const names = ["prompt", "code", "mac", "iphone", "both"];
+    const raw = Object.fromEntries(names.map((n) => [n, sample(panels[n].def.keys, t)]));
+    const heroOf = (n) => {
+      const s = raw[n];
+      return (s.pre || s.post) && s.o <= 0 ? 0 : heroK(s.rect[2]) * clamp01(s.o * 1.5);
+    };
+    const dimFor = (n) => Math.max(0, ...names.filter((m) => m !== n).map(heroOf));
+    const mac = layoutPanel(panels.mac, t, dimFor("mac"));
+    const iphone = layoutPanel(panels.iphone, t, dimFor("iphone"));
+    const both = layoutPanel(panels.both, t, dimFor("both"));
+    layoutPanel(panels.prompt, t, dimFor("prompt"));
+    layoutPanel(panels.code, t, dimFor("code"));
 
     // Composer typing
     {
@@ -161,20 +171,16 @@
       setHtml(panels.code, UI.editor(easeOut(k)));
     }
 
-    // Verified checks stagger
-    {
-      const start = 18.9;
-      const step = Math.floor(clamp01((t - start) / 1.5) * 3.999);
-      setHtml(panels.verified, UI.verified(step));
-    }
-
     // Footage frames
     const macT0 = C.panels.mac.keys[0].t;
     const iphT0 = C.panels.iphone.keys[0].t;
-    const finT0 = C.panels.final.keys[0].t;
+    const bothT0 = C.panels.both.keys[0].t;
     if (mac.o > 0) setFrame("macImg", frameSrc(C.media.macFrames, C.media.macFrameCount, C.footage.macStart + Math.max(0, t - macT0)));
     if (iphone.o > 0) setFrame("iphoneImg", frameSrc(C.media.iphoneFrames, C.media.iphoneFrameCount, C.footage.iphoneStart + Math.max(0, t - iphT0)));
-    if (fin.o > 0) setFrame("finalImg", frameSrc(C.media.macFrames, C.media.macFrameCount, C.footage.macFinalStart + Math.max(0, t - finT0)));
+    if (both.o > 0) {
+      setFrame("bothMac", frameSrc(C.media.macFrames, C.media.macFrameCount, C.footage.macBothStart + Math.max(0, t - bothT0)));
+      setFrame("bothPhone", frameSrc(C.media.iphoneFrames, C.media.iphoneFrameCount, C.footage.iphoneBothStart + Math.max(0, t - bothT0)));
+    }
 
     // Captions
     for (const c of C.captions) {
