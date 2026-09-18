@@ -6,6 +6,8 @@ import { DEFAULT_WEIGHTS, HUMAN_CONFIDENCE, WEIGHT_LABELS, lane, priority, rank,
 import { fmtMs, fmtUsd, QUESTIONS_PER_EMAIL } from "./lib/stats";
 import { agreement, classifyRules, DIMENSIONS, disagreements, type Dimension, type RuleVerdict } from "./lib/rules";
 import { useTriage } from "./useTriage";
+import { useLabels } from "./useLabels";
+import { intersect, pending, isMatch, sortByMatch, summarize, SUGGESTED_INTENTS, SURE_THRESHOLD, type IntentLabel } from "./lib/labels";
 
 type LaneFilter = Lane | "all" | "archived" | "disagree";
 
@@ -67,6 +69,36 @@ export default function App() {
   const [banner, setBanner] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  const labels = useLabels(EMAILS.length);
+  const [labelFilter, setLabelFilter] = useState<string[]>([]);
+  const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const filterLabels = useMemo(() => labelFilter.map((id) => labels.labels.find((l) => l.id === id)).filter((l): l is IntentLabel => Boolean(l)), [labelFilter, labels.labels]);
+  const filterDone = filterLabels.length > 0 && filterLabels.every((l) => l.phase === "done");
+
+  const submitIntent = (text: string) => {
+    const label = labels.add(text, concurrency);
+    if (!label) return;
+    setQuery("");
+    setSearchOpen(false);
+    searchRef.current?.blur();
+    setLaneFilter("all");
+    setLabelFilter([label.id]);
+  };
+  const toggleLabelFilter = (id: string) => {
+    setLaneFilter("all");
+    setLabelFilter((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+  const removeLabel = (id: string) => {
+    labels.remove(id);
+    setLabelFilter((prev) => prev.filter((x) => x !== id));
+  };
+  const pickLane = (l: LaneFilter) => {
+    setLaneFilter(l);
+    setLabelFilter([]);
+  };
+
   const updateWeight = (k: keyof Weights, v: number) => {
     setWeights((w) => ({ ...w, [k]: v }));
     if (phase === "done") setRerankTick((t) => t + 1);
@@ -122,18 +154,33 @@ export default function App() {
     return c;
   }, [rows, archived]);
 
-  const visible = useMemo(
-    () =>
-      sorted.filter((r) => {
-        const isArchived = archived.has(r.email.id);
-        if (laneFilter === "archived") return isArchived;
-        if (isArchived) return false;
-        if (laneFilter === "all") return true;
-        if (laneFilter === "disagree") return r.disagree.length > 0;
-        return r.judgment ? lane(r.judgment) === laneFilter : false;
-      }),
-    [sorted, laneFilter, archived],
-  );
+  const visible = useMemo(() => {
+    const inLane = sorted.filter((r) => {
+      const isArchived = archived.has(r.email.id);
+      if (laneFilter === "archived") return isArchived;
+      if (isArchived) return false;
+      if (laneFilter === "all") return true;
+      if (laneFilter === "disagree") return r.disagree.length > 0;
+      return r.judgment ? lane(r.judgment) === laneFilter : false;
+    });
+    if (filterLabels.length === 0) return inLane;
+    const ids = inLane.map((r) => r.email.id);
+    // While Jev is still answering, rows fall out of the list as they are ruled out; once every label is done, best matches float to the top.
+    const keep = new Set(filterDone ? intersect(ids, filterLabels) : pending(ids, filterLabels));
+    const matched = inLane.filter((r) => keep.has(r.email.id));
+    return filterDone ? sortByMatch(matched.map((r) => ({ id: r.email.id, r })), filterLabels).map((x) => x.r) : matched;
+  }, [sorted, laneFilter, archived, filterLabels, filterDone]);
+
+  // A label run finishing re-sorts the filtered view by match probability.
+  useEffect(() => {
+    if (!filterDone) return;
+    setRerankTick((t) => t + 1);
+    const last = filterLabels[filterLabels.length - 1];
+    const s = summarize(last.matches.values());
+    setBanner(`“${last.name}” — ${s.matched} of ${s.judged} emails match · ${s.judged} judgments in ${fmtMs(last.stats.elapsedMs)}`);
+    const id = setTimeout(() => setBanner(null), 4500);
+    return () => clearTimeout(id);
+  }, [filterDone]);
 
   const agree = useMemo(() => agreement(rows.filter((r) => r.judgment).map((r) => ({ rule: r.rule, judgment: r.judgment! }))), [rows]);
 
@@ -196,6 +243,10 @@ export default function App() {
         case "Enter":
           if (phase === "idle") void triage.start(concurrency);
           break;
+        case "/":
+          e.preventDefault();
+          searchRef.current?.focus();
+          break;
       }
     };
     window.addEventListener("keydown", onKey);
@@ -210,7 +261,14 @@ export default function App() {
   const isMock = meta?.mock ?? health?.mock ?? false;
   const modelLabel = meta?.model ?? health?.model ?? "jev-latest";
   const running = phase === "running";
-  const pct = (stats.processed / Math.max(1, stats.total)) * 100;
+
+  // The HUD follows whatever is (or was last) executing: a label run, else the triage run.
+  const hudLabel = labels.active ?? (!running && filterLabels.length ? filterLabels[filterLabels.length - 1] : null);
+  const hudStats = hudLabel ? hudLabel.stats : stats;
+  const hudRunning = hudLabel ? hudLabel.phase === "running" : running;
+  const pct = (hudStats.processed / Math.max(1, hudStats.total)) * 100;
+  const activeSummary = labels.active ? summarize(labels.active.matches.values()) : null;
+  const suggestions = SUGGESTED_INTENTS.filter((s) => s.toLowerCase().includes(query.trim().toLowerCase())).slice(0, 6);
 
   return (
     <div className={`app ${isMock ? "mock" : ""}`}>
@@ -225,14 +283,94 @@ export default function App() {
           </a>
         </div>
         <div className="tb-mid">
-          <div className="search">
-            <button className="ib" aria-label="Search">
+          <div className={`search ${searchOpen ? "open" : ""}`}>
+            <button className="ib" aria-label="Search" onClick={() => submitIntent(query)}>
               <Icon d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
             </button>
-            <input type="text" placeholder="Search mail" readOnly />
-            <button className="ib" aria-label="Show search options">
-              <Icon d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z" />
-            </button>
+            {filterLabels.map((l) => (
+              <span key={l.id} className="chip" style={{ background: l.color }}>
+                {l.name}
+                <button aria-label={`Remove filter ${l.name}`} onClick={() => toggleLabelFilter(l.id)}>
+                  ×
+                </button>
+              </span>
+            ))}
+            <input
+              ref={searchRef}
+              type="text"
+              value={query}
+              placeholder={filterLabels.length ? "Add another intent…" : "Describe what to find — e.g. “customers threatening to cancel”"}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setSearchOpen(true)}
+              onBlur={() => setTimeout(() => setSearchOpen(false), 120)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") submitIntent(query);
+                if (e.key === "Escape") searchRef.current?.blur();
+              }}
+              disabled={isMock}
+              title={isMock ? "Natural-language labels need live inference (MOCK=1 is on)" : undefined}
+            />
+            <span className="search-hint">
+              <kbd>/</kbd>
+            </span>
+            {searchOpen && (
+              <div className="intent-menu">
+                <div className="im-head">
+                  <Sparkle />
+                  <span>
+                    Label by intent · Jev judges all {EMAILS.length} emails <b>≈ 1 question each</b>
+                  </span>
+                </div>
+                {query.trim() && (
+                  <button className="im-item primary" onMouseDown={(e) => e.preventDefault()} onClick={() => submitIntent(query)}>
+                    <Sparkle />
+                    <span>
+                      Label emails that are <b>“{query.trim()}”</b>
+                    </span>
+                    <kbd>↵</kbd>
+                  </button>
+                )}
+                {suggestions.map((s) => (
+                  <button key={s} className="im-item" onMouseDown={(e) => e.preventDefault()} onClick={() => submitIntent(s)}>
+                    <Icon d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                    <span>{s}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {labels.active && activeSummary && (
+              <div className="intent-run">
+                <div className="ir-head">
+                  <Sparkle spin />
+                  <span>
+                    Labeling <b>“{labels.active.intent}”</b>
+                  </span>
+                  <button className="ib sm" aria-label="Stop" onClick={() => labels.stop(labels.active!.id)}>
+                    <Icon d="M6 6h12v12H6z" />
+                  </button>
+                </div>
+                <div className="ir-bar">
+                  <i style={{ width: `${pct}%`, background: labels.active.color }} />
+                </div>
+                <div className="ir-stats">
+                  <span>
+                    <b>{activeSummary.matched}</b> match
+                  </span>
+                  <span>
+                    <b>{labels.active.stats.processed}</b> / {labels.active.stats.total} judged
+                  </span>
+                  <span>
+                    <b>{labels.active.stats.perSecond.toFixed(0)}</b> emails/s
+                  </span>
+                  <span>
+                    p50 <b>{fmtMs(labels.active.stats.p50)}</b>
+                  </span>
+                  <span>
+                    <b>{fmtMs(labels.active.stats.elapsedMs)}</b>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <div className="tb-right">
@@ -274,13 +412,45 @@ export default function App() {
             </button>
           )}
           <div className="nav-list">
-            <NavItem id="all" label="Inbox" count={laneCounts.all} active={laneFilter} set={setLaneFilter} icon="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h3.56c.69 1.19 1.97 2 3.45 2h1.98c1.48 0 2.75-.81 3.45-2H20v6zm0-8h-5.99c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2H4V6h16v4z" />
-            <NavItem id="priority" label="Priority" count={laneCounts.priority} active={laneFilter} set={setLaneFilter} icon="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            <NavItem id="human" label="Needs review" count={laneCounts.human} active={laneFilter} set={setLaneFilter} icon="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            <NavItem id="fyi" label="FYI" count={laneCounts.fyi} active={laneFilter} set={setLaneFilter} icon="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
-            <NavItem id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={setLaneFilter} icon="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z" />
-            <NavItem id="archived" label="Archived" count={laneCounts.archived} active={laneFilter} set={setLaneFilter} icon="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
-            {rulesOn && <NavItem id="disagree" label="Rules ≠ Sift" count={laneCounts.disagree} active={laneFilter} set={setLaneFilter} icon="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />}
+            <NavItem id="all" label="Inbox" count={laneCounts.all} active={labelFilter.length ? null : laneFilter} set={pickLane} icon="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h3.56c.69 1.19 1.97 2 3.45 2h1.98c1.48 0 2.75-.81 3.45-2H20v6zm0-8h-5.99c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2H4V6h16v4z" />
+            <NavItem id="priority" label="Priority" count={laneCounts.priority} active={laneFilter} set={pickLane} icon="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            <NavItem id="human" label="Needs review" count={laneCounts.human} active={laneFilter} set={pickLane} icon="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            <NavItem id="fyi" label="FYI" count={laneCounts.fyi} active={laneFilter} set={pickLane} icon="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+            <NavItem id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={pickLane} icon="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z" />
+            <NavItem id="archived" label="Archived" count={laneCounts.archived} active={laneFilter} set={pickLane} icon="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
+            {rulesOn && <NavItem id="disagree" label="Rules ≠ Sift" count={laneCounts.disagree} active={laneFilter} set={pickLane} icon="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />}
+          </div>
+
+          <div className="nav-section intents">
+            <div className="nav-h">
+              <span>Labels</span>
+              <button className="ib sm" title="New label from an intent" onClick={() => searchRef.current?.focus()}>
+                <Icon d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </button>
+            </div>
+            {labels.labels.length === 0 && <div className="nav-hint">Type an intent in the search bar — Jev labels every email that fits.</div>}
+            {labels.labels.map((l) => {
+              const s = summarize(l.matches.values());
+              return (
+                <div key={l.id} className={`nav-item label ${labelFilter.includes(l.id) ? "active" : ""} ${l.phase}`} onClick={() => toggleLabelFilter(l.id)} title={`${l.intent}\n${s.matched} match · ${s.judged} judged · ${fmtMs(l.stats.elapsedMs)}`}>
+                  <span className="dot" style={{ background: l.color }} />
+                  <span className="lbl">{l.name}</span>
+                  {l.phase === "running" && <span className="spin" style={{ borderTopColor: l.color }} />}
+                  {l.phase === "error" && <span className="err-dot" title={l.fatal}>!</span>}
+                  <b>{s.matched}</b>
+                  <button
+                    className="x"
+                    aria-label={`Delete label ${l.name}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeLabel(l.id);
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div className="nav-section">
@@ -361,21 +531,40 @@ export default function App() {
                 <Icon d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
               </button>
             </div>
-            {running && <div className="loading" style={{ width: `${pct}%` }} />}
+            {hudRunning && <div className="loading" style={{ width: `${pct}%`, background: hudLabel?.color }} />}
           </div>
 
-          <div className={`hud ${running ? "live" : ""}`}>
-            <Metric label="Processed" value={`${stats.processed}`} sub={`of ${stats.total}${stats.errors ? ` · ${stats.errors} err` : ""}`} />
-            <Metric label="Judgments" value={stats.judgments.toLocaleString()} sub={`${QUESTIONS_PER_EMAIL} per email`} />
-            <Metric label="Emails / sec" value={stats.perSecond.toFixed(1)} hot />
-            <Metric label="p50 latency" value={fmtMs(stats.p50)} sub="per request" />
-            <Metric label="p95 latency" value={fmtMs(stats.p95)} />
-            <Metric label="Elapsed" value={fmtMs(stats.elapsedMs)} hot={running} />
-            <Metric label="Cost" value={fmtUsd(stats.costUsd)} sub={`${stats.inputTokens.toLocaleString()} tok`} />
+          <div className={`hud ${hudRunning ? "live" : ""}`}>
+            <div className="hud-title">
+              {hudLabel ? (
+                <>
+                  <span className="dot" style={{ background: hudLabel.color }} />
+                  <span className="ht-name">{hudLabel.name}</span>
+                  <span className="ht-sub">1 question · “{hudLabel.intent}”</span>
+                </>
+              ) : (
+                <>
+                  <Sparkle />
+                  <span className="ht-name">Triage</span>
+                  <span className="ht-sub">{QUESTIONS_PER_EMAIL} questions per email</span>
+                </>
+              )}
+            </div>
+            <Metric label={hudLabel ? "Match" : "Processed"} value={hudLabel ? `${summarize(hudLabel.matches.values()).matched}` : `${hudStats.processed}`} sub={hudLabel ? `of ${hudStats.processed} judged` : `of ${hudStats.total}${hudStats.errors ? ` · ${hudStats.errors} err` : ""}`} />
+            <Metric label="Judgments" value={hudStats.judgments.toLocaleString()} sub={`${hudLabel ? 1 : QUESTIONS_PER_EMAIL} per email`} />
+            <Metric label="Emails / sec" value={hudStats.perSecond.toFixed(1)} hot />
+            <Metric label="p50 latency" value={fmtMs(hudStats.p50)} sub="per request" />
+            <Metric label="p95 latency" value={fmtMs(hudStats.p95)} />
+            <Metric label="Elapsed" value={fmtMs(hudStats.elapsedMs)} hot={hudRunning} />
+            <Metric label="Cost" value={fmtUsd(hudStats.costUsd)} sub={`${hudStats.inputTokens.toLocaleString()} tok`} />
           </div>
 
           <div className="list" ref={listRef}>
-            {visible.length === 0 && <div className="empty">Nothing here{phase === "idle" ? " yet — press Triage" : ""}.</div>}
+            {visible.length === 0 && (
+              <div className="empty">
+                {filterLabels.length ? (filterDone ? `No emails match ${filterLabels.map((l) => `“${l.name}”`).join(" and ")}.` : "Sifting…") : `Nothing here${phase === "idle" ? " yet — press Triage" : ""}.`}
+              </div>
+            )}
             {visible.map((r, i) => (
               <EmailRow
                 key={`${rerankTick}:${r.email.id}`}
@@ -389,12 +578,14 @@ export default function App() {
                 replyFlag={replyFlag.has(r.email.id)}
                 archived={archived.has(r.email.id)}
                 done={done}
+                labels={labels.labels}
+                filterLabels={filterLabels}
               />
             ))}
           </div>
         </section>
 
-        <section className="reader">{selected ? <Preview row={selected} rulesOn={rulesOn} weights={weights} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} /> : null}</section>
+        <section className="reader">{selected ? <Preview row={selected} rulesOn={rulesOn} weights={weights} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} labels={labels.labels} /> : null}</section>
 
         <aside className="rail">
           <span className="rail-ic" style={{ background: "#1a73e8" }}>
@@ -448,7 +639,33 @@ function Metric({ label, value, sub, hot }: { label: string; value: string; sub?
   );
 }
 
-function NavItem({ id, label, count, active, set, icon }: { id: LaneFilter; label: string; count: number; active: LaneFilter; set: (l: LaneFilter) => void; icon: string }) {
+function Sparkle({ spin }: { spin?: boolean }) {
+  return (
+    <svg className={`sparkle ${spin ? "spin" : ""}`} viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2zm7 12l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9L19 14zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7L5 15z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function LabelChips({ id, labels, filterLabels }: { id: string; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
+  return (
+    <>
+      {labels.map((l) => {
+        const m = l.matches.get(id);
+        if (!isMatch(m)) return null;
+        const filtered = filterLabels.includes(l);
+        return (
+          <span key={l.id} className={`badge user ${m!.match < SURE_THRESHOLD ? "soft" : ""}`} style={{ background: l.color }} title={`${l.intent} · ${(m!.match * 100).toFixed(0)}% · ${m!.latencyMs.toFixed(0)} ms`}>
+            {l.name}
+            {filtered && <em>{(m!.match * 100).toFixed(0)}%</em>}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function NavItem({ id, label, count, active, set, icon }: { id: LaneFilter; label: string; count: number; active: LaneFilter | null; set: (l: LaneFilter) => void; icon: string }) {
   return (
     <button className={`nav-item ${active === id ? "active" : ""}`} onClick={() => set(id)}>
       <Icon d={icon} />
@@ -514,8 +731,10 @@ function clock(iso: string): string {
   return `${h}:${m} ${ap}`;
 }
 
-function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, replyFlag, archived, done }: { row: Row; index: number; selected: boolean; onSelect: () => void; weights: Weights; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean }) {
+function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, replyFlag, archived, done, labels, filterLabels }: { row: Row; index: number; selected: boolean; onSelect: () => void; weights: Weights; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
   const { email, judgment, result } = row;
+  const lastFilter = filterLabels[filterLabels.length - 1];
+  const shownLatency = lastFilter ? lastFilter.matches.get(email.id)?.latencyMs : result?.latencyMs;
   const dis = rulesOn && row.disagree.length > 0;
   const needsReply = replyFlag || (judgment ? yes(judgment.needsReply) : false);
   const unread = !judgment || needsReply;
@@ -530,6 +749,7 @@ function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, rep
       <span className="from">{email.from}</span>
       <span className="text">
         <span className="labels">
+          <LabelChips id={email.id} labels={labels} filterLabels={filterLabels} />
           {judgment ? <JudgmentBadges j={judgment} compact /> : error ? <Badge kind="err">error</Badge> : null}
           {dis && (
             <Badge kind="dis" title={`rules disagree on: ${row.disagree.map((d) => DIM_LABEL[d]).join(", ")}`}>
@@ -542,7 +762,7 @@ function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, rep
       </span>
       <span className="meta">
         {judgment && done && <span className="prio" title="priority score (computed locally from the judgments)">{priority(judgment, weights).toFixed(0)}</span>}
-        {result && <span className="lat" title="request latency, server-measured">{result.latencyMs.toFixed(0)} ms</span>}
+        {shownLatency !== undefined && <span className="lat" title="request latency, server-measured">{shownLatency.toFixed(0)} ms</span>}
       </span>
       <span className="date">{clock(email.receivedAt)}</span>
     </div>
@@ -558,9 +778,10 @@ function Prob({ label, p }: { label: string; p: number }) {
   );
 }
 
-function Preview({ row, rulesOn, weights, replyFlag, error }: { row: Row; rulesOn: boolean; weights: Weights; replyFlag: boolean; error?: string }) {
+function Preview({ row, rulesOn, weights, replyFlag, error, labels }: { row: Row; rulesOn: boolean; weights: Weights; replyFlag: boolean; error?: string; labels: IntentLabel[] }) {
   const { email, judgment, result, rule } = row;
   const dis = new Set(row.disagree);
+  const judgedLabels = labels.filter((l) => l.matches.has(email.id));
   return (
     <div className="pv">
       <div className="pv-subject">
@@ -586,6 +807,27 @@ function Preview({ row, rulesOn, weights, replyFlag, error }: { row: Row; rulesO
       </div>
       {email.trap && <div className="trap">Why keyword rules fail here: {email.trap}</div>}
       <pre className="pv-body">{email.body}</pre>
+
+      {judgedLabels.length > 0 && (
+        <div className="pv-judg">
+          <div className="pv-title">Intent labels</div>
+          <div className="probs">
+            {judgedLabels.map((l) => {
+              const m = l.matches.get(email.id)!;
+              return (
+                <div key={l.id} className={`prob user ${isMatch(m) ? "on" : ""}`}>
+                  <span>
+                    <span className="dot" style={{ background: l.color }} />
+                    {l.name}
+                  </span>
+                  <i style={{ width: `${m.match * 100}%`, background: l.color }} />
+                  <b>{(m.match * 100).toFixed(0)}%</b>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="pv-judg">
         <div className="pv-title">

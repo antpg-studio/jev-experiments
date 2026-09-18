@@ -23,7 +23,7 @@ export interface RunStats {
 
 export const QUESTIONS_PER_EMAIL = 7;
 
-export function computeStats(latencies: number[], inputTokens: number, elapsedMs: number, total: number, errors: number): RunStats {
+export function computeStats(latencies: number[], inputTokens: number, elapsedMs: number, total: number, errors: number, questionsPerEmail = QUESTIONS_PER_EMAIL): RunStats {
   const sorted = [...latencies].sort((a, b) => a - b);
   const processed = latencies.length;
   const sum = sorted.reduce((a, b) => a + b, 0);
@@ -38,7 +38,7 @@ export function computeStats(latencies: number[], inputTokens: number, elapsedMs
     meanLatency: processed ? sum / processed : 0,
     inputTokens,
     costUsd: inputTokens * USD_PER_INPUT_TOKEN,
-    judgments: processed * QUESTIONS_PER_EMAIL,
+    judgments: processed * questionsPerEmail,
   };
 }
 
@@ -47,12 +47,13 @@ export class LatencyTracker {
   private lat: number[] = [];
   tokens = 0;
   errors = 0;
+  constructor(private questionsPerEmail = QUESTIONS_PER_EMAIL) {}
   add(latencyMs: number, tokens: number) {
     this.lat.push(latencyMs);
     this.tokens += tokens;
   }
   stats(elapsedMs: number, total: number): RunStats {
-    return computeStats(this.lat, this.tokens, elapsedMs, total, this.errors);
+    return computeStats(this.lat, this.tokens, elapsedMs, total, this.errors, this.questionsPerEmail);
   }
   reset() {
     this.lat = [];

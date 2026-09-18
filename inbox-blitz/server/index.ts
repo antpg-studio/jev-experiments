@@ -3,8 +3,10 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { EMAILS } from "../src/data/emails.ts";
-import type { Email, JudgmentResult, StreamEvent } from "../src/lib/types.ts";
-import { judgeEmail, MODEL, type JudgeOutcome } from "./jev.ts";
+import type { Email, JudgmentResult, LabelStreamEvent, StreamEvent } from "../src/lib/types.ts";
+import { judgeEmail, matchEmail, MODEL, type JudgeOutcome } from "./jev.ts";
+
+const MAX_INTENT_CHARS = 200;
 
 const PORT = Number(process.env.PORT ?? 8787);
 const MOCK = process.env.MOCK === "1";
@@ -121,6 +123,70 @@ async function handleTriage(req: IncomingMessage, res: ServerResponse) {
   }
 }
 
+/**
+ * Natural-language labelling: one noul question ("does this email match the
+ * operator's description?") per email, streamed as NDJSON. Recorded mock
+ * answers only cover the fixed triage questions, so this endpoint is live-only.
+ */
+async function handleLabel(req: IncomingMessage, res: ServerResponse) {
+  const raw = await readBody(req);
+  let concurrency = 12;
+  let intent = "";
+  try {
+    const parsed = raw ? (JSON.parse(raw) as { concurrency?: number; intent?: string }) : {};
+    if (typeof parsed.concurrency === "number") concurrency = Math.max(1, Math.min(32, parsed.concurrency));
+    if (typeof parsed.intent === "string") intent = parsed.intent.trim().slice(0, MAX_INTENT_CHARS);
+  } catch {
+    json(res, 400, { error: "invalid JSON body" });
+    return;
+  }
+  if (!intent) {
+    json(res, 400, { error: "intent is required" });
+    return;
+  }
+  if (MOCK) {
+    json(res, 400, { error: "Natural-language labels need live inference — restart without MOCK=1." });
+    return;
+  }
+  if (!API_KEY) {
+    json(res, 500, { error: "TYPESAFE_API_KEY is not set on the server. Export it and restart `npm run dev`." });
+    return;
+  }
+
+  const ac = new AbortController();
+  res.on("close", () => ac.abort());
+  res.writeHead(200, {
+    "Content-Type": "application/x-ndjson",
+    "Cache-Control": "no-store",
+    "X-Accel-Buffering": "no",
+    "Transfer-Encoding": "chunked",
+  });
+  const send = (ev: LabelStreamEvent) => {
+    if (!res.writableEnded && !res.destroyed) res.write(JSON.stringify(ev) + "\n");
+  };
+
+  send({ type: "start", total: EMAILS.length, concurrency, mock: false, model: MODEL, intent });
+  const t0 = performance.now();
+  let next = 0;
+
+  async function worker() {
+    while (next < EMAILS.length && !ac.signal.aborted) {
+      const email = EMAILS[next++];
+      try {
+        const out = await matchEmail(email, intent, API_KEY, ac.signal);
+        send({ type: "match", id: email.id, match: out.match, latencyMs: out.latencyMs, inputTokens: out.inputTokens, retries: out.retries });
+      } catch (err) {
+        if (ac.signal.aborted) return;
+        send({ type: "error", id: email.id, message: err instanceof Error ? err.message : String(err) });
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  send({ type: "done", elapsedMs: performance.now() - t0 });
+  res.end();
+}
+
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
   try {
@@ -130,6 +196,10 @@ const server = createServer(async (req, res) => {
     }
     if (req.method === "POST" && url.pathname === "/api/triage") {
       await handleTriage(req, res);
+      return;
+    }
+    if (req.method === "POST" && url.pathname === "/api/label") {
+      await handleLabel(req, res);
       return;
     }
     json(res, 404, { error: "not found" });

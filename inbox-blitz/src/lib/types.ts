@@ -55,3 +55,19 @@ export type StreamEvent =
   | ({ type: "result" } & JudgmentResult)
   | { type: "error"; id: string; message: string }
   | { type: "done"; elapsedMs: number };
+
+/** One email judged against a free-text intent ("customers threatening to cancel"). */
+export interface MatchResult {
+  id: string;
+  /** Probability that the email fits the intent, 0..1. */
+  match: number;
+  latencyMs: number;
+  inputTokens: number;
+  retries: number;
+}
+
+export type LabelStreamEvent =
+  | { type: "start"; total: number; concurrency: number; mock: boolean; model: string; intent: string }
+  | ({ type: "match" } & MatchResult)
+  | { type: "error"; id: string; message: string }
+  | { type: "done"; elapsedMs: number };

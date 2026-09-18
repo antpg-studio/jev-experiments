@@ -112,18 +112,37 @@ interface ScoreAnswer {
   confidence: number;
 }
 
-interface SystemOneResponse {
+interface TriageAnswers {
+  category: ChoiceAnswer;
+  needs_reply: NoulAnswer;
+  urgency: ScoreAnswer;
+  sentiment: ScoreAnswer;
+  is_phishing_or_scam: NoulAnswer;
+  mentions_churn_or_cancel: NoulAnswer;
+  asks_for_refund: NoulAnswer;
+}
+
+interface SystemOneResponse<A> {
   model: string;
-  answers: {
-    category: ChoiceAnswer;
-    needs_reply: NoulAnswer;
-    urgency: ScoreAnswer;
-    sentiment: ScoreAnswer;
-    is_phishing_or_scam: NoulAnswer;
-    mentions_churn_or_cancel: NoulAnswer;
-    asks_for_refund: NoulAnswer;
-  };
+  answers: A;
   usage: { input_tokens: number; output_tokens: number };
+}
+
+/**
+ * A free-text description typed by the operator ("customers threatening to
+ * cancel", "anyone asking for a demo") becomes one noul question. Jev decides
+ * per email whether it fits; the label name, filtering and counting are code.
+ */
+export function intentQuestion(intent: string) {
+  return {
+    match: noul(
+      `An inbox operator wants to find emails that match this description: "${intent}". Read \`email.from\`, \`email.subject\` and \`email.body\`. Does this email genuinely match the description, judged by what the sender actually means and intends rather than by surface keywords?`,
+      {
+        true: "The email clearly fits the operator's description",
+        false: "The email does not fit the description, or only mentions related words in passing, sarcastically, in quoted history or in marketing copy",
+      },
+    ),
+  };
 }
 
 export function emailState(email: Email) {
@@ -136,7 +155,7 @@ export function emailState(email: Email) {
   };
 }
 
-export function toJudgment(answers: SystemOneResponse["answers"]): Judgment {
+export function toJudgment(answers: TriageAnswers): Judgment {
   const cat = answers.category.choice;
   const category: Category = (CATEGORIES as readonly string[]).includes(cat) ? (cat as Category) : "other";
   return {
@@ -163,8 +182,24 @@ export class JevError extends Error {
   }
 }
 
+export interface CallOutcome<A> {
+  answers: A;
+  latencyMs: number;
+  inputTokens: number;
+  retries: number;
+  model: string;
+}
+
 export interface JudgeOutcome {
   judgment: Judgment;
+  latencyMs: number;
+  inputTokens: number;
+  retries: number;
+  model: string;
+}
+
+export interface MatchOutcome {
+  match: number;
   latencyMs: number;
   inputTokens: number;
   retries: number;
@@ -176,13 +211,25 @@ const MAX_RETRIES = 6;
 /** A single round trip is normally ~100-300 ms; anything past this is treated as a lost request and retried. */
 export const REQUEST_TIMEOUT_MS = 6000;
 
+/** All seven triage questions for one email in a single TypeSafe call. */
+export async function judgeEmail(email: Email, apiKey: string, signal?: AbortSignal): Promise<JudgeOutcome> {
+  const { answers, ...rest } = await systemOne<TriageAnswers>(emailState(email), TRIAGE_QUESTIONS, apiKey, signal);
+  return { judgment: toJudgment(answers), ...rest };
+}
+
+/** One yes/no question — "does this email match the operator's description?" — for one email. */
+export async function matchEmail(email: Email, intent: string, apiKey: string, signal?: AbortSignal): Promise<MatchOutcome> {
+  const { answers, ...rest } = await systemOne<{ match: NoulAnswer }>(emailState(email), intentQuestion(intent), apiKey, signal);
+  return { match: answers.match.noul, ...rest };
+}
+
 /**
- * One TypeSafe call for one email. Retries 429/529/5xx and timeouts with
- * exponential backoff (honouring `retry-after`). `latencyMs` is measured with
+ * One TypeSafe call. Retries 429/529/5xx and timeouts with exponential
+ * backoff (honouring `retry-after`). `latencyMs` is measured with
  * performance.now() around the final successful HTTP round trip only.
  */
-export async function judgeEmail(email: Email, apiKey: string, signal?: AbortSignal): Promise<JudgeOutcome> {
-  const body = JSON.stringify({ state: emailState(email), model: MODEL, questions: TRIAGE_QUESTIONS });
+export async function systemOne<A>(state: unknown, questions: Record<string, NoulQuestion | ChoiceQuestion | ScoreQuestion>, apiKey: string, signal?: AbortSignal): Promise<CallOutcome<A>> {
+  const body = JSON.stringify({ state, model: MODEL, questions });
   let retries = 0;
   for (;;) {
     const t0 = performance.now();
@@ -216,7 +263,7 @@ export async function judgeEmail(email: Email, apiKey: string, signal?: AbortSig
       const text = await res.text();
       throw new JevError(`TypeSafe ${res.status}: ${text.slice(0, 200)}`, res.status);
     }
-    const data = (await res.json()) as SystemOneResponse;
-    return { judgment: toJudgment(data.answers), latencyMs, inputTokens: data.usage.input_tokens, retries, model: data.model };
+    const data = (await res.json()) as SystemOneResponse<A>;
+    return { answers: data.answers, latencyMs, inputTokens: data.usage.input_tokens, retries, model: data.model };
   }
 }
