@@ -20,8 +20,13 @@ export function PostMeetingPanel({ phase, clock, wallStart, wallEnd, items, acti
       className="baseline post"
       active={active}
       onActivate={onActivate}
-      title={<>Post-meeting summary <span className="pill illustrative">illustrative</span></>}
-      right={<span className="muted">{phase === "done" ? "Delivered" : "Waiting…"}</span>}
+      title="Post-meeting summary"
+      right={
+        <>
+          <span className="pill illustrative">illustrative</span>
+          <span className={`pill${phase === "done" ? " delivered" : ""}`}>{phase === "done" ? "Delivered" : "Waiting…"}</span>
+        </>
+      }
     >
       <div className="scroll">
         {phase !== "done" ? (

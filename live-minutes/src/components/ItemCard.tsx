@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import type { MinuteItem } from "../lib/aggregate.ts";
 import type { Attendee } from "../lib/types.ts";
 import { fmtMs } from "../lib/stats.ts";
@@ -12,6 +12,8 @@ interface Props {
   onFix: (id: number, name: string | null) => void;
 }
 
+const MENU_H = 5 * 36 + 12;
+
 const MARK: Record<MinuteItem["bucket"], string> = {
   actions: "☐",
   decisions: "✓",
@@ -20,8 +22,29 @@ const MARK: Record<MinuteItem["bucket"], string> = {
 };
 
 export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
-  const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState<{ left: number; top: number; up: boolean } | null>(null);
   const reported = useRef(false);
+  const open = menu !== null;
+  const setOpen = (v: boolean) => {
+    if (!v) setMenu(null);
+  };
+  const toggle = (e: MouseEvent<HTMLButtonElement>) => {
+    if (open) return setMenu(null);
+    const r = e.currentTarget.getBoundingClientRect();
+    const up = window.innerHeight - r.bottom < MENU_H + 12;
+    setMenu({ left: r.left, top: up ? r.top - 6 : r.bottom + 6, up });
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setMenu(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [open]);
 
   // Measured end-of-utterance → this card committed to the DOM.
   useEffect(() => {
@@ -48,13 +71,17 @@ export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
               <button
                 type="button"
                 className={`owner${item.assigneeUncertain ? " uncertain" : ""}${item.assigneeEdited ? " edited" : ""}`}
-                onClick={() => setOpen((o) => !o)}
+                onClick={toggle}
                 title={item.assigneeUncertain ? "Owner uncertain — click to fix" : "Click to change owner"}
               >
                 {item.assigneeUncertain ? "Who owns this?" : item.assignee ? `Owner: ${item.assignee.split(" ")[0]}` : "Unassigned"}
               </button>
-              {open && (
-                <div className="owner-menu" onMouseLeave={() => setOpen(false)}>
+              {menu && (
+                <div
+                  className={`owner-menu${menu.up ? " up" : ""}`}
+                  style={{ left: menu.left, top: menu.top }}
+                  onMouseLeave={() => setOpen(false)}
+                >
                   {attendees.map((a) => {
                     const p = item.assigneeCandidates.find((c) => c.name === a.name)?.p ?? 0;
                     return (
