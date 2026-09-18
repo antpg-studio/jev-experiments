@@ -3,10 +3,13 @@ import type { Store } from "../lib/store.ts";
 import { colToName } from "../engine/refs.ts";
 import { viewOf } from "./format.ts";
 
-export const ROW_H = 26;
-export const HEAD_H = 28;
-export const ROWHEAD_W = 52;
-export const DEFAULT_COL_W = 100;
+export const ROW_H = 27;
+export const HEAD_H = 25;
+export const ROWHEAD_W = 48;
+export const DEFAULT_COL_W = 120;
+
+/** Something drawn on the canvas just below a cell (intent chip, smart-fill card). */
+export type Anchored = { key: string; row: number; col: number; node: React.ReactNode };
 
 export type Selection = { ar: number; ac: number; fr: number; fc: number };
 export type Editing = { row: number; col: number; text: string; caretEnd?: boolean } | null;
@@ -30,9 +33,25 @@ type Props = {
   onKeyDown: (e: React.KeyboardEvent) => void;
   onFill: (toRow: number) => void;
   version: number;
+  /** Columns whose predicted values are still a suggestion (drawn as ghosts). */
+  ghostCols: Set<number>;
+  anchored: Anchored[];
 };
 
-export function Grid({ store, sheet, sel, setSel, editing, setEditing, commitEdit, cancelEdit, onKeyDown, onFill }: Props) {
+export function Grid({
+  store,
+  sheet,
+  sel,
+  setSel,
+  editing,
+  setEditing,
+  commitEdit,
+  cancelEdit,
+  onKeyDown,
+  onFill,
+  ghostCols,
+  anchored,
+}: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -182,10 +201,11 @@ export function Grid({ store, sheet, sel, setSel, editing, setEditing, commitEdi
       const inFill = fillTo !== null && r > n.r2 && r <= fillTo && c >= n.c1 && c <= n.c2;
       const raw = store.wb.getRaw(sheet, r, c);
       const isFormula = raw.startsWith("=");
+      const ghost = r > 0 && ghostCols.has(c);
       cells.push(
         <div
           key={`${r}:${c}`}
-          className={`${view.className}${inSel ? " sel" : ""}${inFill ? " fillpreview" : ""}${isFormula ? " formula" : ""}`}
+          className={`${view.className}${inSel ? " sel" : ""}${inFill ? " fillpreview" : ""}${isFormula ? " formula" : ""}${r === 0 ? " headrow" : ""}${ghost ? " ghost" : ""}`}
           style={{ ...view.style, top: r * ROW_H, left: widths.offs[c], width: widths.arr[c], height: ROW_H }}
           title={view.title}
         >
@@ -200,7 +220,7 @@ export function Grid({ store, sheet, sel, setSel, editing, setEditing, commitEdi
     colHeads.push(
       <div
         key={c}
-        className={`colhead${c >= n.c1 && c <= n.c2 ? " active" : ""}`}
+        className={`colhead${c >= n.c1 && c <= n.c2 ? " active" : ""}${n.r1 === 0 && n.r2 === sh.rows - 1 && c >= n.c1 && c <= n.c2 ? " full" : ""}`}
         style={{ left: widths.offs[c] - scroll.left, width: widths.arr[c] }}
         onMouseDown={(e) => {
           if ((e.target as HTMLElement).dataset.resize) return;
@@ -297,6 +317,17 @@ export function Grid({ store, sheet, sel, setSel, editing, setEditing, commitEdi
               spellCheck={false}
             />
           )}
+          {anchored.map((a) => (
+            <div
+              key={a.key}
+              className="anchored"
+              style={{ top: (a.row + 1) * ROW_H + 4, left: widths.offs[a.col] }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onDoubleClick={(e) => e.stopPropagation()}
+            >
+              {a.node}
+            </div>
+          ))}
         </div>
       </div>
     </div>
