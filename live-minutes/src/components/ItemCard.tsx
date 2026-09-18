@@ -12,6 +12,13 @@ interface Props {
   onFix: (id: number, name: string | null) => void;
 }
 
+const MARK: Record<MinuteItem["bucket"], string> = {
+  actions: "☐",
+  decisions: "✓",
+  questions: "?",
+  risks: "!",
+};
+
 export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
   const [open, setOpen] = useState(false);
   const reported = useRef(false);
@@ -25,13 +32,16 @@ export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
 
   const superseded = item.supersededBy !== null;
   const unassignedP = Math.max(0, 1 - item.assigneeCandidates.reduce((s, c) => s + c.p, 0));
+  const first = item.speaker.split(" ")[0];
   return (
     <article className={`card imp-${item.importance}${superseded ? " superseded" : ""}${item.reverses ? " reverses" : ""}`}>
+      <span className={`mark ${item.bucket}`}>{MARK[item.bucket]}</span>
       <div className="card-main">
         <p className="card-text">{item.text}</p>
         <div className="card-meta">
-          <span className={`who ${speakerClass(item.speaker)}`} title={`said by ${item.speaker}`}>
-            {item.speaker.split(" ")[0]}
+          <span className="who" title={`said by ${item.speaker}`}>
+            <span className={`avatar xs ${speakerClass(item.speaker)}`}>{first[0]}</span>
+            {first}
           </span>
           {item.bucket === "actions" && (
             <span className="owner-wrap">
@@ -41,7 +51,7 @@ export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
                 onClick={() => setOpen((o) => !o)}
                 title={item.assigneeUncertain ? "Owner uncertain — click to fix" : "Click to change owner"}
               >
-                <span className="owner-name">{item.assigneeUncertain ? "who?" : item.assignee ? item.assignee.split(" ")[0].toLowerCase() : "unassigned"}</span>
+                {item.assigneeUncertain ? "Who owns this?" : item.assignee ? `Owner: ${item.assignee.split(" ")[0]}` : "Unassigned"}
               </button>
               {open && (
                 <div className="owner-menu" onMouseLeave={() => setOpen(false)}>
@@ -68,7 +78,7 @@ export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
                       setOpen(false);
                     }}
                   >
-                    <span>unassigned</span>
+                    <span>Unassigned</span>
                     <span className="p">{Math.round(unassignedP * 100)}%</span>
                   </button>
                 </div>
@@ -77,15 +87,15 @@ export function ItemCard({ item, spokenAt, attendees, onShown, onFix }: Props) {
           )}
           {item.deadline.kind !== "none" && (
             <span className={`due${item.deadline.date ? "" : " vague"}`} title={item.deadline.date ?? "date not parsed"}>
-              {item.deadline.label}
+              Due {item.deadline.label}
             </span>
           )}
-          {item.blocked && <span className="flag blocked">blocked</span>}
-          {item.reverses && <span className="flag rev">reverses</span>}
-          {superseded && <span className="flag old">superseded</span>}
+          {item.blocked && <span className="flag blocked">Blocked</span>}
+          {item.reverses && <span className="flag rev">Reverses earlier</span>}
+          {superseded && <span className="flag old">Superseded</span>}
         </div>
       </div>
-      <span className="card-lat" title="end of utterance → on screen">
+      <span className="card-lat" title="end of sentence → on screen">
         {item.latencyMs === null ? "…" : fmtMs(item.latencyMs)}
       </span>
     </article>

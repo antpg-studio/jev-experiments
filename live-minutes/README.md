@@ -1,8 +1,8 @@
-# Live Minutes
+# Fern (folder `live-minutes`)
 
-**Who owns what by when — as it is said.**
+**Meeting notes that write themselves as you talk — who owns what by when, as it is said.**
 
-![Live Minutes after a full 4× replay of the standup](screenshots/live-minutes.jpg)
+![Fern after a full 4× replay of the standup](screenshots/live-minutes.jpg)
 
 ![Live replay: action items, decisions, questions and risks appearing ~150 ms after each utterance](screenshots/live-minutes-demo.webp)
 
@@ -13,20 +13,21 @@ transcript, run one big summarisation prompt, then parse the prose. By the time 
 rounding write-up by tomorrow" shows up, Marcus has left the call and nobody can say "no, Sofia
 took that".
 
-Live Minutes judges **every finished sentence as it is spoken**. Each utterance becomes one
+Fern judges **every finished sentence as it is spoken**. Each utterance becomes one
 [TypeSafe](https://typesafe.ai) Jev request that answers seven independent questions at once,
 and the card lands in the Action items / Decisions / Open questions / Risks list about **150 ms
 after the sentence ends** — while the speaker is still talking, so people can correct it in the room.
 
 Why latency matters here: the value of an extracted action item decays with the distance from the
 moment it was said. Inside ~200 ms it is a shared artefact the room can react to ("that's not what
-I meant", click the `?` chip to fix the owner). Ten minutes later it is a diff somebody reviews alone.
+I meant", click the *Who owns this?* chip to fix the owner). Ten minutes later it is a diff somebody reviews alone.
 
 ## What is on screen
 
-The UI is laid out like a tmux session: seven bordered panes labelled `0:transcript` … `6:keyword-heuristic`
-(the active pane has a green border), a measured-metrics line, and a green status bar with the windows,
-the active pane, the key bindings, the data source and a clock. Everything is keyboard-driven:
+A light, notes-app layout: a sidebar with today's meeting, attendees and the replay / microphone
+controls; the meeting document in the middle (Action items on top, Decisions / Open questions / Risks
+below); the live transcript and the two "old way" baselines on the right; a measured-metrics bar along
+the bottom. Everything also has a key binding:
 
 | key | action |
 |---|---|
@@ -34,15 +35,15 @@ the active pane, the key bindings, the data source and a clock. Everything is ke
 | `x` | reset |
 | `r` / `m` | replay / live mic |
 | `1` / `4` / `a` | 1× / 4× / all at once |
-| `j` / `k` | next / previous pane (or click a pane) |
+| `j` / `k` | next / previous panel (or click a panel) |
 
 | Pane | What it shows |
 |---|---|
-| **0:transcript** (left) | Speaker-labelled utterances with the kind Jev assigned and the round-trip latency of that call. |
-| **1:action-items / 2:decisions / 3:open-questions / 4:risks** (centre) | Cards that appear as utterances are judged. Each card carries a **latency tag: measured end-of-utterance → card committed to the DOM**. Action items show an `@owner` chip, a resolved `due:` date, and a yellow `@who?` chip when Jev is not confident about the owner — click it to see the probability over attendees and fix it. Reversed decisions are struck through and marked *superseded*. Blocked status updates surface under Risks. |
-| **5:post-meeting-summary** — illustrative, LLM style (top right) | The "old way": nothing until the meeting ends, a timer counting up, then the whole list at once. Labelled as illustrative; it reuses the live items, it does not run a summarisation prompt. |
-| **6:keyword-heuristic** — old way (bottom right) | A keyword rule (`will`, `I'll`, `by`, `todo`, `action item`, `need to`, `should`, `can you`, …) applied to the same transcript, with its miss rate against the fixture's ground-truth labels, false positives, and the missed utterances. |
-| **Metrics line** (above the status bar) | Meeting clock, wall elapsed, judged / in-flight, items surfaced, utterances/s, last call, **p50 / p95 end-of-utterance → on-screen**, browser round-trip, Jev API time (measured server-side), errors. Every number is measured. |
+| **Transcript** (top right) | Speaker-labelled utterances with the kind Jev assigned and the round-trip latency of that call. |
+| **Action items / Decisions / Open questions / Risks** (centre) | Cards that appear as utterances are judged. Each card carries a **latency tag: measured end-of-utterance → card committed to the DOM**. Action items show an *Owner* chip, a resolved *Due* date, and an amber *Who owns this?* chip when Jev is not confident about the owner — click it to see the probability over attendees and fix it. Reversed decisions are struck through and marked *superseded*. Blocked status updates surface under Risks. |
+| **Post-meeting summary** — illustrative, LLM style (bottom right) | The "old way": nothing until the meeting ends, a timer counting up, then the whole list at once. Labelled as illustrative; it reuses the live items, it does not run a summarisation prompt. |
+| **Keyword heuristic** — old way (bottom right) | A keyword rule (`will`, `I'll`, `by`, `todo`, `action item`, `need to`, `should`, `can you`, …) applied to the same transcript, with its miss rate against the fixture's ground-truth labels, false positives, and the missed utterances. |
+| **Metrics bar** (bottom) | Meeting clock, wall elapsed, judged / in-flight, items surfaced, sentences/s, last call, **p50 / p95 end-of-utterance → on-screen**, browser round-trip, Jev API time (measured server-side), errors. Every number is measured. |
 
 ### Input modes
 
@@ -113,11 +114,11 @@ Real TypeSafe API (`jev-latest`), Linux VM, 2026-09-17. Fixture: 180 utterances,
 
 | metric | value |
 |---|---|
-| items surfaced live | 117 of 180 utterances (50 action items, 12 decisions, 23 questions, 32 risks) |
-| end-of-utterance → on-screen, p50 | **123 ms** |
-| end-of-utterance → on-screen, p95 | 292 ms |
-| browser round-trip p50 | 118 ms |
-| Jev API time p50 (server-side) | 109 ms |
+| items surfaced live | 116 of 180 utterances (49 action items, 12 decisions, 23 questions, 32 risks) |
+| end-of-utterance → on-screen, p50 | **131 ms** |
+| end-of-utterance → on-screen, p95 | 484 ms |
+| browser round-trip p50 | 116 ms |
+| Jev API time p50 (server-side) | 107 ms |
 | errors | 0 |
 
 **Browser, all at once** (180 requests, concurrency 12): 180 judged in 9.1 s (19.9 utt/s), 0 errors. The
