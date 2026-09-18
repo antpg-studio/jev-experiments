@@ -2,27 +2,12 @@ import AppKit
 import Combine
 import Foundation
 
-/// How ranking is driven. Switchable live so viewers can compare on the same query.
-enum RankingMode: String, CaseIterable, Identifiable, Sendable {
-  case jev = "Jev"
-  case fuzzyOnly = "Jev off"
-  case slowLLM = "Slow LLM"
-
-  var id: String { rawValue }
-  var help: String {
-    switch self {
-    case .jev: return "Jev judges every keystroke"
-    case .fuzzyOnly: return "local fuzzy match only"
-    case .slowLLM: return "Jev answers held 2.5 s"
-    }
-  }
-}
-
 @MainActor
 final class LauncherModel: ObservableObject {
-  static let slowLLMDelayMs: UInt64 = 2_500
   /// Below this the panel keeps the full list; at or above it the top hit is shown as ready.
   static let readyThreshold = 0.6
+  /// A target this certain is treated as ready even when the readiness judgment hedges.
+  static let certainTargetThreshold = 0.9
 
   @Published var query = "" {
     didSet { if query != oldValue { queryChanged() } }
@@ -36,9 +21,6 @@ final class LauncherModel: ObservableObject {
   @Published private(set) var lastError: String?
   @Published private(set) var status: String?
   @Published private(set) var indexSize = 0
-  @Published var mode: RankingMode = .jev {
-    didSet { if mode != oldValue { queryChanged() } }
-  }
 
   var onExecute: (() -> Void)?
 
@@ -52,8 +34,9 @@ final class LauncherModel: ObservableObject {
   private var indexTask: Task<Void, Never>?
 
   var isReady: Bool {
-    guard let judgment, judgmentIsFresh, mode != .fuzzyOnly, !hits.isEmpty else { return false }
-    return judgment.ready >= Self.readyThreshold
+    guard let judgment, judgmentIsFresh, let top = hits.first else { return false }
+    if judgment.ready >= Self.readyThreshold { return true }
+    return (top.jevProbability ?? 0) >= Self.certainTargetThreshold
   }
 
   var hasAPIKey: Bool { JevClient.apiKey() != nil }
@@ -140,23 +123,20 @@ final class LauncherModel: ObservableObject {
     // Carry the previous judgment forward so the list does not flicker back to fuzzy order
     // for the ~150 ms until the fresh answer lands. It is marked stale until then.
     judgmentIsFresh = false
-    let carried = mode == .fuzzyOnly ? nil : judgment
-    hits = Ranker.rank(prefiltered, judgment: carried)
+    hits = Ranker.rank(prefiltered, judgment: judgment)
     selection = 0
-    guard mode != .fuzzyOnly, !prefiltered.candidates.isEmpty else {
+    guard !prefiltered.candidates.isEmpty else {
       judgment = nil
       return
     }
     let request = JevQuestions.buildRequest(
       query: query, context: context, candidates: prefiltered.candidates)
     let sent = prefiltered
-    let delay: UInt64 = mode == .slowLLM ? Self.slowLLMDelayMs : 0
     inFlight += 1
     Task { [client] in
       defer { inFlight -= 1 }
       do {
         let result = try await client.ask(request)
-        if delay > 0 { try? await Task.sleep(nanoseconds: delay * 1_000_000) }
         apply(result, sequence: seq, sent: sent)
       } catch {
         stats.recordFailure()

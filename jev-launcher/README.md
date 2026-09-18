@@ -1,14 +1,16 @@
 # Jev Launcher
 
-A Spotlight-style launcher for macOS that puts an LLM judgment in the keystroke loop. Press ⌥Space, start typing, and on **every keystroke** the panel sends the query plus local context and the top local candidates to [Jev](https://docs.typesafe.ai) in one fan-out request. Jev answers three typed questions (intended target, intended action kind, "is this unambiguous enough to run on Enter?"), the list re-ranks live, and the top hit shows Jev's probability. Enter runs it.
+A Spotlight-style launcher for macOS that reads intent, not strings. Press ⌥Space and type the way you would say it — `dark`, `wifi off`, `the pdf I just downloaded`, `15% of 240` — and on **every keystroke** the panel sends the query plus local context and the top local candidates to [Jev](https://docs.typesafe.ai) in one fan-out request. Jev answers three typed questions (intended target, intended action kind, "is this unambiguous enough to run on Enter?"), the list re-ranks live, and the top hit shows Jev's probability. When the intent is settled the top row gets a green ↵; Enter runs it.
 
 ![Typing the five demo queries against the live Jev API](docs/demo.gif)
 
-The recording above is one uninterrupted session against the live API: 57 requests, median round-trip **104 ms**, p95 **233 ms**, three stale answers discarded, $0.0034 total.
+The recording above is one uninterrupted session against the live API: 58 requests, median round-trip **115 ms**, p95 **302 ms**, nine stale answers discarded (the script types at ~20 chars/s), $0.0034 total.
+
+![Empty state](docs/empty.png)
 
 ## Why speed matters
 
-A launcher is judged per keystroke. Anything above ~200 ms feels like lag, which is why nobody puts a general LLM (2–4 s) between the keyboard and the results list. Jev returns a full three-question judgment in about 100 ms on this VM, so the list can re-rank on every character with **no debounce**: the app fires a request per keystroke, tags each with a sequence number, applies whatever comes back newest-first and drops the rest. The footer shows the round-trip live: last / p50 / p95 ms, decisions per second, request and stale counts, tokens, and the running cost estimate.
+A launcher is judged per keystroke. Anything above ~200 ms feels like lag, which is why nobody puts a general LLM (2–4 s) between the keyboard and the results list. Jev returns a full three-question judgment in about 100 ms on this VM, so the list can re-rank on every character with **no debounce**: the app fires a request per keystroke, tags each with a sequence number, applies whatever comes back newest-first and drops the rest. The footer shows the round-trip live: last / p50 / p95 ms, decision count with stale and failed counts, and the running cost estimate; hovering it shows decisions per second and tokens per decision.
 
 ## Measured numbers
 
@@ -16,37 +18,30 @@ All figures are from real runs on this macOS VM (macOS 26.5, ARM64, Xcode 26.6) 
 
 | Metric | Value | Where measured |
 |---|---|---|
-| Median round-trip (p50) | **104 ms** | footer after the 57-request demo session (`docs/query-sleep.png`) |
-| p95 round-trip | 233 ms | same session |
-| Fastest / slowest observed | 78 ms / ~500 ms (first request, cold TLS) | footer during the sessions in `docs/` |
-| Requests in the demo session | 57 (one per keystroke, five queries, 3 stale discarded) | `docs/query-sleep.png` |
-| Decisions per second while typing | 3.7–4.6 | footer (`docs/query-pdf.png`); bounded by human typing speed, not by Jev |
-| Input tokens per decision | ~1,550 (`state` with up to 15 candidates + 3 questions) | footer, from `usage.input_tokens` |
+| Median round-trip (p50) | **101 ms** | footer after the 105-request screenshot session (`docs/query-calc.png`) |
+| p95 round-trip | 222 ms | same session |
+| Fastest / slowest observed | 61 ms / ~1 s (one outlier; first request of a session pays cold TLS ~500 ms) | footer during the sessions in `docs/` |
+| Requests in the screenshot session | 105 (one per keystroke, five queries typed twice, 5 stale discarded) | `docs/query-calc.png` |
+| Input tokens per decision | ~1,400 (`state` with up to 15 candidates + 3 questions) | `usage.input_tokens`; $0.0062 / 105 requests at $0.042 per Mtok |
 | Output tokens | 0 | `usage.output_tokens` is always 0 for typed judgments |
-| Cost per decision | $0.000065 | 1,550 × $0.042 / 1M input tokens (output is free per the pricing docs) |
-| Cost of the 57-request demo | $0.00335 | footer |
+| Cost per decision | $0.00006 | footer estimate: $0.0062 for 105 requests (output is free per the pricing docs) |
+| Cost of a five-query session | ~$0.003 | footer; the whole 22 s GIF is 58 requests, $0.0034 |
 
 Every question in the request comes back in the same round-trip, so "three judgments per keystroke" costs the same latency as one.
 
 ### The five ambiguous queries
 
-Each screenshot is the live panel after typing the query at human speed (~90 ms per character). The top hit is correct in every case and Jev marks it `READY`.
+Each screenshot is the live panel after typing the query at human speed (~120 ms per character). The top hit is correct in every case and carries the green ↵ ready badge. The panel only grows to the rows it has: one toggle plus the web fallback is two rows, the PDF query is six.
 
 | Query | Top hit | Jev target probability | Screenshot |
 |---|---|---|---|
 | `dark` | Toggle Dark Mode | 99% | ![dark](docs/query-dark.png) |
 | `wifi off` | Turn Wi-Fi Off (not "Turn Wi-Fi On", which has the same fuzzy score) | 100% | ![wifi off](docs/query-wifi-off.png) |
-| `calc 15% of 240` | `= 36` (code-evaluated; Calculator.app is 2nd) | 95% | ![calc](docs/query-calc.png) |
-| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (modified 16 min ago) over two older PDFs, a DMG and a PNG | 100% | ![pdf](docs/query-pdf.png) |
+| `15% of 240` | `= 36` (code-evaluated; Enter copies it) | 100% | ![calc](docs/query-calc.png) |
+| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (modified 6 h ago) over two older PDFs, a DMG and a PNG | 100% | ![pdf](docs/query-pdf.png) |
 | `sleep` | Sleep | 99% | ![sleep](docs/query-sleep.png) |
 
-### Baseline: Jev off
-
-The `Jev off` segment switches to pure local fuzzy matching so the difference is visible on the same query. For `the pdf I just downloaded` the fuzzy matcher scores two PDFs identically at 100% and only wins the tie by list order; there is no `READY` signal because nothing in the fuzzy score says whether the intent is settled.
-
-![Jev off baseline on the PDF query](docs/baseline-jev-off-pdf.png)
-
-`Slow LLM` is the third segment: identical Jev judgments, but applied 2.5 s after each keystroke to simulate a conventional LLM round-trip. Type at normal speed and the list is always ranking the query from two or three words ago.
+For comparison, the pure fuzzy matcher scores `invoice-2026-08.pdf` and `Q3-Roadmap-Review.pdf` identically on that PDF query and wins the tie by list order; the same fuzzy order is what the panel falls back to when Jev is unreachable (see Failure handling in TESTING.md).
 
 ## How the Jev questions are designed
 
@@ -73,9 +68,9 @@ Candidates are the top 13 fuzzy matches from the local index plus synthetic entr
 
 1. `target` — **Choice** over `c0…cN` plus `none`. "Which entry in `candidates` is the item they intend to open or run? Treat `query` as a possibly incomplete prefix or paraphrase… Match on meaning." The full probability distribution is used, not just the argmax: each row's bar is `probabilities[cK]`.
 2. `action` — **Choice** over `open_app`, `open_file`, `web_search`, `calculate`, `system_toggle`, `run_shortcut`, `unclear`, each with a one-line rubric. Used as a secondary ranking signal (a candidate whose `kind` matches the chosen action gets a boost) and shown in the footer.
-3. `ready` — **Noul**. "The launcher is about to run the best-matching candidate the instant the user presses Enter. Is `query` already unambiguous enough for that?" with explicit yes/no criteria. Above 0.6 the top row gets the `READY ↵` badge and turns green.
+3. `ready` — **Noul**. "The launcher is about to run the best-matching candidate the instant the user presses Enter. Is `query` already unambiguous enough for that?" with explicit yes/no criteria. The top row gets the green ↵ badge when this is ≥ 0.6, or when Jev gives one target ≥ 90% probability. The second rule exists because on the PDF query Jev's `ready` hedges at ~0.4 (three PDFs "fit roughly equally" by title) while its `target` distribution is 98–100% on the newest one; a target that certain is, by construction, one where the remaining candidates are not plausible.
 
-**Ranking** is deterministic given the answer: `score = 0.65 · P(target) + 0.20 · P(action matches kind) + 0.15 · fuzzy`. Without an answer (Jev off, request failed, or nothing back yet) the score is just `fuzzy`, so the panel always has a sensible order and never waits on the network.
+**Ranking** is deterministic given the answer: `score = 0.65 · P(target) + 0.20 · P(action matches kind) + 0.15 · fuzzy`. Without an answer (request failed, no key, or nothing back yet) the score is just `fuzzy`, so the panel always has a sensible order and never waits on the network.
 
 **In-flight handling**: every query change increments a sequence number and starts a `Task`. A response is applied only if its sequence is newer than the last one applied; otherwise it is counted as stale in the footer. While a newer request is in flight the previous judgment is kept, dimmed, so the list does not flicker back to fuzzy order between keystrokes.
 
@@ -111,11 +106,12 @@ export TYPESAFE_API_KEY=...        # read from the environment; never hardcoded
 ./run.sh --show                    # builds Debug and launches with the panel open
 ```
 
-`run.sh` execs the binary from the shell so the environment variable is inherited. If you launch the `.app` from Finder instead, the key is read from the Settings field (menu bar ⚡ → Settings…, stored in `UserDefaults` under `typesafeAPIKey`). With no key the panel still works as a fuzzy launcher and the empty state says `No TYPESAFE_API_KEY — Jev disabled`.
+`run.sh` execs the binary from the shell so the environment variable is inherited. If you launch the `.app` from Finder instead, the key is read from the Settings field (menu bar ⚡ → Settings…, stored in `UserDefaults` under `typesafeAPIKey`). With no key the panel still works as a fuzzy launcher and the empty state says `TYPESAFE_API_KEY is not set — local matching only`.
 
 - **⌥Space** toggles the panel from anywhere (Carbon `RegisterEventHotKey`; no Accessibility permission needed).
-- **↑ / ↓** move the selection, **↵** runs it, **esc** hides the panel.
+- **↑ / ↓** move the selection, **↵** runs it, **esc** hides the panel. The example chips in the empty state are clickable.
 - The menu-bar ⚡ item has Toggle Launcher, Settings… and Quit. The app has no Dock icon (`LSUIElement`). The index is rebuilt in the background each time the panel is shown.
+- The panel is a translucent `NSVisualEffectView` HUD that resizes to its content (72 pt header, 56 pt rows up to seven, 40 pt footer). App and file rows show the real Finder icon; toggles, the calculator and web search use tinted SF Symbols. A small dot next to the field shows while a request is in flight; the bolt turns green when the top row is ready.
 
 ### Permissions
 
@@ -137,9 +133,9 @@ xcrun swift-format lint --strict --recursive Sources Tests
 
 ## Limitations
 
-- **The list is always shown.** The brief asked whether intent is clear enough to execute "without showing a list". Hiding the list on a probabilistic signal felt wrong for a launcher, so the `ready` Noul is surfaced as the green `READY ↵` badge on the top row instead; Enter always runs the selected row regardless.
+- **The list is always shown.** The brief asked whether intent is clear enough to execute "without showing a list". Hiding the list on a probabilistic signal felt wrong for a launcher, so readiness is surfaced as the green ↵ badge on the top row instead; Enter always runs the selected row regardless.
 - **Latency is network-bound.** The numbers above are from a US VM; p50 will track your distance to `api.typesafe.ai`. The first request of a session pays TLS setup (~500 ms).
-- **Fast typists generate stale answers.** Typing far faster than ~10 chars/s produces overlapping requests; the newest answer always wins, but the stale count climbs and p95 rises because the API is handling several requests at once. At human speed the stale count in the demo was 3 out of 57.
+- **Fast typists generate stale answers.** Typing far faster than ~10 chars/s produces overlapping requests; the newest answer always wins, but the stale count climbs and p95 rises because the API is handling several requests at once. At ~8 chars/s the screenshot session discarded 5 of 105; the 20 chars/s GIF script discarded 9 of 58.
 - **Context is minimal.** `frontmost_app`, `recent_apps`, `clipboard_kind`, `time_of_day` and `weekday` are sent; the app does not read window titles, browser tabs or clipboard contents.
 - The files in the screenshots (`Q3-Roadmap-Review.pdf`, `invoice-2026-08.pdf`, …) are fixtures created in `~/Downloads` and `~/Desktop` on the VM so the PDF query had something realistic to disambiguate; TESTING.md recreates them.
 - Shortcuts appear only if `shortcuts list` returns quickly; the index build runs in the background and the panel re-ranks when it lands.

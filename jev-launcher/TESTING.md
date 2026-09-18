@@ -61,42 +61,39 @@ printf 'placeholder\n' > ~/Desktop/Lease-Agreement.pdf     && touch -t 202607011
 ./run.sh --show
 ```
 
-Expected: a dark 720×520 panel appears centred, slightly above the middle of the screen, with the text field focused and `N local candidates indexed` in the footer (85 on the VM). `⌥Space` hides and shows it from any app. The menu bar shows a ⚡ item.
+Expected: a translucent 680 pt-wide panel appears centred, slightly above the middle of the screen, with the placeholder `Say what you mean…`, five clickable example chips, `N apps, files and settings indexed` (85 on the VM) and `Jev · one judgment per keystroke` in the footer. `⌥Space` hides and shows it from any app. The menu bar shows a ⚡ item.
 
-If the footer says `No TYPESAFE_API_KEY — Jev disabled`, the key was not inherited; export it in the same shell or paste it in ⚡ → Settings….
+If the empty state says `TYPESAFE_API_KEY is not set — local matching only`, the key was not inherited; export it in the same shell or paste it in ⚡ → Settings….
 
-### 3. The five queries (Jev mode)
+Click a chip: the query fills in and the panel grows to fit the rows (56 pt each, at most seven) and shrinks again when the field is cleared.
 
-Type each query, wait for the footer `LAST` value to update, and check the top row.
+### 3. The five queries
+
+Type each query, wait for the leading `N ms` value in the footer to update, and check the top row.
 
 | Query | Expected top row | Expected badge |
 |---|---|---|
-| `dark` | Toggle Dark Mode | `READY ↵`, jev ≥ 90% |
-| `wifi off` | Turn Wi-Fi Off above Turn Wi-Fi On | `READY ↵`, jev ≥ 90% |
-| `calc 15% of 240` | `= 36` above Calculator | `READY ↵` |
-| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (newest) above the other PDFs | `READY ↵` |
-| `sleep` | Sleep | `READY ↵` |
+| `dark` | Toggle Dark Mode | green ↵, ≥ 90% |
+| `wifi off` | Turn Wi-Fi Off above Turn Wi-Fi On | green ↵, ≥ 90% |
+| `15% of 240` | `= 36` (orange `=` icon) | green ↵ |
+| `the pdf I just downloaded` | `Q3-Roadmap-Review.pdf` (newest) above the other PDFs | green ↵ |
+| `sleep` | Sleep | green ↵ |
 
-While typing, `REQS` increments once per keystroke and `LAST` settles under ~200 ms after the first (TLS) request. At human typing speed the `stale` count stays in single digits.
+The percentage on the right of each row is Jev's target probability; the selected row shows it in full, the others dimmed. A small blue dot at the right of the field is visible while a request is in flight; the header bolt turns green with the badge. `N decisions` increments once per keystroke and the leading latency settles around 100 ms after the first (TLS) request. At human typing speed the `(N stale)` count stays in single digits. Hover the footer for decisions/s and tokens per decision.
 
 ### 4. Enter executes
 
-- `calc 15% of 240` then ↵: panel hides, `pbpaste` prints `36`.
+- `15% of 240` then ↵: panel hides, `pbpaste` prints `36`.
 - `dark` then ↵: the first time, macOS prompts to allow Jev Launcher to control System Events; approve and the appearance flips. ↵ again flips it back.
 - `wifi off` then ↵: Wi-Fi turns off (`networksetup -getairportpower en0` prints `Off`). `wifi on` then ↵ restores it.
 - Any app row then ↵: the app activates.
 
 Do not press ↵ on `sleep` or `Lock Screen` in a remote session unless you can wake the machine.
 
-### 5. Baseline and slow modes
+### 5. Failure handling (fuzzy fallback)
 
-- Click `Jev off`. Type `the pdf I just downloaded`: two PDFs tie at 100% fuzzy, no `READY` badge, bars are labelled `fuzzy`. Type `sle`: Sleep and Slack (if installed) are close; Jev mode separates them.
-- Click `Slow LLM`. Type `dark` quickly: the list stays in fuzzy order for 2.5 s, then jumps to Jev's order. This is what the launcher would feel like on a conventional LLM.
-
-### 6. Failure handling
-
-- `export TYPESAFE_API_KEY=invalid; ./run.sh --show`, type `dark`: rows fall back to orange `fuzzy` bars, the footer shows `HTTP 401` in red and `N fail` under `REQS`, and the panel never stalls.
-- Disconnect the network and type: same fuzzy fallback, footer shows the transport error instead.
+- `export TYPESAFE_API_KEY=invalid; ./run.sh --show`, type `dark`: rows appear in fuzzy order with no probabilities or badge, the footer shows `HTTP 401` in red, and the panel never stalls. Type `the pdf I just downloaded`: the two PDFs that tie on fuzzy score keep their index order, which is the difference Jev makes.
+- Disconnect the network and type: same fuzzy fallback, footer shows the transport error instead. Once requests succeed again the footer returns to the latency line with `(N failed)` in the decision count.
 
 ## Permissions
 
