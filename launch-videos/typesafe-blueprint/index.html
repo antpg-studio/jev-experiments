@@ -35,8 +35,8 @@ window.CONFIG = {
     captionTest:   'Plays and tests it, live',
     captionMac:    'Runs it on the Mac desktop',
     captionShared: 'Mac and iPhone, one shared world',
-    devinCode:  'Building VoxelHearth on my Mac. Starting with the shared world and block placement, then the macOS and iPhone targets.',
-    devinPhone: 'The iPhone build is running in the Simulator. Testing it now: joining the shared world, placing blocks and moving the camera.',
+    devinCode:  'Building VoxelHearth on my Mac: the shared world first, then the macOS and iPhone targets.',
+    devinPhone: 'The iPhone build is running in the Simulator. Testing it now in the shared world.',
     devinMac:   'The macOS build is running on the desktop. Both apps are live in one shared world.',
     devinDone:  'Both builds run and pass the play test. Ready for your review.',
     codeFile: 'apple/Sources/Game.swift',
@@ -55,12 +55,12 @@ window.CONFIG = {
     toCode: 7.7,
     codeStart: 8.2, codeEnd: 11.9,
     toPhone: 12.5,
-    phoneZoomIn: 14.0, phoneZoomOut: 16.4,
-    captionTest: 17.2,
+    captionTest: 14.2,
+    phoneZoomIn: 15.4,
     toMac: 18.5,
-    macZoomIn: 19.9, macZoomOut: 22.4,
-    devinDone: 22.6,
-    captionShared: 23.3,
+    captionShared: 20.3,
+    devinDone: 20.9,
+    macZoomIn: 21.3,
     toBlack: 24.4,
     logoIn: 24.7,
     urlIn: 25.5,
@@ -77,15 +77,13 @@ window.CONFIG = {
   },
 
   code: [
-    'import Metal',
-    '',
     'final class Game: ObservableObject {',
     '  @Published var target: Target?',
     '',
     '  func use() {',
     '    guard !blocked, let target else { return }',
     '    let held = session.inventory[session.selected]',
-    '    guard !held.isEmpty, held.id <= 33 else { return }',
+    '    guard !held.isEmpty else { return }',
     '',
     '    let replace = Registry.shared.block(target.id).replaceable',
     '    let x = target.x + (replace ? 0 : target.nx)',
@@ -95,8 +93,6 @@ window.CONFIG = {
     '',
     '    var message = ClientMessage.block(.place, x, y, z)',
     '    message.nx = target.nx',
-    '    message.ny = target.ny',
-    '    message.nz = target.nz',
     '    session.send(message)',
     '  }',
     '}',
@@ -137,26 +133,25 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
 .ticks.white::before, .ticks.white::after { border-color: #fff; }
 
 /* ---------------- Title ---------------- */
-#title .mark { position: absolute; left: 96px; top: 120px; width: 132px; height: 132px; }
-#title .h { position: absolute; left: 112px; top: 470px; font-size: 168px; line-height: 0.96; font-weight: 500; letter-spacing: -0.035em; white-space: nowrap; }
+#title .mark { position: absolute; left: 50%; top: 168px; height: 270px; width: 787px; margin-left: -393px; will-change: transform, opacity; }
+#title .h { position: absolute; left: 50%; top: 486px; font-size: 168px; line-height: 0.96; font-weight: 500; letter-spacing: -0.035em; white-space: nowrap; text-align: center; }
 #title .h .w { display: inline-block; will-change: transform, opacity; }
 #title .h .l1 .w { color: var(--accent); }
-#title .dot { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--ink); left: 100px; top: 278px; }
-#title .lead { position: absolute; left: 106px; top: 285px; width: 2px; height: 0; background: var(--ink); transform-origin: top; }
+#title .lead { position: absolute; left: 50%; top: 440px; width: 2px; height: 0; margin-left: -1px; background: var(--ink); transform-origin: top; }
 
 /* ---------------- Captions ---------------- */
-.caption { position: absolute; left: 120px; top: 44px; font-size: 54px; line-height: 1; font-weight: 500; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+.caption { position: absolute; left: 120px; top: 26px; font-size: 64px; line-height: 1; font-weight: 500; letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
 .caption .w { display: inline-block; }
 
 /* ---------------- Devin UI window ---------------- */
 .win {
   position: absolute; left: 120px; top: 130px; width: 1680px; height: 890px;
-  background: #fff; border: 1.5px solid rgba(0,0,0,0.18);
-  box-shadow: 10px 10px 0 var(--ink);
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(20,18,107,0.06), 0 36px 90px rgba(20,18,107,0.16);
   overflow: hidden;
 }
 .win .topbar { position: absolute; left: 0; top: 0; right: 0; height: 56px; display: flex; align-items: center; font-size: 17px; font-weight: 450; color: var(--ink); }
-.win .topbar .left { width: 620px; display: flex; align-items: center; gap: 14px; padding-left: 20px; }
+.win .topbar .left { width: 620px; display: flex; align-items: center; gap: 14px; padding-left: 24px; }
 .win .topbar .right { flex: 1; display: flex; align-items: center; gap: 6px; padding-left: 12px; }
 .win .topbar .ttl { font-weight: 500; white-space: nowrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; border-radius: 6px; background: #EDF0FB; color: #2F4FD6; font-size: 15px; font-weight: 500; }
@@ -165,16 +160,12 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
 .ico { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .win .vsep { position: absolute; left: 620px; top: 0; bottom: 0; width: 1px; background: rgba(0,0,0,0.08); }
 
-.chat { position: absolute; left: 0; top: 56px; width: 620px; bottom: 0; padding: 22px 26px 0 26px; font-size: 17px; line-height: 1.45; color: var(--ink); }
-.bubble { margin-left: auto; width: fit-content; max-width: 470px; background: #F2F2F2; border-radius: 14px; padding: 12px 16px; margin-bottom: 26px; }
-.msg { margin-bottom: 18px; }
-.msg .avatar { display: inline-block; width: 22px; height: 22px; vertical-align: -5px; margin-right: 10px; }
-.worked { color: #666; font-size: 15px; margin: 14px 0 8px 0; display: flex; gap: 10px; align-items: center; }
-.worked .plus { color: #1F9D4C; }
-.worked .minus { color: #D0453F; }
-.steps { border-left: 1px solid rgba(0,0,0,0.1); margin-left: 6px; padding-left: 20px; }
-.step { color: #555; font-size: 15px; line-height: 1.3; margin: 0 0 9px 0; display: flex; align-items: center; gap: 8px; }
-.step .add { color: #1F9D4C; }
+.chat { position: absolute; left: 0; top: 56px; width: 620px; bottom: 0; padding: 22px 26px 0 26px; font-size: 19px; line-height: 1.4; color: var(--ink); }
+.bubble { margin-left: auto; width: fit-content; max-width: 500px; background: #F2F2F2; border-radius: 14px; padding: 12px 16px; margin-bottom: 26px; }
+.msg { margin-bottom: 16px; }
+.msg .avatar { display: inline-block; width: 24px; height: 24px; vertical-align: -5px; margin-right: 10px; }
+.steps { border-left: 1px solid rgba(0,0,0,0.1); margin-left: 8px; padding-left: 20px; margin-bottom: 18px; }
+.step { color: #555; font-size: 17px; line-height: 1.3; margin: 0 0 9px 0; }
 .composer { position: absolute; left: 26px; right: 26px; bottom: 26px; height: 118px; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 20px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); padding: 18px 22px; font-size: 17px; color: #8a8a8a; }
 .composer .row { position: absolute; left: 20px; right: 16px; bottom: 14px; height: 34px; display: flex; align-items: center; gap: 14px; color: #6b6b6b; font-size: 16px; }
 .composer .send { margin-left: auto; width: 34px; height: 34px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; }
@@ -195,55 +186,55 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
 .macscreen img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
 
 /* iPhone frame */
-.phone { position: absolute; width: 276px; height: 578px; left: 362px; top: 104px; border-radius: 46px; background: #0b0b0c; box-shadow: 0 0 0 2px #2a2a2c, 0 22px 50px rgba(0,0,0,0.45); }
-.phone .screen { position: absolute; left: 9px; top: 9px; right: 9px; bottom: 9px; border-radius: 38px; overflow: hidden; background: #000; }
+.phone { position: absolute; width: 306px; height: 640px; left: 347px; top: 62px; border-radius: 50px; background: #0b0b0c; box-shadow: 0 0 0 2px #2a2a2c, 0 22px 50px rgba(0,0,0,0.45); }
+.phone .screen { position: absolute; left: 10px; top: 10px; right: 10px; bottom: 10px; border-radius: 42px; overflow: hidden; background: #000; }
 .phone .screen img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
-.phone .island { position: absolute; left: 50%; top: 20px; width: 82px; height: 24px; margin-left: -41px; border-radius: 14px; background: #000; }
+.phone .island { position: absolute; left: 50%; top: 22px; width: 90px; height: 26px; margin-left: -45px; border-radius: 14px; background: #000; }
 .phone .btn { position: absolute; background: #2a2a2c; border-radius: 2px; }
-.simbar { position: absolute; left: 50%; top: -52px; margin-left: -125px; width: 250px; height: 36px; border-radius: 10px; background: rgba(40,40,44,0.92); display: flex; align-items: center; gap: 7px; padding: 0 12px; color: #fff; font-size: 12px; }
+.simbar { position: absolute; left: 50%; top: -54px; margin-left: -140px; width: 280px; height: 40px; border-radius: 10px; background: rgba(40,40,44,0.92); display: flex; align-items: center; gap: 7px; padding: 0 12px; color: #fff; font-size: 14px; }
 .simbar .tl { width: 11px; height: 11px; border-radius: 50%; }
 
 /* code view */
 .codeview { position: absolute; inset: 8px 18px 18px 18px; background: var(--card); border: 1px solid rgba(0,0,0,0.12); border-radius: 10px; overflow: hidden; }
-.codeview .fh { height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 18px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 16px; color: var(--ink); }
-.codeview .fh .add { color: #1F9D4C; margin-left: auto; }
-.codeview pre { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 21px; line-height: 1.5; padding: 16px 0 0 0; color: var(--ink); font-weight: 400; letter-spacing: 0; }
-.codeview .ln { display: inline-block; width: 74px; text-align: right; padding-right: 26px; color: #b5b5b5; user-select: none; }
+.codeview .fh { height: 50px; display: flex; align-items: center; gap: 12px; padding: 0 22px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 19px; color: var(--ink); }
+.codeview pre { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 26px; line-height: 1.4; padding: 18px 0 0 24px; color: var(--ink); font-weight: 400; letter-spacing: -0.01em; }
 .codeview .k { color: var(--accent); }
 .codeview .ty { color: var(--deep); font-weight: 500; }
 .codeview .n { color: #4E47A0; }
 .codeview .at { color: #75B197; }
-.codeview .cur { display: inline-block; width: 11px; height: 24px; background: var(--ink); vertical-align: -4px; }
+.codeview .cur { display: inline-block; width: 13px; height: 30px; background: var(--ink); vertical-align: -5px; }
 
 /* ---------------- New-session composer ---------------- */
 .newsession { position: absolute; inset: 0; background: #fff; }
-.newsession .logo { position: absolute; left: 420px; top: 236px; height: 42px; }
-.newsession .mode { position: absolute; right: 420px; top: 238px; display: flex; background: #F0F0F0; border-radius: 8px; padding: 3px; font-size: 15px; }
-.newsession .mode span { padding: 5px 14px; border-radius: 6px; color: #666; }
+.newsession .logo { position: absolute; left: 240px; top: 196px; height: 56px; }
+.newsession .mode { position: absolute; right: 240px; top: 200px; display: flex; background: #F0F0F0; border-radius: 10px; padding: 4px; font-size: 20px; }
+.newsession .mode span { padding: 7px 18px; border-radius: 7px; color: #666; }
 .newsession .mode span.on { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
-.newsession .box { position: absolute; left: 420px; right: 420px; top: 300px; height: 170px; background: #fff; border: 1px solid rgba(0,0,0,0.12); border-radius: 20px; box-shadow: 0 8px 28px rgba(0,0,0,0.07); padding: 22px 26px; font-size: 22px; line-height: 1.4; color: var(--ink); }
+.newsession .box { position: absolute; left: 240px; right: 240px; top: 282px; height: 258px; background: #fff; border-radius: 26px; box-shadow: 0 2px 6px rgba(0,0,0,0.05), 0 14px 44px rgba(0,0,0,0.09); padding: 30px 34px; font-size: 38px; line-height: 1.3; letter-spacing: -0.02em; color: var(--ink); }
 .newsession .box .ph { color: #8a8a8a; }
-.newsession .box .row { position: absolute; left: 20px; right: 14px; bottom: 12px; height: 40px; display: flex; align-items: center; gap: 14px; color: #6b6b6b; font-size: 16px; }
-.newsession .split { margin-left: auto; height: 40px; border-radius: 999px; background: #333; display: flex; align-items: center; color: #fff; }
-.newsession .split .a { width: 44px; height: 40px; display: flex; align-items: center; justify-content: center; }
-.newsession .split .b { width: 36px; height: 40px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.18); }
-.newsession .split svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.caret { display: inline-block; width: 2px; height: 22px; background: var(--ink); vertical-align: -4px; margin-left: 1px; }
+.newsession .box .row { position: absolute; left: 26px; right: 18px; bottom: 16px; height: 48px; display: flex; align-items: center; gap: 18px; color: #6b6b6b; font-size: 20px; }
+.newsession .box .row .ico { width: 22px; height: 22px; }
+.newsession .split { margin-left: auto; height: 48px; border-radius: 999px; background: #333; display: flex; align-items: center; color: #fff; }
+.newsession .split .a { width: 54px; height: 48px; display: flex; align-items: center; justify-content: center; }
+.newsession .split .b { width: 44px; height: 48px; display: flex; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.18); }
+.newsession .split svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.caret { display: inline-block; width: 3px; height: 38px; background: var(--ink); vertical-align: -6px; margin-left: 2px; }
 
-.menu { position: absolute; background: #fff; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.10); font-size: 16px; color: var(--ink); padding: 6px; transform-origin: top right; }
-.menu .hdr { color: #8a8a8a; padding: 8px 12px 6px 12px; font-size: 15px; }
-.menu .it { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; white-space: nowrap; }
+.menu { position: absolute; background: #fff; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 14px 40px rgba(0,0,0,0.14); font-size: 21px; color: var(--ink); padding: 8px; transform-origin: top right; }
+.menu .hdr { color: #8a8a8a; padding: 10px 14px 8px 14px; font-size: 19px; }
+.menu .it { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 9px; white-space: nowrap; }
 .menu .it.hi { background: #F1F1F1; }
 .menu .it .chev { margin-left: auto; color: #999; }
 .menu .it .check { margin-left: auto; }
-.menu .new { padding: 2px 8px; border-radius: 6px; background: #E8ECFF; color: #2F4FD6; font-size: 13px; }
-.menu .oi { width: 18px; height: 18px; border-radius: 50%; background: #E95420; position: relative; }
-.menu .oi::after { content: ''; position: absolute; left: 5px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-.menu .wi { width: 18px; height: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.menu .new { padding: 3px 10px; border-radius: 7px; background: #E8ECFF; color: #2F4FD6; font-size: 16px; }
+.menu .oi { width: 22px; height: 22px; border-radius: 50%; background: #E95420; position: relative; }
+.menu .oi::after { content: ''; position: absolute; left: 6px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+.menu .wi { width: 22px; height: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
 .menu .wi i { display: block; }
-.menu .ai { width: 18px; height: 18px; fill: var(--ink); }
+.menu .ai { width: 22px; height: 22px; fill: var(--ink); }
+.menu .ico { width: 22px; height: 22px; }
 
-.cursor { position: absolute; width: 22px; height: 30px; pointer-events: none; z-index: 50; }
+.cursor { position: absolute; width: 28px; height: 38px; pointer-events: none; z-index: 50; }
 
 /* ---------------- End card ---------------- */
 #end { background: #000; }
@@ -267,7 +258,6 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
   <section id="title" class="scene paper">
     <div class="cam">
       <img class="mark" id="titleMark" alt="" />
-      <div class="dot" id="titleDot"></div>
       <div class="lead" id="titleLead"></div>
       <div class="h" id="titleH">
         <div class="l1" id="titleL1"></div>
@@ -299,12 +289,12 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
             </div>
           </div>
           <!-- environment menus -->
-          <div class="menu" id="menuA" style="left: 734px; top: 484px; width: 190px;">
+          <div class="menu" id="menuA" style="left: 822px; top: 556px; width: 230px;">
             <div class="it hi"><span id="menuAEnv">Ubuntu</span> <span class="chev">›</span></div>
             <div class="it">Default <span class="chev">›</span></div>
-            <div class="it">15 <span class="chev">›</span></div>
+            <div class="it">Branch <span class="chev">›</span></div>
           </div>
-          <div class="menu" id="menuB" style="left: 930px; top: 484px; width: 330px;">
+          <div class="menu" id="menuB" style="left: 1060px; top: 556px; width: 380px;">
             <div class="hdr">Hosted</div>
             <div class="it" id="rowUbuntu"><span class="oi"></span>Ubuntu <span class="check" id="chkUbuntu"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span></div>
             <div class="it" id="rowMac"><svg class="ai" viewBox="0 0 24 24"><path d="M16.37 12.7c.02 2.86 2.5 3.81 2.53 3.82-.02.07-.4 1.36-1.3 2.7-.79 1.15-1.6 2.3-2.89 2.32-1.26.02-1.67-.75-3.12-.75-1.44 0-1.9.73-3.09.77-1.24.05-2.19-1.25-2.98-2.4-1.63-2.35-2.87-6.64-1.2-9.54.83-1.44 2.31-2.35 3.92-2.37 1.22-.02 2.37.82 3.12.82.74 0 2.14-1.01 3.6-.87.61.03 2.34.25 3.44 1.86-.09.06-2.05 1.2-2.03 3.64zM13.98 4.9c.66-.8 1.1-1.9.98-3.01-.95.04-2.1.63-2.78 1.43-.61.7-1.14 1.83-1 2.91 1.06.08 2.14-.54 2.8-1.33z"/></svg>macOS <span class="new">New</span><span class="check" id="chkMac"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span></div>
@@ -319,7 +309,6 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
   <!-- SCENE 3/4/5: SESSION (code, phone, mac) -->
   <section id="session" class="scene paper">
     <div class="cam" id="sessionCam">
-      <div class="caption" id="cap"></div>
       <div class="win">
         <div class="topbar">
           <div class="left">
@@ -331,7 +320,6 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
             <span class="tab" id="tabProgress"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Progress</span>
             <span class="tab" id="tabChanges"><svg class="ico" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>Changes</span>
             <span class="tab" id="tabComputer"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Computer</span>
-            <span class="tab"><svg class="ico" viewBox="0 0 24 24"><path d="M6 3v12M18 9v6M6 15a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3M6 3a2 2 0 1 0 0 .01M18 9a2 2 0 1 0 0 .01"/></svg>PR #37</span>
             <span style="margin-left:auto;display:flex;gap:18px;padding-right:18px;color:#444">
               <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
               <svg class="ico" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
@@ -343,7 +331,6 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
         <div class="chat">
           <div class="bubble" id="chatPrompt"></div>
           <div class="msg" id="msgCode"></div>
-          <div class="worked" id="workedCode"><span>Worked for 6m 12s</span><span class="plus">+1,842</span><span class="minus">-3</span></div>
           <div class="steps" id="stepsCode"></div>
           <div class="msg" id="msgRun"></div>
           <div class="steps" id="stepsRun"></div>
@@ -363,7 +350,7 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
         <div class="pane">
           <!-- Changes: code view -->
           <div class="codeview" id="codeview">
-            <div class="fh"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span id="codeFile"></span><span class="add" id="codeAdd">+218</span></div>
+            <div class="fh"><svg class="ico" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg><span id="codeFile"></span></div>
             <pre id="codePre"></pre>
           </div>
           <!-- Computer: mac screen -->
@@ -390,8 +377,9 @@ body { font-family: 'Inter Tight', 'Helvetica Neue', Helvetica, Arial, sans-seri
           </div>
         </div>
       </div>
-      <div class="ticks" id="capTicks"></div>
     </div>
+    <div class="caption" id="cap"></div>
+    <div class="ticks" id="capTicks"></div>
   </section>
 
   <!-- SCENE 6: END -->
@@ -431,7 +419,7 @@ const ORD = {
   toCode: orderRandom(23),
   toPhone: orderAperture(1215, 560, 37),   // phone centre inside the Computer pane
   toMac: orderRandom(41),
-  toBlack: orderRandom(57),
+  toBlack: orderSweep(57),
 };
 
 const mc = $('maskcanvas'), mctx = mc.getContext('2d');
@@ -445,7 +433,8 @@ function applyMask(el, rank, p) {
   el.style.webkitMaskImage = u; el.style.maskImage = u;
   el.style.webkitMaskSize = '100% 100%'; el.style.maskSize = '100% 100%';
 }
-const TR = 0.42; // pixel-block transition length (s)
+const TR = 0.42;     // pixel-block transition length (s)
+const TR_END = 0.4;  // closing wipe to black
 
 /* ---------- helpers for word reveals ---------- */
 function words(el, text, cls = 'w') { el.innerHTML = ''; text.split(' ').forEach((w, i) => { const s = document.createElement('span'); s.className = cls; s.textContent = w + (i < text.split(' ').length - 1 ? '\u00A0' : ''); el.appendChild(s); }); return [...el.children]; }
@@ -475,12 +464,12 @@ function hl(line) {
 const CODE_TEXT = C.code.join('\n');
 function renderCode(chars, pre) {
   const shown = CODE_TEXT.slice(0, chars); const lines = shown.split('\n'); let html = '';
-  lines.forEach((l, i) => { html += `<span class="ln">${i + 1}</span>${hl(l)}${i === lines.length - 1 && chars < CODE_TEXT.length ? '<span class="cur"></span>' : ''}\n`; });
+  lines.forEach((l, i) => { html += `${hl(l)}${i === lines.length - 1 && chars < CODE_TEXT.length ? '<span class="cur"></span>' : ''}\n`; });
   pre.innerHTML = html;
 }
 
 /* ---------- static setup ---------- */
-$('titleMark').src = C.media.markBlack;
+$('titleMark').src = C.media.lockupBlack;
 $('nsLogo').src = C.media.lockupBlack;
 $('lockup').src = C.media.lockupWhite;
 $('deskImg').src = C.media.desktop;
@@ -494,9 +483,9 @@ function msgHTML(text) { return `<img class="avatar" src="${C.media.markBlack}" 
 $('msgCode').innerHTML = msgHTML(TX.devinCode);
 $('msgRun').innerHTML = msgHTML(TX.devinPhone);
 $('msgDone').innerHTML = msgHTML(TX.devinDone);
-const STEPS_CODE = [['Created Sources/Game.swift', '+218'], ['Created Sources/NativeViewport.swift', '+142'], ['Created Sources/GameScreens.swift', '+96'], ['Built VoxelHearth for macOS', ''], ['Built VoxelHearth for iPhone', '']];
-const STEPS_RUN = [['Booted iPhone 17 Simulator', ''], ['Joined shared world RNXZJ', ''], ['Placed oak planks and moved the camera', ''], ['Launched VoxelHearth on the Mac desktop', ''], ['Second player visible from the iPhone', '']];
-function stepsHTML(list) { return list.map(([s, a]) => `<div class="step"><span>${s}</span>${a ? `<span class="add">${a}</span>` : ''}</div>`).join(''); }
+const STEPS_CODE = ['Created Sources/Game.swift', 'Created Sources/NativeViewport.swift', 'Built VoxelHearth for macOS', 'Built VoxelHearth for iPhone'];
+const STEPS_RUN = ['Booted iPhone Simulator', 'Placed blocks and moved the camera', 'Launched VoxelHearth on the Mac desktop', 'Second player visible from the iPhone'];
+function stepsHTML(list) { return list.map(s => `<div class="step">${s}</div>`).join(''); }
 $('stepsCode').innerHTML = stepsHTML(STEPS_CODE);
 $('stepsRun').innerHTML = stepsHTML(STEPS_RUN);
 
@@ -520,6 +509,7 @@ async function preload() {
   for (const id of ['titleMark', 'nsLogo', 'lockup']) jobs.push($(id).decode().catch(() => {}));
   jobs.push($('deskImg').decode().catch(() => {}));
   await Promise.all(jobs); await document.fonts.ready;
+  $('titleH').style.marginLeft = (-$('titleH').offsetWidth / 2) + 'px';
   cloneSessions();
   window.READY = true;
 }
@@ -552,16 +542,16 @@ window.seek = function (t) {
   applyMask(scC, ORD.toComposer, prog(t, T.toComposer, TR)); if (t > T.toCode + TR) scC.classList.add('hidden');
   applyMask(sCode, ORD.toCode, prog(t, T.toCode, TR)); if (t > T.toPhone + TR) sCode.classList.add('hidden');
   applyMask(sPhone, ORD.toPhone, prog(t, T.toPhone, TR)); if (t > T.toMac + TR) sPhone.classList.add('hidden');
-  applyMask(sMac, ORD.toMac, prog(t, T.toMac, TR)); if (t > T.toBlack + TR) sMac.classList.add('hidden');
-  applyMask(scE, ORD.toBlack, prog(t, T.toBlack, TR));
+  applyMask(sMac, ORD.toMac, prog(t, T.toMac, TR)); if (t > T.toBlack + TR_END) sMac.classList.add('hidden');
+  applyMask(scE, ORD.toBlack, prog(t, T.toBlack, TR_END));
 
   /* ---- 1. TITLE ---- */
   if (!scT.classList.contains('hidden')) {
-    const mp = E(t, 0.05, 0.5, quint); $('titleMark').style.opacity = mp; $('titleMark').style.transform = `translateY(${(1 - mp) * -40}px)`;
-    const lp = E(t, 0.35, 0.45); $('titleLead').style.height = (lp * 172) + 'px'; $('titleDot').style.opacity = t > 0.3 ? 1 : 0; $('titleDot').style.transform = `scale(${E(t, 0.3, 0.3, over)})`;
-    landWords(L1, t, 0.55); const done = landWords(L2, t, 0.85);
+    const mp = E(t, 0.05, 0.55, quint); $('titleMark').style.opacity = mp; $('titleMark').style.transform = `translateY(${(1 - mp) * -50}px) scale(${lerp(0.94, 1, mp)})`;
+    const lp = E(t, 0.4, 0.4); $('titleLead').style.height = (lp * 40) + 'px';
+    landWords(L1, t, 0.55); landWords(L2, t, 0.85);
     ticksTo($('titleTicks'), $('titleH'), t > 1.75);
-    cam(scT.firstElementChild, 1 + 0.03 * prog(t, 0, T.toComposer + TR), 300, 620);
+    cam(scT.firstElementChild, 1 + 0.03 * prog(t, 0, T.toComposer + TR), 960, 540);
   }
 
   /* ---- 2. COMPOSER ---- */
@@ -578,14 +568,14 @@ window.seek = function (t) {
     $('chkUbuntu').style.opacity = picked ? 0 : 1; $('chkMac').style.opacity = picked ? 1 : 0;
     $('menuAEnv').textContent = picked ? 'macOS' : 'Ubuntu';
     // cursor path (stage coords): idle -> split-button chevron -> macOS row
-    const cx0 = 1420, cy0 = 780, cx1 = 1352, cy1 = 582, cx2 = 1200, cy2 = 715;
+    const cx0 = 1560, cy0 = 860, cx1 = 1520, cy1 = 638, cx2 = 1330, cy2 = 796;
     const p1 = E(t, T.menuOpen - 0.5, 0.45, quint), p2 = E(t, T.cursorToMac, 0.4, quint);
     const cx = lerp(lerp(cx0, cx1, p1), cx2, p2), cy = lerp(lerp(cy0, cy1, p1), cy2, p2);
     const click = (t >= T.pickMac && t < T.pickMac + 0.12) || (t >= T.menuOpen - 0.05 && t < T.menuOpen + 0.07) ? 0.88 : 1;
     $('cursor').style.transform = `translate(${cx}px, ${cy}px) scale(${click})`;
     $('cursor').style.opacity = E(t, T.typeEnd - 0.2, 0.3);
     // camera: zoom onto the environment menu
-    const z = E(t, T.zoomMenu, 0.9); cam($('composerCam'), lerp(1 + 0.04 * prog(t, T.toComposer, 3), 1.9, z), 1130, 640);
+    const z = E(t, T.zoomMenu, 0.9); cam($('composerCam'), lerp(1 + 0.04 * prog(t, T.toComposer, 3), 1.45, z), 1100, 700);
   }
 
   /* ---- 3/4/5. SESSION (three instances) ---- */
@@ -603,17 +593,17 @@ window.seek = function (t) {
 function renderSession(root, t, mode) {
   const $ = id => root.querySelector('#' + id);
   const isCode = mode === 'code', isPhone = mode === 'phone', isMac = mode === 'mac';
-  // the code instance freezes at the cut so the outgoing tiles stay still
+  // the outgoing instance freezes at the cut so its tiles stay still
   if (isCode) t = Math.min(t, T.toPhone);
   if (isPhone) t = Math.min(t, T.toMac);
   {
-    // caption: lands after each cut, drops out while the camera pushes in
+    // caption: lands after each cut, swaps once, drops out before the camera pushes in
     let capKey = 'code', capStart, capEnd;
-    if (isMac && t >= T.captionShared) { capKey = 'shared'; capStart = T.captionShared; capEnd = 99; }
-    else if (isMac) { capKey = 'mac'; capStart = T.toMac + TR; capEnd = T.macZoomIn; }
-    else if (isPhone && t >= T.captionTest) { capKey = 'test'; capStart = T.captionTest; capEnd = 99; }
-    else if (isPhone) { capKey = 'phone'; capStart = T.toPhone + TR; capEnd = T.phoneZoomIn; }
-    else { capStart = T.toCode + TR; capEnd = 99; }
+    if (isMac && t >= T.captionShared) { capKey = 'shared'; capStart = T.captionShared; capEnd = T.macZoomIn - 0.2; }
+    else if (isMac) { capKey = 'mac'; capStart = T.toMac + TR; capEnd = T.captionShared - 0.3; }
+    else if (isPhone && t >= T.captionTest) { capKey = 'test'; capStart = T.captionTest; capEnd = T.phoneZoomIn - 0.2; }
+    else if (isPhone) { capKey = 'phone'; capStart = T.toPhone + TR; capEnd = T.captionTest - 0.3; }
+    else { capStart = T.toCode + TR; capEnd = T.toPhone - 0.3; }
     if ($('cap').dataset.key !== capKey) { words($('cap'), capSpans[capKey]); $('cap').dataset.key = capKey; }
     const capDone = landWords([...$('cap').children], t, capStart, 0.07, 0.36, 40);
     const capOut = E(t, capEnd, 0.3, quint);
@@ -628,10 +618,9 @@ function renderSession(root, t, mode) {
     if (isCode) renderCode(Math.floor(CODE_TEXT.length * prog(t, T.codeStart, T.codeEnd - T.codeStart)), $('codePre'));
     // chat progression
     const codeMsgP = E(t, T.toCode + 0.3, 0.4, quint); $('msgCode').style.opacity = codeMsgP; $('msgCode').style.transform = `translateY(${(1 - codeMsgP) * 16}px)`;
-    $('workedCode').style.opacity = E(t, T.codeStart + 0.3, 0.3);
     [...$('stepsCode').children].forEach((s, i) => { const p = E(t, T.codeStart + 0.6 + i * 0.55, 0.3, quint); s.style.opacity = p; s.style.transform = `translateX(${(1 - p) * -10}px)`; });
     const runP = E(t, T.toPhone + 0.4, 0.4, quint); $('msgRun').style.opacity = runP; $('msgRun').style.transform = `translateY(${(1 - runP) * 16}px)`;
-    [...$('stepsRun').children].forEach((s, i) => { const t0 = i < 3 ? T.toPhone + 1.2 + i * 0.9 : T.toMac + 0.6 + (i - 3) * 0.9; const p = E(t, t0, 0.3, quint); s.style.opacity = p; s.style.transform = `translateX(${(1 - p) * -10}px)`; });
+    [...$('stepsRun').children].forEach((s, i) => { const t0 = i < 2 ? T.toPhone + 1.2 + i * 1.1 : T.toMac + 0.6 + (i - 2) * 0.9; const p = E(t, t0, 0.3, quint); s.style.opacity = p; s.style.transform = `translateX(${(1 - p) * -10}px)`; });
     const doneP = E(t, T.devinDone, 0.4, quint); $('msgDone').style.opacity = doneP; $('msgDone').style.transform = `translateY(${(1 - doneP) * 16}px)`;
     $('statusText').textContent = t >= T.devinDone ? 'Devin is awaiting instructions' : 'Devin is working';
     $('statusLine').querySelector('.d').style.background = t >= T.devinDone ? '#EF8A3C' : '#2F5BFF';
@@ -641,10 +630,11 @@ function renderSession(root, t, mode) {
       if (isPhone) $('phoneImg').src = frameAt(phoneFrames, t, T.toPhone); else $('macImg').src = frameAt(macFrames, t, T.toMac);
       $('paneFill').style.width = (lerp(28, 96, prog(t, T.toPhone, T.toBlack - T.toPhone))) + '%';
     }
-    // camera: push into the phone, back out, then push into the Mac window
+    // camera: slow drift on the code, then push into the phone / the Mac game window and hold
     let s = 1, ox = 1240, oy = 560;
-    if (isPhone) { const zi = E(t, T.phoneZoomIn, 1.3), zo = E(t, T.phoneZoomOut, 1.0); s = lerp(lerp(1, 1.42, zi), 1, zo); ox = 1240; oy = 590; }
-    if (isMac) { const zi = E(t, T.macZoomIn, 1.4), zo = E(t, T.macZoomOut, 1.0); s = lerp(lerp(1, 1.3, zi), 1, zo); ox = 1250; oy = 520; }
+    if (isCode) { s = 1 + 0.06 * prog(t, T.toCode, T.toPhone - T.toCode); ox = 1330; oy = 600; }
+    if (isPhone) { s = lerp(1, 1.28, E(t, T.phoneZoomIn, 1.2)); ox = 1270; oy = 630; }
+    if (isMac) { s = lerp(1, 1.7, E(t, T.macZoomIn, 1.4)); ox = 1650; oy = 250; }
     cam($('sessionCam'), s, ox, oy);
   }
 }

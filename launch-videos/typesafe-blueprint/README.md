@@ -16,12 +16,12 @@ the VoxelHearth iPhone build running in the iOS Simulator, both recorded on the 
 
 | time | beat |
 | --- | --- |
-| 0.0 - 3.0 | title on blueprint paper: mark, leader line, "macOS. / Now in Devin Cloud." |
+| 0.0 - 3.0 | title on blueprint paper: centred Devin lockup over "macOS. / Now in Devin Cloud." |
 | 3.0 - 7.7 | new-session composer; the request is typed; environment menu opens and **macOS** is picked |
 | 7.7 - 12.5 | session view, Changes tab: Devin writes `Game.swift` (Swift, real VoxelHearth code) |
-| 12.5 - 18.5 | Computer tab: iPhone Simulator on the Mac desktop, pixel-block aperture reveal, push-in, "Plays and tests it, live" |
-| 18.5 - 24.4 | Computer tab: VoxelHearth macOS window on the Mac desktop, second player visible, session completes |
-| 24.4 - 27.8 | black end card: Devin lockup, `devin.ai` |
+| 12.5 - 18.5 | Computer tab: iPhone Simulator on the Mac desktop (pixel-block aperture reveal), two captions, push-in to the phone and hold |
+| 18.5 - 24.4 | Computer tab: VoxelHearth macOS window on the Mac desktop, second player visible, session completes, push-in to the game window and hold |
+| 24.4 - 27.8 | 0.4 s block wipe to black; end card: Devin lockup, `devin.ai` |
 
 ## Render
 
@@ -55,14 +55,16 @@ All constants live in `window.CONFIG` at the top of `index.html`:
 - `cell` - pixel-block cell size for the checkerboard transitions (1920/cell must be an integer).
 - `color.*` - palette. `accent` is the single saturated brand colour (`#2200FF` from the Devin Figma).
 - `text.*` - headline, typed prompt, captions, Devin's chat messages, code file name, URL.
-- `t.*` - every beat's start time in seconds (`toComposer`, `toCode`, `toPhone`, `toMac`, `toBlack`, zoom in/out, etc.).
+- `t.*` - every beat's start time in seconds (`toComposer`, `toCode`, `toPhone`, `toMac`, `toBlack`, caption swaps, push-ins).
+  Captions always drop out before a push-in starts and before the closing wipe.
 - `media.*` - frame-sequence folders and `frameCount`, desktop screenshot, logo files.
 - `code` - the Swift lines that are typed in the Changes pane.
 
 Other knobs:
 
-- `TR` (in the script) - pixel-block transition length; `ORD.*` - which block order each cut uses
-  (`orderSweep`, `orderRandom`, `orderAperture(cx, cy)`).
+- `TR` / `TR_END` (in the script) - pixel-block transition length for cuts / for the closing wipe; `ORD.*` - which block
+  order each cut uses (`orderSweep`, `orderRandom`, `orderAperture(cx, cy)`).
+- Camera push-ins are the `cam(...)` calls at the end of `renderSession` (scale + origin per beat).
 - Layout of the reconstructed UI is plain CSS under `/* Devin session window */`, `/* New-session composer */`, `/* End card */`.
 - `scripts/extract-frames.sh` - `MAC_START` / `PHONE_START` choose which moment of the recordings is used.
 
