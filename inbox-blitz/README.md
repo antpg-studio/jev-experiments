@@ -1,12 +1,15 @@
 # Sift
 
-**500 emails × 7 judgments = 3,500 judgments in 5.3 s** — a whole support/sales inbox triaged
-with [TypeSafe Jev](https://docs.typesafe.ai) at ~95 emails/sec, then re-ranked instantly when
-the policy changes, with a keyword-rule baseline on screen so you can see where regex fails.
+**Type what you mean, get a label.** Describe emails in plain English — *"customers threatening to
+cancel"*, *"sarcastic or passive-aggressive tone"* — and [TypeSafe Jev](https://docs.typesafe.ai)
+judges all 500 emails against that description in ~5.5 s (p50 ≈ 115 ms), labelling and filtering
+the inbox live as answers stream in. Stack labels to AND them. Plus the fixed triage pass:
+**500 emails × 7 judgments = 3,500 judgments in 5.3 s**, sorted into a priority queue computed in code, with a
+keyword-rule baseline on screen so you can see where regex fails.
 
-![Sift — Gmail-style inbox after triaging 500 emails](screenshots/inbox-blitz.jpg)
+![Sift — “someone asking for a refund” labelled across 500 emails in 4.9 s](screenshots/inbox-blitz.jpg)
 
-![Live run: triage, re-rank with sliders, keyword-rules comparison](screenshots/inbox-blitz-demo.webp)
+![Live run: two intents typed in plain English, labelled and filtered as Jev answers](screenshots/inbox-blitz-demo.webp)
 
 ## The problem
 
@@ -20,14 +23,46 @@ score) with probabilities in ~100–300 ms. That changes the shape of the soluti
 
 - **All seven questions about one email go in one request.** Extra questions cost tokens, not
   latency. Seven dimensions arrive together in one round-trip.
-- **Judgments are data.** The priority score is computed *in code* from the raw judgments. Move a
-  weight slider and the queue re-sorts in the same frame — no new inference, no re-run.
+- **Judgments are data.** The priority score is computed *in code* from the raw judgments, so
+  changing the weighting re-sorts the queue with no new inference, no re-run.
 - **Confidence is a first-class value.** Category confidence below 0.7 routes the email to a
   "needs human" lane instead of guessing.
 - **Whole-inbox re-triage is cheap.** A full pass over 500 emails is ~5 s and ~$0.03, so changing
   the questions themselves (a new policy) is a re-run, not a project.
 
-## What Jev is asked
+## Natural-language labels
+
+The Gmail search pill is an *intent* box, not a keyword box. Type a description and press Enter:
+
+1. `POST /api/label { intent }` fans out one request per email (12 in flight), each carrying a
+   single `noul` question with the intent embedded in it:
+
+   > An inbox operator wants to find emails that match this description: *"…"*. Read
+   > `email.from`, `email.subject` and `email.body`. Does this email genuinely match the
+   > description, judged by what the sender actually means and intends rather than by surface
+   > keywords? — `true`: clearly fits · `false`: does not fit, or only mentions related words in
+   > passing, sarcastically, in quoted history or in marketing copy.
+
+2. Match probabilities stream back as NDJSON; the UI shows a one-line status (matches so far,
+   emails judged, elapsed); per-request latency, p50/p95 and cost are measured in code but not
+   displayed (the tables below come from those measurements).
+3. Code does the rest: probability ≥ 0.5 gets the label (≥ 0.8 solid, 0.5–0.8 translucent), the
+   inbox filters to matches, and when the run finishes the rows sort by match probability.
+   Selecting several labels ANDs them; nothing is re-inferred.
+
+Measured label runs over the 500-email fixture (real API, concurrency 12):
+
+| intent | matches | elapsed | p50 | p95 | emails/s |
+|---|---|---|---|---|---|
+| customers threatening to cancel | 4 (all 4 real cancel threats; angry-but-staying emails at 18–46%) | 5.43 s | 114 ms | 198 ms | 92.1 |
+| someone asking for a refund | 27 (double charges, unused seats, "credit for the difference"; the sarcastic *"Great job guys… love paying twice"* trap at 55%) | 5.75 s | 117 ms | 267 ms | 86.9 |
+| sarcastic or passive-aggressive tone | 21 (top three are the sarcasm traps at 97/88/70%) | 5.89 s | 123 ms | 252 ms | 84.9 |
+| production is down or broken for them | 81 (lock-outs, 502s, crashes at 92–96%; "data not syncing" borderline at ~58%) | 4.91 s | 100 ms | 182 ms | 101.8 |
+
+Each run is 500 judgments and ~235k input tokens ≈ $0.01. Try it yourself from the CLI:
+`npx tsx scripts/probe-intent.ts "a coworker asking me to do something"`.
+
+## What Jev is asked in the triage pass
 
 One `POST https://api.typesafe.ai/v1/systemone` per email, `model: "jev-latest"`, with
 `state = { email: { from, subject, body } }` and these seven questions (verbatim from
@@ -63,9 +98,6 @@ Best of three full runs on a Linux VM; the other two took 5.8 s and 5.9 s.
 | input tokens | 609,250 |
 | estimated cost | ≈ $0.03 (at $0.042 / M input tokens, output free) |
 
-The run recorded in the animation above is a production build with screen capture running
-alongside (6.7 s, p50 114 ms, p95 333 ms).
-
 For comparison, a 2 s-per-email LLM summarisation pass would take ~17 minutes sequentially, or
 ~80 s at the same concurrency, and needs a text-parsing step Jev does not.
 
@@ -98,11 +130,14 @@ browser (Vite + React 19)  ──/api/triage──▶  node server (tsx)  ──
 - `server/index.ts` — `POST /api/triage` fans out one request per email with a 12-wide worker
   pool, streams `{type:"result", id, judgment, latencyMs, inputTokens}` lines back as they arrive,
   retries 429/529/5xx with exponential backoff + jitter (honouring `retry-after`), 6 s per-request
-  timeout. The API key never leaves the server.
-- `server/jev.ts` — typed question builders (`choice`, `noul`, `score`), the seven questions,
-  request/response mapping.
-- `src/useTriage.ts` — consumes the stream, batches UI updates every 50 ms, tracks live p50/p95.
-- `src/lib/priority.ts` — priority score from raw judgments + slider weights; lane routing
+  timeout. `POST /api/label { intent }` does the same with the single intent question and streams
+  `{type:"match", id, match, latencyMs, inputTokens}`. The API key never leaves the server.
+- `server/jev.ts` — typed question builders (`choice`, `noul`, `score`), the seven triage
+  questions, the `intentQuestion(intent)` builder, request/response mapping.
+- `src/useTriage.ts` — consumes the triage stream, batches UI updates every 50 ms, tracks live p50/p95.
+- `src/useLabels.ts` + `src/lib/labels.ts` — intent labels: queued runs, match threshold, label
+  naming, AND-intersection, sort-by-match, histogram summary; pure parts unit-tested.
+- `src/lib/priority.ts` — priority score from raw judgments + weights; lane routing
   (priority / needs-human / FYI / spam); pure and unit-tested.
 - `src/lib/rules.ts` — the keyword baseline and agreement/disagreement stats.
 - `src/lib/stats.ts` — percentiles, throughput, token cost.
@@ -120,7 +155,11 @@ export TYPESAFE_API_KEY=...   # never shipped to the browser
 npm run dev                   # server on :8787 + Vite on :5173, one command
 ```
 
-Open http://localhost:5173 and press **Triage inbox** (or `Enter`).
+Open http://localhost:5173, press `/`, type an intent (e.g. *customers threatening to cancel*)
+and hit Enter. The fixed seven-question triage pass lives under the toolbar's **⋮ → Triage inbox**
+menu; its lanes (Priority, Needs review, FYI, Spam) and the keyword-rules comparison appear once it has run.
+
+Intent labels are live-only (`MOCK=1` only has recorded answers for the seven triage questions).
 
 Other commands:
 
@@ -131,8 +170,8 @@ RECORD_MOCK=1 npm run dev   # live run that also (re)writes server/mock-answers.
 npm run lint && npm run typecheck && npm test && npm run build
 ```
 
-Keyboard: `j`/`k` or arrows move, `e` archive, `r` toggle reply-needed, `b` toggle keyword
-rules, `Enter` start triage.
+Keyboard: `/` focus the intent box, `j`/`k` or arrows move, `e` archive, `r` toggle
+reply-needed, `b` toggle keyword rules.
 
 ## Notes on question design
 
