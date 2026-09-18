@@ -1,0 +1,705 @@
+:root {
+  --bg: #0a0a0a;
+  --panel: #0a0a0a;
+  --panel-2: #101010;
+  --border: #3a3a3a;
+  --border-active: #3ddc97;
+  --text: #d8d8d8;
+  --muted: #7a7a7a;
+  --dim: #333;
+  --green: #3ddc97;
+  --red: #ff5c5c;
+  --amber: #ffb454;
+  --blue: #5aa9ff;
+  --purple: #b48cff;
+  --mono: ui-monospace, "SF Mono", Menlo, "JetBrains Mono", Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 12px/1.5 var(--mono);
+  overflow: hidden;
+  font-variant-ligatures: none;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--green);
+  color: #000;
+}
+
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 22px 96px 1fr 22px;
+  gap: 8px;
+  padding: 4px 6px 0;
+}
+
+/* tmux-style panes: a 1px frame with the title punched into the top border */
+.pane {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.pane.active {
+  border-color: var(--border-active);
+}
+
+/* top line: shell prompt + controls */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.brand .prompt {
+  color: var(--green);
+}
+
+.brand .sub {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+@media (max-width: 1400px) {
+  .brand .sub {
+    display: none;
+  }
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: var(--dim);
+}
+
+.dot[data-on="true"] {
+  background: var(--green);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+}
+
+.controls label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.controls b,
+.th b,
+.stat b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+input[type="range"] {
+  accent-color: var(--green);
+  width: 80px;
+  height: 12px;
+}
+
+.seed input {
+  width: 60px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 0 4px;
+  height: 18px;
+  -moz-appearance: textfield;
+}
+
+.seed input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.btn:hover {
+  background: var(--text);
+  color: #000;
+}
+
+.btn.go {
+  color: var(--green);
+}
+
+.btn.stop {
+  color: var(--amber);
+}
+
+.btn.go:hover {
+  background: var(--green);
+  color: #000;
+}
+
+.btn.stop:hover {
+  background: var(--amber);
+  color: #000;
+}
+
+/* metric strip */
+.strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1.35fr 1.35fr 1fr 1.1fr 1.1fr 2.1fr;
+  gap: 8px;
+  min-height: 0;
+}
+
+.stat-box {
+  padding: 8px 8px 4px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: visible;
+}
+
+.stat-box .label,
+.col h2 .title {
+  position: absolute;
+  top: -9px;
+  left: 6px;
+  max-width: calc(100% - 12px);
+  padding: 0 4px;
+  background: var(--bg);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-box .value {
+  font: 700 24px/1.1 var(--mono);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-box .sub {
+  margin-top: auto;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-box[data-accent="green"] .value {
+  color: var(--green);
+}
+
+.stat-box[data-accent="red"] .value {
+  color: var(--red);
+}
+
+.stat-box[data-accent="blue"] .value {
+  color: var(--blue);
+}
+
+.stat-box[data-accent="amber"] .value {
+  color: var(--amber);
+}
+
+.hist .plot {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  margin-top: 2px;
+}
+
+.hist canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* columns */
+.cols {
+  display: grid;
+  grid-template-columns: 1.1fr 1.15fr 1fr;
+  gap: 8px;
+  min-height: 0;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  padding-top: 8px;
+}
+
+.col h2 {
+  margin: 0;
+  padding: 0 6px;
+  font: 11px/16px var(--mono);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  position: absolute;
+  top: -9px;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+.col h2 > * {
+  pointer-events: auto;
+}
+
+.col h2 .title {
+  position: static;
+  color: var(--text);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pane.active h2 .title {
+  color: var(--green);
+}
+
+.col h2 .count {
+  color: var(--green);
+  font-weight: 400;
+}
+
+.th {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 0 4px;
+}
+
+.th + .th {
+  margin-left: 0;
+}
+
+.th input {
+  width: 56px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.toggle.small {
+  margin-left: auto;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 0 4px;
+}
+
+.toggle.small + .th {
+  margin-left: 0;
+}
+
+.toggle input {
+  accent-color: var(--green);
+  margin: 0;
+  width: 11px;
+  height: 11px;
+}
+
+.feed {
+  list-style: none;
+  margin: 0;
+  padding: 4px 6px;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
+}
+
+.feed > li {
+  flex-shrink: 0;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 1px 2px;
+  min-width: 0;
+}
+
+.row .user {
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.row .text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row .lang {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.row .lang::before {
+  content: "[";
+}
+
+.row .lang::after {
+  content: "]";
+}
+
+.raw .row[data-pending="true"] {
+  color: var(--muted);
+}
+
+.raw .row.blur .text {
+  filter: blur(5px);
+  transition: filter 0.15s;
+}
+
+.raw .row.blur:hover .text {
+  filter: none;
+}
+
+.pips {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 5ch;
+  color: var(--dim);
+}
+
+.pips.pending {
+  letter-spacing: 0;
+}
+
+.pips i {
+  font-style: normal;
+  width: 1ch;
+  color: var(--dim);
+}
+
+.pips i.on {
+  font-weight: 700;
+}
+
+.pips i.on.red {
+  color: var(--red);
+}
+
+.pips i.on.amber {
+  color: var(--amber);
+}
+
+.pips i.on.purple {
+  color: var(--purple);
+}
+
+.pips i.on.blue {
+  color: var(--blue);
+}
+
+.pips i.on.green {
+  color: var(--green);
+}
+
+/* mod queue cards */
+.card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1px;
+  border-left: 2px solid var(--border);
+  padding: 3px 8px 4px;
+  margin-bottom: 4px;
+}
+
+.card.harassment {
+  border-left-color: var(--red);
+}
+
+.card.scam {
+  border-left-color: var(--amber);
+}
+
+.card.spoiler {
+  border-left-color: var(--purple);
+}
+
+.card.review {
+  border-left-color: var(--blue);
+}
+
+.card .text {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* reverse-video badges, like tmux window flags */
+.badge {
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0 4px;
+  background: var(--blue);
+  color: #000;
+}
+
+.badge.harassment {
+  background: var(--red);
+}
+
+.badge.scam {
+  background: var(--amber);
+}
+
+.badge.spoiler {
+  background: var(--purple);
+}
+
+.badge.heur {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.badge.heur::before {
+  content: "(";
+}
+
+.badge.heur::after {
+  content: ")";
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+}
+
+.bar-wrap {
+  display: grid;
+  grid-template-columns: 7ch 1fr 4ch;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bar-wrap em {
+  font-style: normal;
+  text-align: right;
+  color: var(--text);
+}
+
+.track {
+  color: var(--dim);
+  letter-spacing: -0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.track b {
+  font-weight: 400;
+}
+
+.track.red b {
+  color: var(--red);
+}
+
+.track.amber b {
+  color: var(--amber);
+}
+
+.track.purple b {
+  color: var(--purple);
+}
+
+.track.blue b {
+  color: var(--blue);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.actions button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.actions button:hover {
+  background: var(--text);
+  color: #000;
+}
+
+.actions button:first-child:hover {
+  background: var(--amber);
+}
+
+.actions button:nth-child(2):hover {
+  background: var(--red);
+}
+
+/* streamer feed */
+.streamer .row.q {
+  align-items: flex-start;
+  border-left: 2px solid var(--green);
+  padding: 3px 8px;
+  margin-bottom: 4px;
+}
+
+.streamer .row.q > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.streamer .text {
+  white-space: normal;
+  font-size: 13px;
+}
+
+.dupes {
+  color: var(--green);
+}
+
+.prob {
+  font-weight: 700;
+  color: var(--green);
+  width: 3ch;
+  flex-shrink: 0;
+}
+
+/* tmux status line */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0 -6px;
+  padding: 0 8px;
+  background: var(--green);
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 22px;
+}
+
+.status .session {
+  font-weight: 700;
+  margin-right: 12px;
+}
+
+.status .win {
+  padding: 0 6px;
+}
+
+.status .win.cur {
+  background: #000;
+  color: var(--green);
+}
+
+.status .stat {
+  margin-left: 14px;
+}
+
+.status .stat b {
+  color: #000;
+  font-weight: 700;
+}
+
+.status .stat:first-of-type {
+  margin-left: 24px;
+}
+
+.status .ticker {
+  margin-left: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px;
+}
+
+.status .cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: #000;
+  vertical-align: -2px;
+  margin-left: 2px;
+  animation: blink 1s steps(1) infinite;
+}
+
+.status .clock {
+  flex-shrink: 0;
+  padding-left: 12px;
+}
