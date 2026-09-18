@@ -19,7 +19,7 @@
   .hl { font-weight: 600; font-size: 160px; line-height: 0.96; letter-spacing: -0.045em; white-space: nowrap; }
 
   /* Narrow caption column */
-  .cap { position: absolute; font-size: 36px; line-height: 1.16; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); }
+  .cap { position: absolute; font-size: 44px; line-height: 1.16; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); }
 
   /* Light Devin UI */
   .ui { background: var(--uiBg); color: var(--uiInk); border-radius: 14px; overflow: hidden;
@@ -31,7 +31,7 @@
   .seg span { padding: 6px 14px; border-radius: 999px; color: var(--uiMuted); }
   .seg span.on { background: #fff; color: var(--uiInk); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 
-  .composer { position: absolute; left: 72px; width: 1000px; top: 300px; border: 1px solid var(--uiLine); border-radius: 22px;
+  .composer { position: absolute; left: 142px; width: 860px; top: 300px; border: 1px solid var(--uiLine); border-radius: 22px;
     box-shadow: 0 8px 30px rgba(0,0,0,0.06); padding: 26px 28px 20px; background: #fff; }
   .composer .text { font-size: 31px; line-height: 1.32; letter-spacing: -0.012em; min-height: 72px; color: var(--uiInk); }
   .composer .text .ph { color: #A6A6AC; }
@@ -50,11 +50,11 @@
   .tag { background: var(--uiBlueSoft); color: var(--uiBlue); font-size: 12px; padding: 2px 7px; border-radius: 6px; margin-left: 8px; }
 
   /* Code editor */
-  .editor { position: absolute; inset: 0; background: var(--editorBg); color: #fff; font-family: var(--mono); font-size: 21px; line-height: 34px; }
+  .editor { position: absolute; inset: 0; background: var(--editorBg); color: #fff; font-family: var(--mono); font-size: 28px; line-height: 46px; }
   .editor .tabs { height: 56px; border-bottom: 1px solid var(--editorLine); display: flex; align-items: center; padding: 0 20px; gap: 24px;
     font-family: var(--font); font-size: 16px; color: #8B8B93; }
   .editor .tabs .on { color: #fff; }
-  .editor .body { position: absolute; top: 80px; left: 0; right: 0; bottom: 0; padding-left: 96px; white-space: pre; }
+  .editor .body { position: absolute; top: 88px; left: 0; right: 0; bottom: 0; padding-left: 40px; white-space: pre; }
   .editor .gutter { position: absolute; left: 0; top: 80px; width: 64px; text-align: right; color: #55555E; white-space: pre; }
   .kw { color: #FC5FA3; } .ty { color: #5DD8FF; } .fn { color: #67B7A4; } .pr { color: #A167E6; } .nu { color: #D0BF69; } .pl { color: #FFFFFF; }
   .build { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; border-top: 1px solid var(--editorLine); display: flex; align-items: center;
@@ -104,7 +104,7 @@
 
   <!-- Scene 1: opening -->
   <div id="s1" class="abs" style="inset:0">
-    <div id="lockup1" class="abs mask" style="left:96px;top:84px;height:44px;"><img src="assets/logos/devin-lockup-white.png" style="height:44px;display:block"></div>
+    <div id="lockup1" class="abs mask" style="left:96px;top:392px;height:200px;"><img src="assets/logos/devin-lockup-white.png" style="height:200px;display:block"></div>
     <div id="hl0" class="abs mask hl" style="left:96px;top:704px;"><div></div></div>
     <div id="hl1" class="abs mask hl" style="left:96px;top:858px;"><div></div></div>
   </div>
@@ -133,13 +133,13 @@
             <div class="send"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="2"><path d="M9 15V3M4 8l5-5 5 5"/></svg></div>
           </div>
         </div>
-        <div id="pop1" class="pop hidden" style="left:100px;top:478px;">
+        <div id="pop1" class="pop hidden" style="left:170px;top:478px;">
           <div id="pop1r" class="r">Virtual environment <span class="v">Ubuntu &#8250;</span></div>
           <div class="r">Security profile <span class="v">Default &#8250;</span></div>
           <div class="r">Notable repositories <span class="v">15 &#8250;</span></div>
           <div class="r">Manage MCP connectors</div>
         </div>
-        <div id="pop2" class="pop hidden" style="left:470px;top:478px;">
+        <div id="pop2" class="pop hidden" style="left:540px;top:478px;">
           <div class="hd">Hosted</div>
           <div id="rowUbuntu" class="r"><span class="dot" style="background:#E95420"></span>Ubuntu <span id="chkU" class="v">&#10003;</span></div>
           <div id="rowMac" class="r"><svg width="16" height="16" viewBox="0 0 16 16" fill="#1C1C1E"><path d="M11.2 8.5c0-1.6 1.3-2.3 1.4-2.4-.8-1.1-2-1.3-2.4-1.3-1-.1-2 .6-2.5.6s-1.3-.6-2.2-.6C4 4.8 2.4 6.2 2.4 8.9c0 .8.2 1.7.5 2.5.4 1.1 1.8 3.7 3.3 3.7.7 0 1.2-.5 2.1-.5.9 0 1.3.5 2.1.5 1.5 0 2.8-2.4 3.2-3.5-1.7-.8-2.4-2.1-2.4-3.1zM9.6 3.6c.7-.8.6-1.6.6-1.9-.6 0-1.4.4-1.8.9-.4.5-.7 1.2-.6 1.9.7.1 1.3-.3 1.8-.9z"/></svg>macOS<span class="tag">New</span><span id="chkM" class="v hidden">&#10003;</span></div>
@@ -151,7 +151,6 @@
     <div id="codeView" class="abs" style="inset:0;">
       <div class="editor">
         <div class="tabs"><span class="on">Game.swift</span><span>Renderer.swift</span><span>Session.swift</span><span>Voxel.metal</span></div>
-        <div id="gutter" class="gutter"></div>
         <div id="code" class="body"></div>
         <div id="buildBar" class="build mask">
           <div class="ok"><span class="dot" style="background:#34C759"></span><span id="bs0"></span></div><span id="bs1"></span><span id="bs2"></span>
@@ -187,7 +186,6 @@
         <span class="t"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M5 11h4"/></svg>Progress</span>
         <span class="t"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M8 5v6M5 8h6"/></svg>Changes</span>
         <span class="t on"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="9" rx="2"/><path d="M5 14h6"/></svg>Computer</span>
-        <span class="t"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="4" r="1.7"/><circle cx="4" cy="12" r="1.7"/><circle cx="12" cy="5" r="1.7"/><path d="M4 6v4M12 7c0 3-8 2-8 3"/></svg>PR</span>
         <span style="margin-left:auto;display:flex;gap:16px"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7A7A80" stroke-width="1.6"><path d="M11 3h4v4M7 15H3v-4M15 3l-5 5M3 15l5-5"/></svg><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7A7A80" stroke-width="1.6"><rect x="2" y="3" width="14" height="12" rx="2.5"/><path d="M11 3v12"/></svg></span>
       </div>
       <div id="shot" class="shot"><img id="macImg"></div>
@@ -243,6 +241,7 @@ const g = C.grid; const step = g.col + g.gutter;
 for (let i = 0; i <= 12; i++) { const r = document.createElement("div"); r.className = "rule"; r.style.left = px(g.margin + i * step - (i === 12 ? g.gutter : 0)); $("grid").appendChild(r); }
 
 // Static copy
+document.querySelector("#composerZoom .ui-top").style.display = "none";
 $("hl0").firstChild.textContent = C.copy.headline[0]; $("hl1").firstChild.textContent = C.copy.headline[1];
 $("r0").firstChild.textContent = C.copy.result[0]; $("r1").firstChild.textContent = C.copy.result[1];
 $("endCta").firstChild.textContent = C.copy.cta;
@@ -253,8 +252,7 @@ $("sessTitle").textContent = C.copy.sessionTitle; $("bubble").textContent = C.co
 const capDefs = [
   { id: "composer", a: C.t.composer + 0.5, b: C.t.composer + 2.9 },
   { id: "environment", a: C.t.composer + 3.0, b: C.t.code - 0.1 },
-  { id: "code", a: C.t.code + 0.3, b: C.t.code + 2.4 },
-  { id: "build", a: C.t.code + 2.55, b: C.t.session - 0.45 },
+  { id: "code", a: C.t.code + 0.3, b: C.t.session - 0.95 },
 ];
 const caps = capDefs.map(d => { const e = document.createElement("div"); e.className = "cap mask"; e.style.left = "0"; e.style.top = "0"; e.style.width = "414px"; e.textContent = C.copy.captions[d.id]; $("capcol").appendChild(e); return { ...d, el: e }; });
 const botDefs = [
@@ -262,7 +260,7 @@ const botDefs = [
   { id: "both", a: C.t.both + 0.4, b: C.t.test - 0.1 },
   { id: "test", a: C.t.test + 0.3, b: C.t.result - 0.1 },
 ];
-const bots = botDefs.map(d => { const e = document.createElement("div"); e.className = "cap mask"; e.style.left = "0"; e.style.top = "0"; e.style.fontSize = "34px"; e.textContent = C.copy.captions[d.id]; $("capbot").appendChild(e); return { ...d, el: e }; });
+const bots = botDefs.map(d => { const e = document.createElement("div"); e.className = "cap mask"; e.style.left = "0"; e.style.top = "0"; e.style.fontSize = "44px"; e.textContent = C.copy.captions[d.id]; $("capbot").appendChild(e); return { ...d, el: e }; });
 
 // Swift code (from VoxelHearth Game.swift, block placement)
 const CODE = [
@@ -270,13 +268,11 @@ const CODE = [
   [["pl","    "],["kw","guard"],["pl"," !blocked, "],["kw","let"],["pl"," target "],["kw","else"],["pl"," { "],["kw","return"],["pl"," }"]],
   [["pl","    "],["kw","let"],["pl"," held = session.inventory[session.selected]"]],
   [["pl","    "],["kw","guard"],["pl"," !held.isEmpty, held.id <= "],["nu","33"],["pl"," "],["kw","else"],["pl"," { "],["kw","return"],["pl"," }"]],
-  [["pl",""]],
   [["pl","    "],["kw","let"],["pl"," replace = "],["ty","Registry"],["pl","."],["pr","shared"],["pl","."],["fn","block"],["pl","(target.id).replaceable"]],
   [["pl","    "],["kw","let"],["pl"," x = target.x + (replace ? "],["nu","0"],["pl"," : target.nx)"]],
   [["pl","    "],["kw","let"],["pl"," y = target.y + (replace ? "],["nu","0"],["pl"," : target.ny)"]],
   [["pl","    "],["kw","let"],["pl"," z = target.z + (replace ? "],["nu","0"],["pl"," : target.nz)"]],
   [["pl","    "],["kw","guard"],["pl"," ("],["nu","0"],["pl","..<"],["nu","64"],["pl",").contains(y) "],["kw","else"],["pl"," { "],["kw","return"],["pl"," }"]],
-  [["pl",""]],
   [["pl","    "],["kw","var"],["pl"," message = "],["ty","ClientMessage"],["pl","."],["fn","block"],["pl","(."],["pr","place"],["pl",", x, y, z)"]],
   [["pl","    message.nx = target.nx"]],
   [["pl","    message.ny = target.ny"]],
@@ -284,7 +280,6 @@ const CODE = [
   [["pl","    session."],["fn","send"],["pl","(message)"]],
   [["pl","}"]],
 ];
-$("gutter").textContent = CODE.map((_, i) => String(i + 1).padStart(2, " ")).join("\n");
 const codeChars = CODE.map(l => l.reduce((n, s) => n + s[1].length, 0));
 const codeTotal = codeChars.reduce((a, b) => a + b, 0);
 function renderCode(n) {
@@ -345,9 +340,9 @@ window.seek = function (t) {
     const c1 = seg(t, tPop, 0.45);            // move to Fusion button
     const c2 = seg(t, tPop + 0.55, 0.4);      // move to Virtual environment row
     const c3 = seg(t, tPop + 1.05, 0.45);     // move to macOS row
-    let cx = lerp(760, 208, c1), cy = lerp(660, 492, c1);
-    cx = lerp(cx, 300, c2); cy = lerp(cy, 514, c2);
-    cx = lerp(cx, 600, c3); cy = lerp(cy, 578, c3);
+    let cx = lerp(760, 278, c1), cy = lerp(660, 492, c1);
+    cx = lerp(cx, 370, c2); cy = lerp(cy, 514, c2);
+    cx = lerp(cx, 670, c3); cy = lerp(cy, 578, c3);
     cur.style.left = px(cx); cur.style.top = px(cy);
     show(cur, t > tPop - 0.4);
     cur.style.opacity = seg(t, tPop - 0.4, 0.3);
@@ -360,9 +355,11 @@ window.seek = function (t) {
     $("macChip").style.display = clicked ? "inline-flex" : "none";
     // zoom into the macOS row
     const z = seg(t, tPop + 1.5, 0.75);
-    const zs = lerp(1, 1.75, z);
-    cz.style.transformOrigin = "600px 580px";
-    cz.style.transform = `translateY(${px((1 - aIn) * 60)}) scale(${zs.toFixed(4)})`;
+    const zs = lerp(1.28, 1.75, z);
+    const fx = lerp(572, 670, z), fy = lerp(395, 580, z);   // focus point in composer coordinates
+    const qx = 572, qy = 520;                 // where it lands in the panel
+    cz.style.transformOrigin = "0 0";
+    cz.style.transform = `translate(${px(qx - zs * fx)}, ${px(qy - zs * fy + (1 - aIn) * 60)}) scale(${zs.toFixed(4)})`;
     // code typing
     const n = Math.floor(seg(t, T.code + 0.35, 2.2, (x) => x) * codeTotal);
     renderCode(n);

@@ -65,7 +65,6 @@ window.CONFIG = {
       composer: "Ask for a Mac and iPhone app.",
       environment: "Pick macOS as the environment.",
       code: "Devin writes the Swift.",
-      build: "Both targets build.",
       session: "VoxelHearth runs on Devin's Mac.",
       both: "The iPhone build joins the same world.",
       test: "Devin plays both. Blocks placed, camera moved.",
