@@ -9,6 +9,6 @@ export default defineConfig({
     proxy: { "/api": "http://localhost:8787" },
   },
   test: {
-    include: ["shared/**/*.test.ts", "server/**/*.test.ts"],
+    include: ["shared/**/*.test.ts", "server/**/*.test.ts", "src/**/*.test.ts"],
   },
 });

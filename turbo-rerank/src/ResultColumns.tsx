@@ -1,4 +1,6 @@
-import { RELEVANCE_LABELS, type Bm25Response, type RankedResult, type SearchResponse } from "../shared/types.ts";
+import { useState } from "react";
+import { RELEVANCE_LABELS, type Bm25Response, type DocKind, type RankedResult, type SearchResponse } from "../shared/types.ts";
+import { Icon } from "./Icon.tsx";
 
 interface Props {
   bm25: Bm25Response | null;
@@ -6,90 +8,96 @@ interface Props {
   pending: boolean;
 }
 
-const SHOW = 10;
+const KINDS: Record<DocKind, string> = {
+  handbook: "Engineering handbook",
+  hr: "People & policies",
+  api: "API reference",
+  runbook: "Runbooks",
+  architecture: "Architecture",
+};
 
 export function ResultColumns({ bm25, result, pending }: Props) {
-  if (!bm25) return <section className="columns empty">Type a query to search 598 passages. BM25 answers in about a millisecond; Jev reorders all 50 candidates in one request.</section>;
+  const [showAll, setShowAll] = useState(false);
+  if (!bm25 || bm25.results.length === 0) return null;
   const jevById = new Map(result?.results.map((r) => [r.id, r]) ?? []);
+  const limit = showAll ? bm25.results.length : 5;
   return (
-    <section className="columns">
-      <div className="column">
-        <h2>
-          <span className="tag bm25">BM25</span> keyword order
-          <small>{bm25.bm25Ms.toFixed(2)} ms</small>
-        </h2>
-        <ol>
-          {bm25.results.slice(0, SHOW).map((r) => {
-            const j = jevById.get(r.id);
-            return (
-              <li key={r.id} className={`hit ${j && j.jevRank === 1 ? "winner" : ""}`}>
-                <div className="rank">{r.bm25Rank}</div>
-                <div className="body">
-                  <div className="title">
-                    <span className={`kind ${r.kind}`}>{r.kind}</span> {r.title}
-                    {j && <RankDelta from={r.bm25Rank} to={j.jevRank} />}
-                  </div>
-                  <p>{r.text}</p>
-                  <div className="meta">bm25 {r.bm25Score.toFixed(2)} · {r.id}</div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-      <div className={`column jev ${pending && !result ? "loading" : ""}`}>
-        <h2>
-          <span className="tag jev">Jev</span> reranked order
-          <small>{result ? `${result.timing.jevMs.toFixed(0)} ms · ${result.results.length} scored` : pending ? "judging 50 candidates…" : ""}</small>
-        </h2>
-        {result ? (
-          <ol>
-            {result.results.slice(0, SHOW).map((r) => <JevHit key={r.id} r={r} />)}
-          </ol>
-        ) : (
-          <ol className="skeleton">
-            {bm25.results.slice(0, SHOW).map((r) => (
-              <li key={r.id} className="hit">
-                <div className="rank">·</div>
-                <div className="body">
-                  <div className="title"><span className={`kind ${r.kind}`}>{r.kind}</span> {r.title}</div>
-                  <p>{r.text}</p>
-                </div>
-              </li>
+    <section className="comparison" aria-label="Search result comparison" aria-busy={pending}>
+      <div className="columns">
+        <section className="result-column" aria-labelledby="bm25-heading">
+          <header className="column-heading">
+            <div><h2 id="bm25-heading">Keyword search</h2><p>BM25 · original order</p></div>
+            <span className="column-count">{bm25.results.length} matches</span>
+          </header>
+          <ol className="result-list">
+            {bm25.results.slice(0, limit).map((r) => (
+              <Hit key={r.id} r={r} rank={r.bm25Rank} judgment={jevById.get(r.id)} />
             ))}
           </ol>
-        )}
+        </section>
+        <section className="result-column reranked" aria-labelledby="jev-heading">
+          <header className="column-heading">
+            <div><h2 id="jev-heading"><Icon name="mark" size={19} />Reranked by Jev</h2><p>Ordered by meaning</p></div>
+            <span className="column-count">{result ? `${(result.answerExists * 100).toFixed(0)}% answer probability` : pending ? "Judging relevance…" : "Awaiting results"}</span>
+          </header>
+          {result ? (
+            <ol className="result-list">
+              {result.results.slice(0, limit).map((r) => <Hit key={r.id} r={r} rank={r.jevRank} judgment={r} reranked />)}
+            </ol>
+          ) : (
+            <div className="result-placeholder" role="status">
+              {pending && <span className="spinner" />}
+              <p>{pending ? `Judging ${bm25.results.length} passages together…` : "Relevance results will appear here."}</p>
+            </div>
+          )}
+        </section>
+      </div>
+      <div className="comparison-footer">
+        <span>Showing {Math.min(limit, bm25.results.length)} of {bm25.results.length} candidates · select a passage to read more</span>
+        {bm25.results.length > 5 && <button className="text-button" onClick={() => setShowAll(!showAll)}>{showAll ? "Show top 5" : `Show all ${bm25.results.length}`} <Icon name="chevron" size={14} /></button>}
       </div>
     </section>
   );
 }
 
-function JevHit({ r }: { r: RankedResult }) {
-  const pct = (r.relevance / 3) * 100;
+function Hit({ r, rank, judgment, reranked = false }: {
+  r: Bm25Response["results"][number];
+  rank: number;
+  judgment?: RankedResult;
+  reranked?: boolean;
+}) {
+  const winner = reranked && rank === 1 && judgment && judgment.level >= 2;
   return (
-    <li className={`hit level-${r.level} ${r.jevRank === 1 && r.level >= 2 ? "winner" : ""}`}>
-      <div className="rank">{r.jevRank}</div>
-      <div className="body">
-        <div className="title">
-          <span className={`kind ${r.kind}`}>{r.kind}</span> {r.title}
-          <RankDelta from={r.bm25Rank} to={r.jevRank} />
-        </div>
-        <div className="relbar" title={`relevance ${r.relevance.toFixed(2)} / 3, confidence ${(r.confidence * 100).toFixed(0)}%`}>
-          <div className={`fill level-${r.level}`} style={{ width: `${pct}%` }} />
-          <span className="rellabel">
-            {RELEVANCE_LABELS[r.level]} · {r.relevance.toFixed(2)} · conf {(r.confidence * 100).toFixed(0)}%
+    <li className={`result-item ${winner ? "winner" : ""}`}>
+      <span className="rank">{String(rank).padStart(2, "0")}</span>
+      <details className="passage">
+        <summary>
+          <span className="passage-source"><Icon name="document" size={13} />{KINDS[r.kind]}
+            {judgment && <RankDelta from={r.bm25Rank} to={judgment.jevRank} />}
           </span>
+          <span className="passage-title">{r.title}</span>
+          <span className="excerpt">{r.text}</span>
+          <span className="read-more">Read passage <Icon name="chevron" size={12} /></span>
+        </summary>
+        <p className="passage-full">{r.text}</p>
+        <div className="passage-id">{r.id} · BM25 score {r.bm25Score.toFixed(2)}</div>
+      </details>
+      {reranked && judgment && (
+        <div className={`relevance level-${judgment.level}`}>
+          <span className="relevance-label">{judgment.level === 3 && <Icon name="check" size={12} />}{RELEVANCE_LABELS[judgment.level]}</span>
+          <div className="relevance-track" title={`Relevance ${judgment.relevance.toFixed(2)} of 3`}>
+            <span style={{ width: `${judgment.relevance / 3 * 100}%` }} />
+          </div>
+          <span>{(judgment.confidence * 100).toFixed(0)}% confidence</span>
         </div>
-        <p>{r.text}</p>
-        <div className="meta">was #{r.bm25Rank} in BM25 · {r.id}</div>
-      </div>
+      )}
     </li>
   );
 }
 
 function RankDelta({ from, to }: { from: number; to: number }) {
   const d = from - to;
-  if (d === 0) return <span className="delta same">=</span>;
-  if (d > 0) return <span className="delta up">▲ {d}</span>;
-  return <span className="delta down">▼ {-d}</span>;
+  return <span className={`delta ${d > 0 ? "up" : "same"}`} title={`BM25 #${from} → Jev #${to}`} aria-label={`From rank ${from} to ${to}`}>
+    {d === 0 ? "—" : `${d > 0 ? "↑" : "↓"} ${Math.abs(d)}`}
+  </span>;
 }
