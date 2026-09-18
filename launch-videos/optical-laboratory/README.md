@@ -52,11 +52,14 @@ ignored by git; `video` recreates them when missing.
   entries and when each appears.
 - `TIMING` every beat: title, UI enter, typing, send, Changes/Computer tab switches, launch,
   observation window in/out, final message, end card.
-- `OBSERVE` how far the Devin UI scales down to open the right margin.
+- `CAMERA` the camera path over the Devin UI: keys of `{ t, x, y, s, ease }` (UI point at frame
+  center, scale, glide seconds). Full view is `s: 1`; push-ins for the composer and code, and the
+  pan that opens the right margin for the inspection window.
 - `INSPECTION` window position, size, stroke, caption position and size, fade and move easing.
 - `FOCUS` the inspection path: `{ t, cx, cy, w, caption }` in normalized Simulator screen
-  coordinates. The crop is square and always sampled from the 1206x2622 source, so a 320 px
-  window never exceeds source resolution.
+  coordinates. The crop is square and always sampled from the 1206x2622 source, so the 560 px
+  window never exceeds source resolution (the narrowest crop, 0.34 of 1206 px, is 410 source px
+  shown at 560 px).
 - `CURSOR` cursor keyframes (UI elements, tabs, or normalized phone taps).
 - `LAYOUT` chat width, header height, Mac screen rectangle, Simulator toolbar and iPhone frame.
 - `CODE` the Swift shown in the Changes view (typed out and syntax highlighted at render time).

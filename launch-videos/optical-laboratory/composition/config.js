@@ -69,7 +69,7 @@ export const TEXT = {
   codeFile: 'lumen-drift/Core/DriftEngine.swift',
   simulatorDevice: 'iPhone 17',
   simulatorOS: 'iOS 26.5',
-  menuBar: ['Simulator', 'File', 'Edit', 'Device', 'I/O', 'Features', 'Debug', 'Window', 'Help'],
+  menuBar: ['Simulator', 'File', 'Edit', 'Device', 'I/O', 'Window'],
   menuClock: 'Thu 17 Sep  11:37 PM',
 };
 
@@ -98,29 +98,34 @@ export const TIMING = {
   codeEnd: 10.5,
   computerTab: 11.0,   // Simulator pane opens
   launch: 11.35,       // app launches in the Simulator (home screen -> take)
-  observeIn: 11.9,     // UI eases back to reveal the inspection margin
-  windowIn: 12.2,
+  windowIn: 12.5,
   windowOut: 23.3,
-  observeOut: 23.5,    // UI eases back to full view
   finalMessage: 24.3,
   endIn: 26.4,         // end card crossfade begins
   endHold: 29.0,
-  ease: 1.0,           // duration of the full-view <-> observation move
-  tabMove: 0.5,
 };
 
-// Field of view for the observation layout: the Devin UI is scaled about its
-// left-center anchor so a dedicated margin opens on the right.
-export const OBSERVE = { uiScale: 0.8, marginWidth: 384 };
+// Camera over the Devin UI. Each key is where the camera has arrived by time t:
+// (x, y) is the UI point placed at the center of the frame and s the scale.
+// `ease` is how many seconds the glide to that key takes. Between keys the
+// camera holds. At s = 1 the UI fills the frame exactly.
+export const CAMERA = [
+  { t: 2.5, x: 960, y: 540, s: 1.0, ease: 0 },             // full session, edge to edge
+  { t: 4.3, x: 770, y: 660, s: 1.28, ease: 1.0 },        // push in on the composer while typing
+  { t: 7.5, x: 1234, y: 382, s: 1.4, ease: 0.9 },          // Changes tab and the Swift being written
+  { t: 11.6, x: 960, y: 540, s: 1.0, ease: 0.9 },          // Computer tab, Simulator large
+  { t: 12.9, x: 1580, y: 540, s: 1.0, ease: 0.9 },        // pan left: margin opens for the inspection window
+  { t: 24.2, x: 960, y: 540, s: 1.0, ease: 1.0 },          // return to the complete interface
+];
 
-// The single inspection window.
+// The single inspection window (stage px).
 export const INSPECTION = {
-  left: 1568,        // stage px
-  top: 262,
-  size: 320,         // stage px, square
-  strokeWidth: 1.5,
-  captionTop: 634,   // stage px, dedicated text margin
-  captionSize: 30,
+  left: 1332,
+  top: 150,
+  size: 560,         // about 30% of the frame width, square
+  strokeWidth: 2,
+  captionTop: 770,   // dedicated text margin under the window
+  captionSize: 42,
   fade: 0.35,        // caption crossfade seconds
   moveEase: 0.9,     // seconds to glide between focus regions
 };
@@ -129,7 +134,7 @@ export const INSPECTION = {
 // w is the crop width as a fraction of the screen width (the crop is square).
 // The window shows each region from its t until the next region's t.
 export const FOCUS = [
-  { t: 12.2, cx: 0.5, cy: 0.809, w: 0.62, caption: 'Devin taps Start endless' },
+  { t: 12.2, cx: 0.5, cy: 0.80, w: 0.86, caption: 'Devin taps Start endless' },
   { t: 13.7, cx: 0.5, cy: 0.70, w: 0.66, caption: 'Steers between lanes and collects energy' },
   { t: 16.6, cx: 0.29, cy: 0.15, w: 0.52, caption: 'Score climbs with every clean lane' },
   { t: 19.6, cx: 0.86, cy: 0.117, w: 0.34, caption: 'Pauses the run' },
@@ -139,8 +144,8 @@ export const FOCUS = [
 // Cursor path inside the Devin UI (1920x1080 UI coordinates). "phone" entries
 // are resolved against the Simulator screen at layout time.
 export const CURSOR = [
-  { t: 2.5, x: 900, y: 760 },
-  { t: 3.1, el: 'composerText', dx: 40, dy: 14 },   // composer
+  { t: 2.5, x: 700, y: 640 },
+  { t: 3.2, el: 'composerText', dx: 40, dy: 14 },   // composer
   { t: 5.75, el: 'composerText', dx: 40, dy: 14 },
   { t: 6.1, el: 'sendBtn' },                  // send button
   { t: 7.1, el: 'sendBtn' },
@@ -169,12 +174,12 @@ export const CURSOR = [
 
 // Devin UI layout (UI space). The phone screen is derived from these.
 export const LAYOUT = {
-  chatWidth: 560,
-  headerHeight: 56,
-  macScreen: { x: 580, y: 96, w: 1320, h: 825 },
-  menuBarHeight: 24,
-  simToolbar: { w: 250, h: 40, top: 30 },
-  phone: { screenW: 320, bezel: 12, radiusOuter: 56, top: 82 },
+  chatWidth: 620,
+  headerHeight: 64,
+  macScreen: { x: 650, y: 80, w: 1240, h: 980 },
+  menuBarHeight: 34,
+  simToolbar: { w: 300, h: 44, top: 20 },
+  phone: { screenW: 386, bezel: 14, radiusOuter: 64, top: 76 },
 };
 
 export const CODE = `mutating func steer(to lane: Int) {
@@ -193,15 +198,6 @@ private mutating func resolve(_ wave: FlightWave) -> [FlightEvent] {
     return [.collision, .gameOver]
   }
   var result: [FlightEvent] = []
-  if abs(lane - wave.hazard) == 1 {
-    combo += 1
-    nearMisses += 1
-    let points = 35 * multiplier
-    bonus += points
-    result.append(.nearMiss(points))
-  } else {
-    combo = 0
-  }
   if lane == wave.energy {
     energy += 1
     let points = 100 * multiplier

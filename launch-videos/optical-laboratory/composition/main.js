@@ -1,5 +1,5 @@
 import {
-  VIDEO, MEDIA, BRAND, TEXT, STEPS, TIMING, OBSERVE, INSPECTION, FOCUS, CURSOR, LAYOUT, CODE,
+  VIDEO, MEDIA, BRAND, TEXT, STEPS, TIMING, CAMERA, INSPECTION, FOCUS, CURSOR, LAYOUT, CODE,
 } from './config.js';
 
 const $ = (id) => document.getElementById(id);
@@ -180,13 +180,21 @@ caption.style.width = `${INSPECTION.size}px`;
 caption.style.fontSize = `${INSPECTION.captionSize}px`;
 
 // ---------------------------------------------------------------- helpers
-function uiScale(t) {
-  const inP = easeInOut(prog(t, TIMING.observeIn, TIMING.ease));
-  const outP = easeInOut(prog(t, TIMING.observeOut, TIMING.ease));
-  return lerp(lerp(1, OBSERVE.uiScale, inP), 1, outP);
+function cameraAt(t) {
+  let cam = CAMERA[0];
+  for (let i = 1; i < CAMERA.length; i++) {
+    const k = CAMERA[i];
+    if (t < k.t - k.ease) break;
+    const p = easeInOut(prog(t, k.t - k.ease, k.ease || 1e-6));
+    cam = { x: lerp(cam.x, k.x, p), y: lerp(cam.y, k.y, p), s: lerp(cam.s, k.s, p) };
+  }
+  return cam;
 }
-function uiToStage(p, s) {
-  return { x: p.x * s, y: 540 + (p.y - 540) * s };
+function uiToStage(p, cam) {
+  return {
+    x: VIDEO.width / 2 + (p.x - cam.x) * cam.s,
+    y: VIDEO.height / 2 + (p.y - cam.y) * cam.s,
+  };
 }
 function reveal(el, t, start, dur = 0.45, dy = 10) {
   const p = easeOut(prog(t, start, dur));
@@ -232,10 +240,11 @@ async function seek(t) {
   const devin = $('devin');
   const uiIn = easeOut(prog(t, TIMING.uiIn, 0.7));
   const uiOut = easeInOut(prog(t, TIMING.endIn, 0.8));
-  const s = uiScale(t);
+  const cam = cameraAt(t);
+  const s = cam.s * (1 + (1 - uiIn) * 0.03) * (1 - uiOut * 0.03);
   devin.style.opacity = uiIn * (1 - uiOut);
-  devin.style.transform = `scale(${s * (1 + (1 - uiIn) * 0.03) * (1 - uiOut * 0.03)})`;
-  devin.style.borderRadius = s < 0.999 ? '14px' : '0px';
+  devin.style.transform =
+    `translate(${VIDEO.width / 2}px, ${VIDEO.height / 2}px) scale(${s}) translate(${-cam.x}px, ${-cam.y}px)`;
 
   // Composer typing
   const typing = prog(t, TIMING.typeStart, TIMING.typeEnd - TIMING.typeStart);
@@ -275,7 +284,7 @@ async function seek(t) {
 
   // Cursor
   const c = cursorAt(t);
-  $('cursor').style.transform = `translate(${c.x}px, ${c.y}px)`;
+  $('cursor').style.transform = `translate(${c.x}px, ${c.y}px) scale(${1 / cam.s})`;
 
   // Simulator frame
   const takeT = t - MEDIA.takeOffset;
@@ -314,8 +323,8 @@ async function seek(t) {
 
     // Focus rectangle on the phone screen (stage coordinates) and leader line
     const nx = w, ny = (w * MEDIA.sourceWidth) / MEDIA.sourceHeight;
-    const a = uiToStage(phonePoint(cx - nx / 2, cy - ny / 2), s);
-    const b = uiToStage(phonePoint(cx + nx / 2, cy + ny / 2), s);
+    const a = uiToStage(phonePoint(cx - nx / 2, cy - ny / 2), cam);
+    const b = uiToStage(phonePoint(cx + nx / 2, cy + ny / 2), cam);
     const wx = INSPECTION.left;
     const wy = INSPECTION.top + INSPECTION.size / 2;
     const rectMidY = (a.y + b.y) / 2;
@@ -323,7 +332,7 @@ async function seek(t) {
       <rect x="${a.x}" y="${a.y}" width="${b.x - a.x}" height="${b.y - a.y}" fill="none"
         stroke="${BRAND.inspectionStroke}" stroke-width="${INSPECTION.strokeWidth}" opacity="${winAlpha}" />
       <path d="M ${wx} ${wy} H ${(wx + b.x) / 2} V ${rectMidY} H ${b.x}" fill="none"
-        stroke="${BRAND.inspectionLeader}" stroke-width="1.2" opacity="${winAlpha}" />`;
+        stroke="${BRAND.inspectionLeader}" stroke-width="2" opacity="${winAlpha}" />`;
 
     // Captions in the margin: crossfade between regions
     const fadeP = prog(t, region.t, INSPECTION.fade);
