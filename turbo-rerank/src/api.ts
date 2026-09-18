@@ -9,8 +9,16 @@ export interface Health {
 }
 
 async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(url, { signal });
-  const body = (await res.json()) as T & { error?: string };
+  let res: Response;
+  try {
+    res = await fetch(url, { signal });
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    throw new Error("Cannot reach the search service. Check that the proxy server is running and try again.");
+  }
+  const body = (await res.json().catch(() => {
+    throw new Error(`Search service unavailable (HTTP ${res.status}). Check that the proxy server is running and try again.`);
+  })) as T & { error?: string };
   if (!res.ok) throw new Error(body.error ?? `HTTP ${res.status}`);
   return body;
 }
@@ -27,6 +35,7 @@ export interface BenchEvents {
   onStart(n: number, mock: boolean): void;
   onRow(index: number, row: BenchRow, summary: BenchSummary): void;
   onError(index: number, query: string, message: string): void;
+  onFailure(message: string): void;
   onDone(summary: BenchSummary): void;
 }
 
@@ -43,7 +52,11 @@ export function streamBench(events: BenchEvents): () => void {
   });
   es.addEventListener("error", (e) => {
     const me = e as MessageEvent;
-    if (typeof me.data !== "string") return;
+    if (typeof me.data !== "string") {
+      es.close();
+      events.onFailure("Benchmark connection lost. Check that the proxy server is running, then run again.");
+      return;
+    }
     const d = JSON.parse(me.data) as { index: number; query: string; message: string };
     events.onError(d.index, d.query, d.message);
   });

@@ -2,9 +2,13 @@
 
 **50 search candidates semantically reranked in one ~170 ms Jev request — top-1 accuracy 50% → 100% on a 40-query labelled benchmark.**
 
+![Search workspace](screenshots/turbo-rerank-home.jpg)
+
 ![Turbo Rerank](screenshots/turbo-rerank.jpg)
 
 ![Live run](screenshots/turbo-rerank-demo.webp)
+
+[Watch the complete 30-second edited demo (1080p MP4)](screenshots/turbo-rerank-complete-30s-demo.mp4)
 
 ## The problem
 
@@ -54,7 +58,13 @@ npm run bench                 # CLI benchmark, same 40 queries
 
 `MOCK=1 npm run dev` / `npm run bench -- --mock` runs an offline token-overlap stub (clearly labelled **MOCK MODE** in the UI and CLI; its numbers are meaningless). Default is the live API.
 
-`npm run lint`, `npm run typecheck`, `npm run test` (16 vitest tests: BM25, request/answer parsing, ranking merge, corpus integrity, every benchmark target retrievable in top-50), `npm run build`.
+`npm run lint`, `npm run typecheck`, `npm run test` (23 Vitest tests: BM25, request/answer parsing, ranking merge, corpus integrity, benchmark target retrieval, and client transport failures), `npm run build`.
+
+## Search workspace
+
+The empty screen starts with one question field and six examples. After a search, the original BM25 order and Jev order appear side by side, with measured timing and throughput above them. The top five passages are shown first; select a passage to read it fully or use **Show all** to inspect every candidate. **Request details** reveals server timings and token counts.
+
+The **Benchmark** view streams the 40-query evaluation into a table with accuracy bars and latency statistics. A disconnected proxy produces an actionable error and allows a new run after recovery. All metrics remain measured; mock mode is explicitly labelled.
 
 ## Measured results
 
@@ -76,7 +86,9 @@ npm run bench                 # CLI benchmark, same 40 queries
 | 40 queries wall clock (4 concurrent) | 2.0 s → **1,008 candidates judged/s** |
 | tokens | 466k input / 32k output for the whole run |
 
-A second run from the browser's Benchmark tab (screenshot below) measured top-1 50% → 98% (39/40), top-5 65% → 100%, mean 221 ms, p50 170 ms, p95 447 ms, 2.7 s wall clock — Jev's judgments are probabilistic, so expect 98–100% top-1 and a p50 around 170 ms run to run, with occasional 500–800 ms outliers.
+A second run from the browser's Benchmark tab measured top-1 50% → 98% (39/40), top-5 65% → 100%, mean 221 ms, p50 170 ms, p95 447 ms, and 2.7 s wall clock. Jev's judgments are probabilistic, so accuracy and latency vary between runs.
+
+The redesigned workspace's latest recorded browser run completed 40/40 queries: top-1 **50% → 98%**, top-5 **65% → 100%**, mean **211 ms**, p50/p95 **185/345 ms**, max **617 ms**, wall time **2.2 s**, and **925 candidates/s**. A separate mobile run observed a 2.9-second latency outlier; these measurements are observations, not a latency guarantee.
 
 ![Benchmark](screenshots/turbo-rerank-bench.jpg)
 
