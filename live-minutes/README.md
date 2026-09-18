@@ -24,10 +24,21 @@ I meant", click the *Who owns this?* chip to fix the owner). Ten minutes later i
 
 ## What is on screen
 
-A light, notes-app layout: a sidebar with today's meeting, attendees and the replay / microphone
-controls; the meeting document in the middle (Action items on top, Decisions / Open questions / Risks
-below); the live transcript and the two "old way" baselines on the right; a measured-metrics bar along
-the bottom. Everything also has a key binding:
+Deliberately little. One centred column with four elements, in the order a person in the room needs
+them:
+
+1. **The meeting** — title, who is here, date, one *Start meeting* button (replay speed and the live-mic
+   switch sit quietly next to it).
+2. **The notes** — a single chronological feed. Each card is one thing worth writing down: *To do* /
+   *Decided* / *Open question* / *Risk*, the sentence as said, the owner (or an amber **Who owns this?**
+   chip when Jev is not confident — click it to see the probability over attendees and fix it), the
+   resolved due date, *Blocked* when relevant, and a small measured **end-of-sentence → on-screen** time.
+   A decision that gets reversed is struck through and relabelled *Reversed*.
+3. **One line of numbers** — notes, sentences judged, p50 (p95) end-of-sentence → on-screen, and whether
+   the answers came from TypeSafe Jev or the mock file. Every number is measured.
+4. **A caption strip** — what is being said right now and what Jev called it. A subtitle, not a transcript.
+
+Everything also has a key binding:
 
 | key | action |
 |---|---|
@@ -35,22 +46,16 @@ the bottom. Everything also has a key binding:
 | `x` | reset |
 | `r` / `m` | replay / live mic |
 | `1` / `4` / `a` | 1× / 4× / all at once |
-| `j` / `k` | next / previous panel (or click a panel) |
 
-| Pane | What it shows |
-|---|---|
-| **Transcript** (top right) | Speaker-labelled utterances with the kind Jev assigned and the round-trip latency of that call. |
-| **Action items / Decisions / Open questions / Risks** (centre) | Cards that appear as utterances are judged. Each card carries a **latency tag: measured end-of-utterance → card committed to the DOM**. Action items show an *Owner* chip, a resolved *Due* date, and an amber *Who owns this?* chip when Jev is not confident about the owner — click it to see the probability over attendees and fix it. Reversed decisions are struck through and marked *superseded*. Blocked status updates surface under Risks. |
-| **Post-meeting summary** — illustrative, LLM style (bottom right) | The "old way": nothing until the meeting ends, a timer counting up, then the whole list at once. Labelled as illustrative; it reuses the live items, it does not run a summarisation prompt. |
-| **Keyword heuristic** — old way (bottom right) | A keyword rule (`will`, `I'll`, `by`, `todo`, `action item`, `need to`, `should`, `can you`, …) applied to the same transcript, with its miss rate against the fixture's ground-truth labels, false positives, and the missed utterances. |
-| **Metrics bar** (bottom) | Meeting clock, wall elapsed, judged / in-flight, items surfaced, sentences/s, last call, **p50 / p95 end-of-utterance → on-screen**, browser round-trip, Jev API time (measured server-side), errors. Every number is measured. |
+The "old way" baselines (post-meeting summary timer, keyword heuristic and its miss rate) are no longer
+on screen; the keyword baseline still lives in `src/lib/keyword.ts` and is reported by `npm run eval`.
 
 ### Input modes
 
 - **Replay** — a seeded, hand-written 12-minute, 4-person product standup (180 utterances: tangents, jokes, a
   half-decision that gets reversed, "I'll take that" without a name, "end of next sprint", a blocker on
   infra). Play at **1×**, **4×**, or **all at once** (180 parallel requests through a concurrency limiter).
-- **Live mic** — Chrome's Web Speech API. Interim text is shown in the transcript, sentences are segmented
+- **Live mic** — Chrome's Web Speech API. Interim text is shown in the caption strip, sentences are segmented
   in code (`src/lib/segment.ts`), and each complete sentence is judged. If the browser has no speech
   recognition the button explains why and Replay stays available.
 
@@ -154,5 +159,5 @@ src/lib/resolve.ts   Jev answers → Judgment, confidence gating
 src/lib/aggregate.ts lists, supersession, owner fixes, latency per item
 src/lib/keyword.ts   the keyword baseline
 src/lib/useMeeting.ts replay / mic orchestration, concurrency limit, metrics
-src/components/*     Transcript, Lists, ItemCard, Baselines, Hud, Controls
+src/components/*     Header, Notes, NoteCard, Pulse, Caption
 ```
