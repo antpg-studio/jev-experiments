@@ -17,6 +17,9 @@
   --cyan: #56d4dd;
   --status-bg: #87d75f;
   --status-fg: #0c0e12;
+  --fs: 17px;
+  --fs-sm: 14px;
+  --fs-xs: 13px;
   --mono: "JetBrains Mono", "Fira Code", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
@@ -32,7 +35,7 @@ body,
 body {
   background: var(--bg);
   color: var(--fg);
-  font: 12.5px/1.5 var(--mono);
+  font: var(--fs)/1.45 var(--mono);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -107,7 +110,7 @@ h3 {
   color: var(--dim);
 }
 .small {
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 .mono {
   font-family: var(--mono);
@@ -135,11 +138,11 @@ h3 {
   align-items: center;
   gap: 14px;
   overflow: hidden;
-  padding: 3px 8px;
+  padding: 4px 12px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
-  min-height: 26px;
+  min-height: 34px;
 }
 .brand {
   display: flex;
@@ -160,6 +163,11 @@ h3 {
 }
 .tagline {
   color: var(--dim);
+}
+@media (max-width: 2200px) {
+  .tagline {
+    display: none;
+  }
 }
 .tagline::before {
   content: "# ";
@@ -217,9 +225,9 @@ h3 {
 /* ─── panes ──────────────────────────────────────────────────────── */
 .grid {
   display: grid;
-  grid-template-columns: minmax(360px, 1.15fr) minmax(520px, 1.6fr) minmax(300px, 0.9fr);
-  gap: 6px;
-  padding: 8px 6px 4px;
+  grid-template-columns: minmax(500px, 1fr) minmax(760px, 1.7fr) minmax(360px, 0.6fr);
+  gap: 10px;
+  padding: 12px 10px 6px;
   min-height: 0;
   background: var(--bg);
 }
@@ -231,7 +239,7 @@ h3 {
   flex-direction: column;
   min-height: 0;
   overflow: visible;
-  margin-top: 6px;
+  margin-top: 10px;
 }
 .panel.active {
   border-color: var(--border-active);
@@ -239,15 +247,15 @@ h3 {
 /* pane-border-status top: the title sits in the border line */
 .panel-head {
   position: absolute;
-  top: -9px;
-  left: 8px;
-  right: 8px;
+  top: -11px;
+  left: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   pointer-events: none;
-  line-height: 16px;
-  font-size: 11.5px;
+  line-height: 20px;
+  font-size: var(--fs-sm);
 }
 .panel-head > * {
   pointer-events: auto;
@@ -280,9 +288,10 @@ h3 {
 .count {
   color: var(--bg);
   background: var(--fg);
-  min-width: 22px;
+  min-width: 28px;
   text-align: center;
-  padding: 0 5px;
+  padding: 0 7px;
+  font-weight: 700;
 }
 .panel.active .count {
   background: var(--green);
@@ -291,7 +300,7 @@ h3 {
   overflow-y: auto;
   min-height: 0;
   flex: 1;
-  padding: 10px 6px 6px;
+  padding: 14px 10px 8px;
   scrollbar-width: thin;
   scrollbar-color: var(--dim2) transparent;
 }
@@ -301,6 +310,9 @@ h3 {
 }
 .empty b {
   color: var(--fg);
+}
+.utt .cursor {
+  grid-area: text;
 }
 .cursor::after {
   content: "█";
@@ -312,9 +324,15 @@ h3 {
 /* ─── transcript ─────────────────────────────────────────────────── */
 .utt {
   display: grid;
-  grid-template-columns: 46px 68px 1fr auto;
-  gap: 8px;
-  padding: 1px 4px;
+  grid-template-columns: auto auto 1fr auto;
+  grid-template-areas:
+    "time speaker . tag"
+    "text text text text";
+  column-gap: 10px;
+  row-gap: 1px;
+  padding: 5px 8px 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--bg2);
   align-items: baseline;
   animation: fade-in 160ms ease-out;
 }
@@ -326,7 +344,9 @@ h3 {
   font-style: italic;
 }
 .utt-time {
+  grid-area: time;
   color: var(--dim);
+  font-size: var(--fs-sm);
 }
 .utt-time::before {
   content: "[";
@@ -337,6 +357,7 @@ h3 {
   color: var(--dim2);
 }
 .utt-speaker {
+  grid-area: speaker;
   font-weight: 700;
 }
 .utt-speaker::after {
@@ -344,13 +365,15 @@ h3 {
   color: var(--dim);
 }
 .utt-text {
+  grid-area: text;
   color: var(--fg);
 }
 .utt-tag {
+  grid-area: tag;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 8px;
+  font-size: var(--fs-xs);
 }
 .lat {
   color: var(--dim);
@@ -414,15 +437,23 @@ h3 {
 .lists {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1.25fr 1fr;
-  gap: 6px;
+  grid-template-rows: 1.3fr 1fr;
+  gap: 10px;
   min-height: 0;
 }
 .lists .panel {
-  margin-top: 6px;
+  margin-top: 10px;
 }
 .list.actions {
   grid-column: 1 / span 3;
+}
+.lists .list:not(.actions) .card {
+  flex-direction: column;
+  gap: 2px;
+}
+.lists .list:not(.actions) .card-lat {
+  align-self: flex-end;
+  margin-top: -20px;
 }
 .list.actions .panel-head h2 {
   color: var(--green);
@@ -439,14 +470,15 @@ h3 {
 
 .card {
   display: flex;
-  gap: 8px;
-  padding: 2px 6px 3px 8px;
-  border-left: 2px solid var(--dim2);
-  margin-bottom: 4px;
+  gap: 12px;
+  padding: 5px 10px 6px 12px;
+  border-left: 3px solid var(--dim2);
+  margin-bottom: 8px;
+  background: var(--bg2);
   animation: pop-in 180ms ease-out;
 }
 .card:hover {
-  background: var(--bg2);
+  background: #161a22;
 }
 .card.imp-1 {
   border-left-color: var(--blue);
@@ -475,10 +507,11 @@ h3 {
 .card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   align-items: center;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--dim);
+  margin-top: 2px;
 }
 .who {
   font-weight: 700;
@@ -492,7 +525,7 @@ h3 {
   color: var(--dim);
   white-space: nowrap;
   align-self: flex-start;
-  font-size: 11px;
+  font-size: var(--fs-xs);
 }
 .card-lat::before {
   content: "+";
@@ -505,10 +538,10 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 0 4px;
+  padding: 0 6px;
   color: var(--green);
   border: 1px solid var(--green-dark);
-  line-height: 15px;
+  line-height: 20px;
 }
 .owner::before {
   content: "@";
@@ -534,7 +567,7 @@ h3 {
   background: var(--bg2);
   border: 1px solid var(--green);
   padding: 2px 0;
-  min-width: 210px;
+  min-width: 280px;
   display: flex;
   flex-direction: column;
   box-shadow: 4px 4px 0 rgb(0 0 0 / 0.6);
@@ -542,14 +575,14 @@ h3 {
 .owner-menu::before {
   content: "choose-owner";
   color: var(--dim);
-  padding: 0 8px;
-  font-size: 11px;
+  padding: 0 10px;
+  font-size: var(--fs-sm);
 }
 .owner-menu button {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 8px;
+  gap: 16px;
+  padding: 2px 10px;
   text-align: left;
 }
 .owner-menu button:hover {
@@ -594,15 +627,21 @@ h3 {
 }
 
 /* ─── baselines ──────────────────────────────────────────────────── */
+.baselines .panel-head > h2 {
+  flex-shrink: 1;
+}
+.baselines .panel-head > .muted {
+  display: none;
+}
 .baselines {
   display: grid;
   grid-template-rows: 1.4fr 1fr;
-  gap: 6px;
+  gap: 10px;
   min-height: 0;
 }
 .pill {
   color: var(--dim);
-  font-size: 11px;
+  font-size: var(--fs-xs);
 }
 .pill::before {
   content: "(";
@@ -619,9 +658,9 @@ h3 {
   color: var(--dim);
 }
 .big-timer {
-  font-size: 40px;
+  font-size: 56px;
   color: var(--dim2);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   margin-bottom: 8px;
   line-height: 1;
 }
@@ -652,8 +691,8 @@ h3 {
 .kw-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2px 10px;
-  padding: 12px 8px 6px;
+  gap: 4px 14px;
+  padding: 16px 12px 10px;
   border-bottom: 1px dashed var(--border);
 }
 .stat {
@@ -661,11 +700,12 @@ h3 {
   flex-direction: column;
 }
 .stat .v {
-  font-size: 18px;
+  font-size: 28px;
+  font-weight: 700;
   line-height: 1.1;
 }
 .stat .l {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--dim);
 }
 .stat.bad .v {
@@ -675,8 +715,8 @@ h3 {
   color: var(--green);
 }
 .kw-list {
-  font-size: 11px;
-  padding-top: 4px;
+  font-size: var(--fs-xs);
+  padding-top: 6px;
 }
 .kw-miss {
   padding: 1px 4px;
@@ -687,32 +727,33 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0;
-  padding: 0 8px;
+  padding: 0 10px;
   background: var(--bg2);
   border-top: 1px solid var(--border);
   white-space: nowrap;
   overflow: hidden;
-  line-height: 22px;
+  line-height: 32px;
 }
 .hud-stat {
   display: inline-flex;
   align-items: baseline;
-  gap: 5px;
-  padding: 0 8px;
+  gap: 6px;
+  padding: 0 10px;
 }
 .hud-stat + .hud-stat {
   border-left: 1px solid var(--border);
 }
 .hud-l {
   color: var(--dim);
-  font-size: 11px;
+  font-size: var(--fs-xs);
 }
 .hud-v {
   color: var(--fg);
+  font-weight: 700;
 }
 .hud-s {
-  color: var(--dim2);
-  font-size: 11px;
+  color: var(--dim);
+  font-size: var(--fs-xs);
   max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -732,8 +773,9 @@ h3 {
   align-items: center;
   background: var(--status-bg);
   color: var(--status-fg);
-  line-height: 22px;
-  padding: 0 8px;
+  line-height: 30px;
+  padding: 0 10px;
+  font-size: var(--fs-sm);
   white-space: nowrap;
   overflow: hidden;
   gap: 0;
