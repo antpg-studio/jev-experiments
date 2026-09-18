@@ -1,4 +1,6 @@
 import { DEFAULT_THRESHOLDS, type Thresholds } from "../../shared/policy.ts";
+import { useEffect, useRef } from "react";
+import { Icon } from "./Icon.tsx";
 
 interface Props {
   open: boolean;
@@ -18,12 +20,18 @@ const FIELDS: Array<{ key: keyof Thresholds; label: string; help: string; min: n
 ];
 
 export function SettingsDrawer({ open, thresholds, onChange, onClose, windowSize }: Props) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (open) ref.current?.showModal();
+    else ref.current?.close();
+  }, [open]);
+
   return (
-    <div className={`drawer ${open ? "open" : ""}`} aria-hidden={!open}>
+    <dialog ref={ref} className="drawer" onCancel={onClose} aria-labelledby="policy-title">
       <header>
-        <h2>Policy thresholds</h2>
-        <button className="btn tiny" onClick={onClose}>
-          close
+        <div><span className="eyebrow">Configuration</span><h2 id="policy-title">Policy thresholds</h2></div>
+        <button className="btn ghost icon-button" onClick={onClose} aria-label="Close policy settings">
+          <Icon name="close" />
         </button>
       </header>
       <p className="sub">
@@ -42,6 +50,6 @@ export function SettingsDrawer({ open, thresholds, onChange, onClose, windowSize
       <button className="btn" onClick={() => onChange({ ...DEFAULT_THRESHOLDS })}>
         Reset to defaults
       </button>
-    </div>
+    </dialog>
   );
 }

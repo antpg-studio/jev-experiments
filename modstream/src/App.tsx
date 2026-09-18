@@ -14,7 +14,8 @@ import {
 import { wordListMatch } from "../shared/wordlist.ts";
 import { percentile } from "../shared/stats.ts";
 import { useStream } from "./useStream.ts";
-import { Hud } from "./components/Hud.tsx";
+import { Comparison, Hud } from "./components/Hud.tsx";
+import { Icon } from "./components/Icon.tsx";
 import { ChatPane } from "./components/ChatPane.tsx";
 import { QueuePane } from "./components/QueuePane.tsx";
 import { SettingsDrawer } from "./components/SettingsDrawer.tsx";
@@ -47,6 +48,7 @@ export default function App() {
   const [thresholds, setThresholds] = useState<Thresholds>(DEFAULT_THRESHOLDS);
   const [overrides, setOverrides] = useState<Map<number, Override>>(new Map());
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [rate, setRate] = useState(12);
   const [concurrency, setConcurrency] = useState(16);
   const [now, setNow] = useState(Date.now());
@@ -123,6 +125,7 @@ export default function App() {
       jevP95: percentile(jevMs, 95),
       msgPerSec: recent / 3,
       elapsedMs: state.startedAt ? now - state.startedAt : 0,
+      holdSamples: hold,
     };
   }, [decided, state.holdMs, state.jevMs, state.releaseTimes, state.archivedWordList, state.startedAt, now]);
 
@@ -134,6 +137,7 @@ export default function App() {
   }, []);
 
   const running = state.server?.running ?? false;
+  const customPolicy = Object.entries(DEFAULT_THRESHOLDS).some(([key, value]) => thresholds[key as keyof Thresholds] !== value);
   const toggle = () => send({ type: running ? "stop" : "start" });
   const onRate = (v: number) => {
     setRate(v);
@@ -152,50 +156,78 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <span className="logo" aria-hidden />
-          <div>
-            <h1>ModStream</h1>
-            <p>pre-publish chat moderation · every message held, judged by Jev, then released</p>
-          </div>
-        </div>
-        <div className="controls">
-          {state.server?.mock && <span className="mock-badge" title="MOCK=1: canned judgments, no TypeSafe calls">MOCK MODE — canned judgments</span>}
-          <span className={`conn ${state.connected ? "on" : "off"}`}>{state.connected ? "server connected" : "connecting…"}</span>
-          <label className="slider">
-            <span>
-              rate <b>{rate}</b> msg/s
-            </span>
-            <input type="range" min={5} max={60} step={1} value={rate} onChange={(e) => onRate(Number(e.target.value))} />
-          </label>
-          <label className="slider small">
-            <span>
-              concurrency <b>{concurrency}</b>
-            </span>
-            <input type="range" min={1} max={48} step={1} value={concurrency} onChange={(e) => onConcurrency(Number(e.target.value))} />
-          </label>
-          <button className={`btn primary ${running ? "live" : ""}`} onClick={toggle} disabled={!state.connected}>
-            {running ? "■ Pause" : "▶ Go live"}
-          </button>
-          <button className="btn danger" onClick={() => send({ type: "raid", count: 150 })} disabled={!state.connected} title="Dump 150 spam/harassment messages onto the queue in 1.5 s">
-            ⚡ Raid
-          </button>
-          <button className="btn ghost" onClick={onReset} title="Clear counters and chat">
-            Reset
-          </button>
-          <button className="btn ghost" onClick={() => setDrawerOpen((o) => !o)} aria-expanded={drawerOpen}>
-            ⚙ Thresholds
-          </button>
+    <div className={`app ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
+      <header className="app-header">
+        <button className="btn ghost icon-button sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar" aria-expanded={sidebarOpen} aria-controls="workspace-nav">
+          <Icon name="sidebar" />
+        </button>
+        <a className="brand" href="#main">
+          <svg className="logo" width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><path d="M4 22V6h4l6 9 6-9h4v16h-5V14l-5 7-5-7v8H4Z" fill="currentColor" /></svg>
+          ModStream
+        </a>
+        <span className="header-divider" />
+        <span className="header-channel">Speedrun community</span>
+        <span className="simulation-label">Demo</span>
+        <div className="session-state">
+          {state.server?.mock && <span className="mock-badge">Mock mode · canned judgments</span>}
+          <span className={`conn ${state.connected ? "on" : "off"}`}>{state.connected ? "Server connected" : "Connecting…"}</span>
+          <span className="api-label">{state.server?.mock ? "Offline simulation" : "TypeSafe API"}</span>
         </div>
       </header>
-
-      <Hud metrics={metrics} server={state.server} totalReleased={state.totalReleased} totalErrors={state.totalErrors} />
-
-      <main className="panes">
-        <ChatPane items={decided} />
-        <QueuePane review={reviewQueue} care={careQueue} careReply={CARE_REPLY} onOverride={setOverride} />
+      <aside className="sidebar" id="workspace-nav" aria-label="Workspace" inert={!sidebarOpen}>
+        <div className="workspace-label">Workspace</div>
+        <a className="nav-active" href="#main" aria-current="page"><Icon name="activity" /> Live moderation</a>
+        <button className="nav-button" onClick={() => setDrawerOpen(true)} aria-expanded={drawerOpen}><Icon name="settings" /> Policy settings</button>
+        <div className="channel-context">
+          <span className="workspace-label">Your channel</span>
+          <div className="channel-card"><span className="channel-avatar">S</span><div><strong>Speedrun</strong><span>Community chat</span></div><span className={`status-dot ${running ? "" : "muted"}`} /></div>
+          <span className="participant-note"><Icon name="people" /> 1,000 simulated participants</span>
+        </div>
+        <div className="sidebar-bottom">
+          <div className="pipeline-note">
+            <Icon name="shield" />
+            <strong>Pre-publish moderation</strong>
+            <p>Every message is checked before your community sees it.</p>
+          </div>
+          <div className="powered-by"><span className="jev-mark">j</span><div>Powered by <strong>Jev</strong><span>Semantic judgments by TypeSafe</span></div></div>
+        </div>
+      </aside>
+      <main className="workspace" id="main">
+        <header className="topbar">
+          <div className="page-heading">
+            <h1>Live moderation</h1>
+            <p>Every message checked before it reaches chat.</p>
+          </div>
+          <div className="primary-controls">
+            <button className="btn" onClick={() => send({ type: "raid", count: 150 })} disabled={!state.connected} title="Send 150 spam and harassment messages in 1.5 seconds"><Icon name="raid" /> Simulate raid</button>
+            <button className="btn primary" onClick={toggle} disabled={!state.connected}><Icon name={running ? "pause" : "play"} />{running ? "Pause stream" : "Go live"}</button>
+          </div>
+        </header>
+        <div className="stream-toolbar">
+          <div className={`stream-status ${running ? "running" : ""}`}><span className="status-dot" />{running ? "Live stream" : "Stream paused"}</div>
+          <label className="slider">
+            <span>Message rate <b>{rate}<small> / sec</small></b></span>
+            <input aria-label="Message rate" type="range" min={5} max={60} step={1} value={rate} onChange={(e) => onRate(Number(e.target.value))} />
+          </label>
+          <label className="slider small">
+            <span>Concurrency <b>{concurrency}</b></span>
+            <input aria-label="Concurrency" type="range" min={1} max={48} step={1} value={concurrency} onChange={(e) => onConcurrency(Number(e.target.value))} />
+          </label>
+          <div className="controls">
+            <button className="btn ghost icon-button" onClick={onReset} title="Clear counters and chat" aria-label="Reset counters and chat"><Icon name="reset" /></button>
+            <button className="btn ghost" onClick={() => setDrawerOpen(true)} aria-expanded={drawerOpen}><Icon name="settings" /> Thresholds{customPolicy && <span className="custom-dot" title="Custom policy thresholds" />}</button>
+          </div>
+        </div>
+        <Hud metrics={metrics} server={state.server} totalReleased={state.totalReleased} totalErrors={state.totalErrors} />
+        <div className="panes">
+          <ChatPane items={decided} />
+          <QueuePane review={reviewQueue} care={careQueue} careReply={CARE_REPLY} onOverride={setOverride} />
+        </div>
+        <Comparison metrics={metrics} customPolicy={customPolicy} />
+        <footer className="workspace-footer">
+          <span><Icon name="shield" /> {state.server?.mock ? "Mock mode · simulated timings" : "Real API. Real timings. Simulated chat."}</span>
+          <span>Fixture comparison excludes care cases</span>
+        </footer>
       </main>
 
       <SettingsDrawer open={drawerOpen} thresholds={thresholds} onChange={setThresholds} onClose={() => setDrawerOpen(false)} windowSize={decided.length} />
