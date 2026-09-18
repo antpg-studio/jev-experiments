@@ -1,0 +1,482 @@
+:root {
+  --bg: #0b0f17;
+  --bg2: #111827;
+  --bg3: #161e2e;
+  --line: #1f2937;
+  --line2: #2b3648;
+  --fg: #e5e7eb;
+  --dim: #7c8799;
+  --accent: #38bdf8;
+  --accent2: #a78bfa;
+  --good: #34d399;
+  --bad: #f87171;
+  --warn: #fbbf24;
+  --mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.4 var(--sans);
+  overflow: hidden;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+kbd {
+  font: 10px var(--mono);
+  padding: 1px 4px;
+  border: 1px solid var(--line2);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--dim);
+  margin-left: 6px;
+}
+code {
+  font: 11px var(--mono);
+  color: #cbd5e1;
+}
+.dim {
+  color: var(--dim);
+}
+.err {
+  color: var(--bad);
+}
+
+.app {
+  display: grid;
+  grid-template-rows: 44px 36px 1fr 26px 34px;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- top bar */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, #121a29, var(--bg2));
+}
+.brand {
+  font-weight: 650;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.logo {
+  color: var(--accent);
+  font-size: 18px;
+}
+.tag {
+  color: var(--dim);
+  font-weight: 400;
+  font-size: 12px;
+  margin-left: 6px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 12px;
+  color: var(--dim);
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--fg);
+  background: var(--bg3);
+}
+.tab.on {
+  color: var(--fg);
+  background: var(--bg3);
+  border-color: var(--line2);
+}
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn {
+  background: var(--bg3);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: var(--accent);
+}
+.btn.primary {
+  background: linear-gradient(180deg, #0ea5e9, #0284c7);
+  border-color: #0ea5e9;
+  color: #03111c;
+  font-weight: 600;
+}
+.btn.primary:hover {
+  filter: brightness(1.1);
+}
+.mode {
+  font: 11px var(--mono);
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.mode.live {
+  color: var(--good);
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.08);
+}
+.mode.mock {
+  color: var(--warn);
+  border-color: rgba(251, 191, 36, 0.5);
+  background: rgba(251, 191, 36, 0.12);
+}
+.mode.bad {
+  color: var(--bad);
+  border-color: rgba(248, 113, 113, 0.5);
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* ------------------------------------------------------------ formula bar */
+.formulabar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg2);
+}
+.namebox {
+  min-width: 92px;
+  text-align: center;
+  font: 12px var(--mono);
+  background: var(--bg);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.fx {
+  color: var(--dim);
+  font: italic 13px var(--mono);
+}
+.formulainput {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font: 12.5px var(--mono);
+  outline: none;
+  min-width: 300px;
+}
+.formulainput:focus {
+  border-color: var(--accent);
+}
+.cellinfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 44%;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+}
+.cellinfo .probs {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: 11px var(--mono);
+}
+.pill {
+  font: 10px var(--mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+.pill.judge {
+  background: rgba(56, 189, 248, 0.2);
+  color: var(--accent);
+}
+.pill.pick {
+  background: rgba(167, 139, 250, 0.2);
+  color: var(--accent2);
+}
+.pill.rate {
+  background: rgba(52, 211, 153, 0.2);
+  color: var(--good);
+}
+
+/* ------------------------------------------------------------------- grid */
+.grid {
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  background: var(--bg);
+  user-select: none;
+}
+.grid:focus-within .activebox {
+  border-color: var(--accent);
+}
+.corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--line2);
+  border-bottom: 1px solid var(--line2);
+  z-index: 4;
+}
+.colheads {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line2);
+  z-index: 3;
+}
+.colhead {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 11px var(--mono);
+  color: var(--dim);
+  border-right: 1px solid var(--line);
+  cursor: pointer;
+}
+.colhead.active {
+  color: var(--fg);
+  background: var(--bg3);
+}
+.resize {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 2;
+}
+.resize:hover,
+.resize.on {
+  background: var(--accent);
+  opacity: 0.6;
+}
+.rowheads {
+  position: absolute;
+  left: 0;
+  overflow: hidden;
+  background: var(--bg2);
+  border-right: 1px solid var(--line2);
+  z-index: 3;
+}
+.rowhead {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 11px var(--mono);
+  color: var(--dim);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.rowhead.active {
+  color: var(--fg);
+  background: var(--bg3);
+}
+.body {
+  position: absolute;
+  overflow: auto;
+  scrollbar-color: var(--line2) var(--bg);
+}
+.canvas {
+  position: relative;
+}
+.cell {
+  position: absolute;
+  padding: 0 7px;
+  line-height: 25px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12.5px;
+}
+.cell.num,
+.cell.rate,
+.cell.judge {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.cell.pick {
+  font-weight: 500;
+}
+.cell.text {
+  color: #d1d5db;
+}
+.cell.formula.text,
+.cell.formula.num {
+  color: #e2e8f0;
+}
+.cell.error {
+  color: var(--bad);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.cell.pending {
+  color: var(--dim);
+  text-align: center;
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.cell.sel {
+  box-shadow: inset 0 0 0 100px rgba(56, 189, 248, 0.09);
+}
+.cell.fillpreview {
+  box-shadow: inset 0 0 0 100px rgba(56, 189, 248, 0.18);
+}
+.selbox {
+  position: absolute;
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  pointer-events: none;
+  z-index: 2;
+}
+.activebox {
+  position: absolute;
+  border: 2px solid rgba(56, 189, 248, 0.85);
+  pointer-events: none;
+  z-index: 2;
+}
+.fillhandle {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border: 1px solid var(--bg);
+  cursor: crosshair;
+  pointer-events: auto;
+}
+.celleditor {
+  position: absolute;
+  z-index: 5;
+  background: #0f172a;
+  border: 2px solid var(--accent);
+  outline: none;
+  padding: 0 6px;
+  font: 12.5px var(--mono);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* ------------------------------------------------------------------- help */
+.help {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 12px;
+  border-top: 1px solid var(--line);
+  background: var(--bg2);
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 11px;
+}
+.flash {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------- status bar */
+.statusbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  border-top: 1px solid var(--line2);
+  background: var(--bg2);
+  font: 12px var(--mono);
+  overflow: hidden;
+}
+.statusbar .progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 2px;
+  background: var(--accent);
+  transition: width 0.1s linear;
+}
+.statusbar.running .headline b {
+  color: var(--accent);
+}
+.stat b {
+  font-weight: 600;
+  color: var(--fg);
+}
+.stat.headline {
+  white-space: nowrap;
+}
+.stat.rate b {
+  color: var(--good);
+  font-size: 14px;
+}
+.stat.baseline {
+  color: var(--dim);
+  white-space: nowrap;
+}
+.speedup {
+  color: var(--good);
+  font-weight: 600;
+}
+.spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 18px;
+  margin-left: auto;
+}
+.spark i {
+  display: block;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.7;
+  border-radius: 1px;
+}
+.stat.totals {
+  white-space: nowrap;
+}
