@@ -1,21 +1,47 @@
 import { useCallback, useEffect, useReducer, useRef, useState, type WheelEvent } from "react";
-import type { Config, Disagreement, Incident, Metrics, ServerMessage, Severity } from "../shared/types.ts";
-import { initialState, reduce, type Row } from "./lib/store.ts";
+import type { Calibration, Config, Disagreement, Incident, Metrics, ServerMessage, Severity } from "../shared/types.ts";
+import { initialState, reduce, type Row, type StormPhase } from "./lib/store.ts";
 
 const SEV_LABEL: Record<Severity, string> = {
-  noise: "noise",
-  informational: "info",
-  degraded: "degraded",
-  "customer-impacting": "cust-impact",
-  outage: "OUTAGE",
+  noise: "Noise",
+  informational: "Info",
+  degraded: "Degraded",
+  "customer-impacting": "Impacting",
+  outage: "Outage",
 };
 
 async function post(path: string, body?: unknown): Promise<void> {
-  await fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+  const response = await fetch(path, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+}
+
+function fmtTime(ts: number): string {
+  return new Date(ts).toISOString().slice(11, 19);
+}
+
+function summary(line: string): string {
+  if (line.startsWith("{")) {
+    try {
+      const value: unknown = JSON.parse(line);
+      if (value && typeof value === "object" && "msg" in value && typeof value.msg === "string") return value.msg;
+    } catch {
+      return line;
+    }
+  }
+  return line.replace(/^\d{4}-\d{2}-\d{2}[T ][\d:.]+(?:Z| UTC)?\s*/, "");
+}
+
+function pct(n: number): string {
+  return `${(n * 100).toFixed(0)}%`;
 }
 
 export function App() {
   const [state, dispatch] = useReducer(reduce, initialState);
+  const [controlError, setControlError] = useState<string | null>(null);
 
   useEffect(() => {
     const es = new EventSource("/api/stream");
@@ -25,43 +51,79 @@ export function App() {
     return () => es.close();
   }, []);
 
-  const setConfig = useCallback((patch: Partial<Config>) => void post("/api/config", patch), []);
-  const storm = useCallback(() => void post("/api/storm"), []);
-
+  const send = useCallback(async (path: string, body?: unknown) => {
+    try {
+      await post(path, body);
+      setControlError(null);
+    } catch (error) {
+      setControlError(error instanceof Error ? error.message : "Unable to update the stream");
+    }
+  }, []);
+  const setConfig = useCallback((patch: Partial<Config>) => void send("/api/config", patch), [send]);
   const { config, metrics, calibration } = state;
+
   return (
     <div className="app">
-      <header className="top">
+      <header className="masthead">
         <div className="brand">
-          <span className="logo">▣</span>
-          <span>LOG SENTINEL</span>
-          <span className="sub">every log line judged by Jev, live</span>
+          <svg className="brand-mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <rect x="1" y="1" width="26" height="26" rx="6" fill="currentColor" />
+            <path d="M7 18V10M12 21V7M17 17V11M22 15V13" stroke="white" strokeWidth="2" />
+          </svg>
+          Log Sentinel
         </div>
-        {config?.mock && <span className="mock">MOCK MODE — replaying fixture labels, not calling TypeSafe</span>}
-        {!config?.mock && config && <span className="live">LIVE · TypeSafe jev-latest</span>}
-        <span className={`conn ${state.connected ? "on" : "off"}`}>{state.connected ? "stream connected" : "stream disconnected"}</span>
-        {state.error && <span className="err" title={state.error}>{state.error}</span>}
+        <span className="header-divider" />
+        <span className="workspace-label">Observability</span>
         <div className="spacer" />
-        {config && <Controls config={config} setConfig={setConfig} />}
-        <button className="storm" onClick={storm} disabled={!calibration?.done}>
-          ⚡ Storm
-        </button>
+        <span className="environment">Synthetic environment</span>
+        <span className={`connection ${state.connected ? "connected" : "disconnected"}`}>
+          <i /> {state.connected ? "Connected" : "Reconnecting"}
+        </span>
       </header>
 
-      {calibration && !calibration.done && (
-        <div className="banner">Calibrating batch vs single-request mode against the live API…</div>
-      )}
+      <div className="workspace">
+        <div className="page-heading">
+          <div>
+            <div className="eyebrow">Operations / Live stream</div>
+            <h1>Incident monitor</h1>
+            <p>Find the signal in every log line.</p>
+          </div>
+          <div className="heading-actions">
+            <span className={`model-label ${config?.mock ? "mock" : ""}`}>
+              <i /> {config?.mock ? "Mock · fixture replay" : config ? "Live API · TypeSafe Jev" : "Connecting to API"}
+            </span>
+            <button className="primary" onClick={() => void send("/api/storm")} disabled={!calibration?.done || !state.connected || config?.paused}>
+              <span aria-hidden="true">+</span> Inject storm
+            </button>
+          </div>
+        </div>
 
-      <main className="panes">
-        <Firehose rows={state.rows} />
-        <Incidents incidents={state.incidents} storm={state.storm} />
-        <MetricsPane metrics={metrics} config={config} calibration={calibration} disagreements={state.disagreements} />
-      </main>
+        {(state.error || controlError) && <div role="alert" className="error-banner">{controlError || state.error}</div>}
+        {calibration && !calibration.done && <div className="banner">Measuring single and batch request performance…</div>}
+        <div className="control-bar">
+          <div className="source-label"><i /> Seeded log stream <span>7 services</span></div>
+          <div className="spacer" />
+          {config && <Controls config={config} setConfig={setConfig} />}
+        </div>
+
+        <Performance metrics={metrics} config={config} />
+
+        <main className="panes">
+          <Firehose rows={state.rows} paused={config?.paused ?? false} />
+          <Incidents incidents={state.incidents} storm={state.storm} />
+          <Evaluation metrics={metrics} config={config} calibration={calibration} disagreements={state.disagreements} />
+        </main>
+
+        <footer className="statusbar">
+          <span>Seeded fixtures · No production data</span>
+          <span>Latency measured per API request · All times UTC</span>
+          <span>{metrics ? `${metrics.totalRequests.toLocaleString()} requests · ${(metrics.elapsedMs / 1000).toFixed(0)}s elapsed` : "Waiting for metrics"}</span>
+        </footer>
+      </div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------- controls
 function Controls({ config, setConfig }: { config: Config; setConfig: (p: Partial<Config>) => void }) {
   const [rate, setRate] = useState(config.rate);
   const [conc, setConc] = useState(config.concurrency);
@@ -70,250 +132,229 @@ function Controls({ config, setConfig }: { config: Config; setConfig: (p: Partia
   return (
     <div className="controls">
       <label>
-        rate <b>{rate}</b>/s
-        <input type="range" min={5} max={300} step={5} value={rate} onChange={(e) => setRate(Number(e.target.value))} onMouseUp={() => setConfig({ rate })} onTouchEnd={() => setConfig({ rate })} onKeyUp={() => setConfig({ rate })} />
+        Rate <b>{rate}<small>/s</small></b>
+        <input aria-label="Event rate" type="range" min={5} max={300} step={5} value={rate}
+          onChange={(e) => setRate(Number(e.target.value))} onPointerUp={() => setConfig({ rate })} onKeyUp={() => setConfig({ rate })} />
       </label>
       <label>
-        concurrency <b>{conc}</b>
-        <input type="range" min={1} max={48} step={1} value={conc} onChange={(e) => setConc(Number(e.target.value))} onMouseUp={() => setConfig({ concurrency: conc })} onTouchEnd={() => setConfig({ concurrency: conc })} onKeyUp={() => setConfig({ concurrency: conc })} />
+        Workers <b>{conc}</b>
+        <input aria-label="Concurrency" type="range" min={1} max={48} step={1} value={conc}
+          onChange={(e) => setConc(Number(e.target.value))} onPointerUp={() => setConfig({ concurrency: conc })} onKeyUp={() => setConfig({ concurrency: conc })} />
       </label>
-      <div className="seg">
-        <button className={config.mode === "batch" ? "sel" : ""} onClick={() => setConfig({ mode: "batch" })} title="5–16 events per request; one question set per event">
-          batch×{config.batchSize}
-        </button>
-        <button className={config.mode === "single" ? "sel" : ""} onClick={() => setConfig({ mode: "single" })} title="one request per event">
-          single
-        </button>
+      <div className="seg" aria-label="Request mode">
+        <button aria-pressed={config.mode === "batch"} onClick={() => setConfig({ mode: "batch" })}>Batch ×{config.batchSize}</button>
+        <button aria-pressed={config.mode === "single"} onClick={() => setConfig({ mode: "single" })}>Single</button>
       </div>
-      <button onClick={() => setConfig({ paused: !config.paused })}>{config.paused ? "▶ resume" : "❚❚ pause"}</button>
+      <button className="pause" onClick={() => setConfig({ paused: !config.paused })}>
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+          {config.paused ? <path d="M3 1L11 6L3 11Z" fill="currentColor" /> : <path d="M3 1V11M9 1V11" stroke="currentColor" strokeWidth="2" />}
+        </svg>
+        {config.paused ? "Resume" : "Pause"}
+      </button>
     </div>
   );
 }
 
-// ---------------------------------------------------------------- firehose
-function Firehose({ rows }: { rows: Row[] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [follow, setFollow] = useState(true);
-  useEffect(() => {
-    if (follow && ref.current) ref.current.scrollTop = ref.current.scrollHeight;
-  }, [rows, follow]);
-  const atBottom = () => {
-    const el = ref.current;
-    return !el || el.scrollHeight - el.scrollTop - el.clientHeight < 40;
-  };
-  const onWheel = (e: WheelEvent<HTMLDivElement>) => {
-    if (e.deltaY < 0) setFollow(false);
-  };
-  const onScroll = () => {
-    if (atBottom()) setFollow(true);
-  };
+function Performance({ metrics: m, config }: { metrics: Metrics | null; config: Config | null }) {
   return (
-    <section className="pane firehose">
-      <h2>
-        Firehose <span className="dim">raw stream · color = Jev severity</span>
-        {!follow && (
-          <button className="mini" onClick={() => setFollow(true)}>
-            ↓ follow
-          </button>
-        )}
-      </h2>
-      <div className="scroll mono" ref={ref} onScroll={onScroll} onWheel={onWheel}>
-        {rows.map(({ event, judgment }) => (
-          <div key={event.id} className={`line sev-${judgment ? judgment.severity : "pending"} ${judgment?.actionable ? "act" : ""} ${event.storm ? "storm" : ""}`}>
-            <span className="svc">{event.service}</span>
-            <span className="tag">{judgment ? SEV_LABEL[judgment.severity] : "…"}</span>
-            {judgment?.security && <span className="sec">sec</span>}
-            <span className="txt">{event.line}</span>
-            {judgment && <span className="age">{judgment.ageMs} ms</span>}
-          </div>
-        ))}
+    <section className="performance" aria-label="Live performance">
+      <div className="metric">
+        <span className="metric-label">Judgments / second</span>
+        <div className="metric-value">{m ? m.judgmentsPerSec.toFixed(0) : "—"}<span>events/s</span></div>
+        <span className="metric-caption">{m ? `${m.eventsPerSec.toFixed(0)} events/s arriving` : "Waiting for stream"}</span>
+      </div>
+      <div className="metric">
+        <span className="metric-label">Median latency <small>p50</small></span>
+        <div className="metric-value">{m ? m.p50.toFixed(0) : "—"}<span>ms</span></div>
+        <span className="metric-caption">Round-trip per request</span>
+      </div>
+      <div className="metric">
+        <span className="metric-label">Tail latency <small>p95</small></span>
+        <div className="metric-value">{m ? m.p95.toFixed(0) : "—"}<span>ms</span></div>
+        <span className="metric-caption">{m ? `${m.p99.toFixed(0)} ms at p99` : "Measuring"}</span>
+      </div>
+      <div className={`metric ${m && m.backlog > (config?.batchSize ?? 8) * 2 ? "warning" : ""}`}>
+        <span className="metric-label">Queue depth</span>
+        <div className="metric-value">{m ? m.backlog : "—"}<span>events</span></div>
+        <span className="metric-caption">{m ? `${m.inFlight} / ${config?.concurrency ?? "—"} workers in flight` : "Waiting for workers"}</span>
+      </div>
+      <div className="metric">
+        <span className="metric-label">Events judged</span>
+        <div className="metric-value">{m ? m.totalJudged.toLocaleString() : "—"}</div>
+        <span className={`metric-caption ${m && m.errors > 0 ? "error-text" : ""}`}>{m ? `${m.errors} request errors · last ${m.lastLatency.toFixed(0)} ms` : "This session"}</span>
       </div>
     </section>
   );
 }
 
-// ---------------------------------------------------------------- incidents
-function fmtTime(ts: number): string {
-  return new Date(ts).toISOString().slice(11, 19);
-}
-function ago(ts: number, now: number): string {
-  const s = Math.max(0, Math.round((now - ts) / 1000));
-  return s < 60 ? `${s}s ago` : `${Math.floor(s / 60)}m ${s % 60}s ago`;
+function Firehose({ rows, paused }: { rows: Row[]; paused: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [follow, setFollow] = useState(true);
+  const [showPending, setShowPending] = useState(false);
+  const visibleRows = showPending ? rows : rows.filter((row) => row.judgment);
+  useEffect(() => {
+    if (follow && ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+  }, [rows, follow, showPending]);
+  const onWheel = (e: WheelEvent<HTMLDivElement>) => {
+    if (e.deltaY < 0) setFollow(false);
+  };
+  const onScroll = () => {
+    const el = ref.current;
+    if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 40) setFollow(true);
+  };
+  return (
+    <section className="pane firehose">
+      <div className="pane-heading">
+        <div><h2>Event stream</h2><p>{showPending ? "Raw logs as they arrive" : "Raw logs after semantic judgment"}</p></div>
+        {!follow ? <button className="follow" onClick={() => setFollow(true)}>Follow live ↓</button> : <span className="stream-state"><i />{paused ? "Paused" : "Live"}</span>}
+      </div>
+      <div className="stream-columns">
+        <div className="stream-filter" aria-label="Event visibility">
+          <button aria-pressed={!showPending} onClick={() => setShowPending(false)}>Judged</button>
+          <button aria-pressed={showPending} onClick={() => setShowPending(true)}>All events</button>
+        </div>
+        <span>Jev severity</span>
+      </div>
+      <div className="scroll log-scroll" ref={ref} onScroll={onScroll} onWheel={onWheel} tabIndex={0} aria-label="Live log events">
+        {visibleRows.map(({ event, judgment }) => (
+          <details key={event.id} className={`log-row sev-${judgment?.severity ?? "pending"} ${event.storm ? "storm-event" : ""}`}
+            onToggle={(e) => { if (e.currentTarget.open) setFollow(false); }}>
+            <summary>
+              <div className="log-meta">
+                <time>{fmtTime(event.ts)}</time><span className="log-service">{event.service}</span>
+                {event.storm && <span className="storm-marker">storm</span>}
+                {judgment?.security && <span className="security-mark">security</span>}
+                <span className="severity-label">{judgment ? SEV_LABEL[judgment.severity] : "Pending"}</span>
+              </div>
+              <div className="log-text">{event.line}</div>
+            </summary>
+            <pre>{event.line}</pre>
+            <div className="log-detail">{event.lines} raw line{event.lines === 1 ? "" : "s"} · {judgment ? `${judgment.ageMs} ms to judgment · ${judgment.actionable ? "Actionable" : "No action needed"}` : "Awaiting judgment"}</div>
+          </details>
+        ))}
+      </div>
+      <div className="stream-footer"><span><i /> Severity from Jev, independent of log level</span><span>{rows.length} buffered</span></div>
+    </section>
+  );
 }
 
-function Incidents({ incidents, storm }: { incidents: Incident[]; storm: { phase: string; at: number }[] }) {
+function StormTimeline({ phases }: { phases: StormPhase[] }) {
+  const jev = phases.find((s) => s.phase.startsWith("Jev"));
+  const regex = phases.find((s) => s.phase.startsWith("Regex"));
+  const verdict = phases.find((s) => s.phase.startsWith("Verdict"));
+  const timing = (phase?: StormPhase) => phase?.phase.match(/\+([\d.]+)s/)?.[1];
+  const lead = verdict?.phase.match(/was (-?[\d.]+)s ahead/)?.[1];
+  return (
+    <div className="storm-panel">
+      <div className="storm-title"><span>Storm scenario</span><span>{lead ? `${Number(lead) >= 0 ? "Jev" : "Regex"} detected ${Math.abs(Number(lead)).toFixed(1)}s earlier` : "Detection in progress"}</span></div>
+      <h3>Payments provider degradation</h3>
+      <p>INFO-level anomalies before the first error.</p>
+      <div className="detection">
+        <div className={jev ? "detected" : ""}><span><i /> Jev</span><strong>{timing(jev) ? `+${timing(jev)}s` : "Listening"}</strong></div>
+        <div><span><i /> Regex rules</span><strong>{timing(regex) ? `+${timing(regex)}s` : "No alert yet"}</strong></div>
+      </div>
+      <details className="timeline-details">
+        <summary>Detection timeline</summary>
+        {phases.map((phase, index) => <p key={index}><time>{fmtTime(phase.at)}</time> {phase.phase}</p>)}
+      </details>
+    </div>
+  );
+}
+
+function Incidents({ incidents, storm }: { incidents: Incident[]; storm: StormPhase[] }) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, []);
   const open = incidents.filter((i) => now - i.lastSeen < 60_000);
   const older = incidents.filter((i) => now - i.lastSeen >= 60_000);
   return (
     <section className="pane incidents">
-      <h2>
-        Incidents <span className="dim">actionable events grouped by service + category (60 s window, in code)</span>
-        <span className="count">{open.length} open</span>
-      </h2>
-      <div className="scroll">
-        {storm.length > 0 && (
-          <div className="stormlog">
-            {storm.map((s, i) => (
-              <div key={i} className={s.phase.startsWith("Jev") ? "jev" : s.phase.startsWith("Regex") ? "rx" : s.phase.startsWith("Verdict") ? "verdict" : ""}>
-                <span className="t">{fmtTime(s.at)}</span> {s.phase}
-              </div>
-            ))}
-          </div>
-        )}
-        {incidents.length === 0 && <div className="empty">No actionable events yet — the stream is quiet. Try ⚡ Storm.</div>}
-        {open.map((i) => <IncidentCard key={i.key} i={i} now={now} />)}
-        {older.length > 0 && <div className="divider">resolved / quiet</div>}
-        {older.map((i) => <IncidentCard key={i.key} i={i} now={now} muted />)}
+      <div className="pane-heading">
+        <div><h2>Incident queue <span className="count">{open.length}</span></h2><p>Grouped by service and category</p></div>
+        <span className="window-label">60s window</span>
+      </div>
+      {storm.length > 0 && <StormTimeline phases={storm} />}
+      <div className="scroll incident-scroll" tabIndex={0} aria-label="Incidents">
+        {incidents.length === 0 && <div className="empty"><strong>Listening for incidents</strong><p>Actionable events appear here.<br />Inject a storm to see detection in action.</p></div>}
+        {open.map((incident) => <IncidentRow key={incident.key} incident={incident} now={now} />)}
+        {older.length > 0 && <div className="divider">Quiet for over a minute</div>}
+        {older.map((incident) => <IncidentRow key={incident.key} incident={incident} now={now} muted />)}
       </div>
     </section>
   );
 }
 
-function IncidentCard({ i, now, muted }: { i: Incident; now: number; muted?: boolean }) {
+function IncidentRow({ incident: i, now, muted }: { incident: Incident; now: number; muted?: boolean }) {
+  const seconds = Math.max(0, Math.round((now - i.lastSeen) / 1000));
   return (
-    <article className={`card sev-${i.severity} ${muted ? "muted" : ""}`}>
-      <div className="head">
-        <span className="sevpill">{SEV_LABEL[i.severity]}</span>
-        <span className="svc">{i.service}</span>
-        <span className="cat">{i.category.replace("_", " ")}</span>
-        {i.security && <span className="sec">security</span>}
-        <span className="spacer" />
-        <span className="n">×{i.count}</span>
-      </div>
-      <div className="sample mono">{i.sample}</div>
-      <div className="foot">
-        first {fmtTime(i.firstSeen)} · last {fmtTime(i.lastSeen)} ({ago(i.lastSeen, now)})
-      </div>
+    <article className={`incident-row sev-${i.severity} ${muted ? "muted" : ""}`}>
+      <div className="incident-meta"><span className="severity-label"><i />{SEV_LABEL[i.severity]}</span>{i.security && <span className="security-badge">Security</span>}<span className="last-seen">{seconds < 60 ? `${seconds}s ago` : `${Math.floor(seconds / 60)}m ago`}</span></div>
+      <div className="incident-title"><h3>{i.service} <span>/ {i.category.replaceAll("_", " ")}</span></h3><span className="event-count">{i.count}<small>events</small></span></div>
+      <p className="incident-summary">{summary(i.sample)}</p>
+      <div className="incident-foot"><span>First {fmtTime(i.firstSeen)} · Last {fmtTime(i.lastSeen)}</span><details><summary>Raw event</summary><pre>{i.sample}</pre></details></div>
     </article>
   );
 }
 
-// ---------------------------------------------------------------- metrics
-function pct(n: number): string {
-  return `${(n * 100).toFixed(0)}%`;
-}
-
-function MetricsPane({
-  metrics: m,
-  config,
-  calibration,
-  disagreements,
-}: {
+function Evaluation({ metrics: m, config, calibration, disagreements }: {
   metrics: Metrics | null;
   config: Config | null;
-  calibration: { results: { mode: string; batchSize: number; p50: number; eventsPerSecPerSlot: number }[]; chosen: string; done: boolean } | null;
+  calibration: Calibration | null;
   disagreements: Disagreement[];
 }) {
-  if (!m) return <section className="pane metrics" />;
-  const backlogHot = m.backlog > (config?.batchSize ?? 8) * 2;
-  const regexFalse = disagreements.filter((d) => d.kind === "regex_fp" || d.kind === "regex_fn");
-  const jevFalse = disagreements.filter((d) => d.kind === "jev_fp" || d.kind === "jev_fn");
+  const regexFalse = disagreements.filter((d) => d.kind.startsWith("regex"));
+  const jevFalse = disagreements.filter((d) => d.kind.startsWith("jev"));
   return (
-    <section className="pane metrics">
-      <h2>
-        Live metrics <span className="dim">measured with performance.now() around each request</span>
-      </h2>
-      <div className="scroll">
-        <div className="grid">
-          <Stat label="events/s in" value={m.eventsPerSec.toFixed(0)} />
-          <Stat label="judgments/s" value={m.judgmentsPerSec.toFixed(0)} />
-          <Stat label="in-flight" value={`${m.inFlight}/${config?.concurrency ?? "-"}`} />
-          <Stat label="backlog" value={String(m.backlog)} hot={backlogHot} hint={backlogHot ? "raise concurrency" : undefined} />
-          <Stat label="p50 latency" value={`${m.p50.toFixed(0)} ms`} />
-          <Stat label="p95 latency" value={`${m.p95.toFixed(0)} ms`} />
-          <Stat label="p99" value={`${m.p99.toFixed(0)} ms`} small />
-          <Stat label="last" value={`${m.lastLatency.toFixed(0)} ms`} small />
-          <Stat label="judged" value={m.totalJudged.toLocaleString()} small />
-          <Stat label="requests" value={m.totalRequests.toLocaleString()} small />
-          <Stat label="elapsed" value={`${(m.elapsedMs / 1000).toFixed(0)} s`} small />
-          <Stat label="errors" value={String(m.errors)} small hot={m.errors > 0} />
-        </div>
+    <aside className="pane evaluation">
+      <div className="pane-heading"><div><h2>Signal quality</h2><p>Against labelled fixture ground truth</p></div></div>
+      <div className="scroll evaluation-scroll" tabIndex={0} aria-label="Evaluation and request metrics">
+        {m ? <>
+          <div className="comparison-title"><h3>Alert precision</h3><span>Higher is better</span></div>
+          <div className="precision-row jev-precision"><div><strong>Jev</strong><b>{pct(m.jev.precision)}</b></div><div className="bar"><i style={{ width: pct(m.jev.precision) }} /></div></div>
+          <div className="precision-row"><div><span>Regex + severity</span><b>{pct(m.regex.precision)}</b></div><div className="bar"><i style={{ width: pct(m.regex.precision) }} /></div></div>
+          <table className="comparison">
+            <thead><tr><th scope="col">This stream</th><th scope="col">Regex</th><th scope="col">Jev</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Would alert</th><td>{m.regexPaged.toLocaleString()}</td><td>{m.jevActionable.toLocaleString()}</td></tr>
+              <tr><th scope="row">False positives</th><td>{m.regex.fp}</td><td>{m.jev.fp}</td></tr>
+              <tr><th scope="row">Missed events</th><td>{m.regex.fn}</td><td>{m.jev.fn}</td></tr>
+              <tr><th scope="row">Recall</th><td>{pct(m.regex.recall)}</td><td>{pct(m.jev.recall)}</td></tr>
+            </tbody>
+          </table>
+          <p className="truth-note">{m.truthActionable.toLocaleString()} labelled actionable / {m.totalEvents.toLocaleString()} emitted.<br />Jev scores cover completed judgments.</p>
+        </> : <p className="empty">Waiting for measured results.</p>}
 
-        <h3>Batching</h3>
-        <div className="calib">
-          {calibration?.results.map((r) => (
-            <div key={r.mode} className={r.mode === calibration.chosen ? "chosen" : ""}>
-              <span className="mode">{r.mode === "batch" ? `batch ×${r.batchSize}` : "single"}</span>
-              <span>p50 {r.p50.toFixed(0)} ms</span>
-              <span>{r.eventsPerSecPerSlot.toFixed(1)} ev/s per slot</span>
-              {r.mode === calibration.chosen && <span className="pick">✓ kept</span>}
-            </div>
-          ))}
-          {config && (
-            <div className="now">
-              running: <b>{config.mode === "batch" ? `batch ×${config.batchSize}` : "single"}</b> · concurrency {config.concurrency} ·
-              capacity ≈ {config.mode === "batch" && m.p50 ? ((config.concurrency * config.batchSize * 1000) / m.p50).toFixed(0) : m.p50 ? ((config.concurrency * 1000) / m.p50).toFixed(0) : "–"} ev/s
-            </div>
-          )}
-        </div>
+        <section className="batch-section">
+          <div className="comparison-title"><h3>Request strategy</h3><span>{config?.mode === "batch" ? `Batch ×${config.batchSize}` : config?.mode === "single" ? "Single" : "Calibrating"}</span></div>
+          <table className="calibration">
+            <thead><tr><th scope="col">Calibration</th><th scope="col">p50</th><th scope="col">Events/s/slot</th></tr></thead>
+            <tbody>{calibration?.results.map((result) => (
+              <tr key={result.mode} className={result.mode === calibration.chosen ? "chosen" : ""}>
+                <th scope="row">{result.mode === "batch" ? `Batch ×${result.batchSize}` : "Single"}{result.mode === calibration.chosen && <span className="recommended">Best</span>}</th>
+                <td>{result.p50.toFixed(0)} ms</td><td>{result.eventsPerSecPerSlot.toFixed(1)}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </section>
 
-        <h3>Regex rules vs Jev</h3>
-        <div className="vs">
-          <div className="col rx">
-            <div className="big">{m.regexPaged}</div>
-            <div className="lbl">would have paged with regex severity rules</div>
-            <div className="pr">
-              precision {pct(m.regex.precision)} · recall {pct(m.regex.recall)}
-            </div>
-          </div>
-          <div className="col jv">
-            <div className="big">{m.jevActionable}</div>
-            <div className="lbl">Jev says actionable</div>
-            <div className="pr">
-              precision {pct(m.jev.precision)} · recall {pct(m.jev.recall)}
-            </div>
-          </div>
-        </div>
-        <div className="truth">
-          fixture ground truth: {m.truthActionable} actionable of {m.totalEvents} events · regex FP {m.regex.fp} / FN {m.regex.fn} · Jev FP {m.jev.fp} / FN {m.jev.fn}
-        </div>
-
-        <h3>
-          Regex mistakes <span className="dim">latest {regexFalse.length}</span>
-        </h3>
-        <div className="mistakes mono">
-          {regexFalse.slice(0, 40).map((d) => (
-            <div key={d.id} className={d.kind}>
-              <span className="k">{d.kind === "regex_fp" ? "FALSE PAGE" : "MISSED"}</span>
-              <span className="svc">{d.service}</span>
-              <span className="txt">{d.line}</span>
-            </div>
-          ))}
-        </div>
-        {jevFalse.length > 0 && (
-          <>
-            <h3>
-              Jev mistakes <span className="dim">{jevFalse.length}</span>
-            </h3>
-            <div className="mistakes mono">
-              {jevFalse.slice(0, 20).map((d) => (
-                <div key={d.id} className={d.kind}>
-                  <span className="k">{d.kind === "jev_fp" ? "FALSE PAGE" : "MISSED"}</span>
-                  <span className="svc">{d.service}</span>
-                  <span className="txt">{d.line}</span>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+        <section className="disagreements">
+          <div className="comparison-title"><h3>Where regex gets it wrong</h3><span>Recent</span></div>
+          {regexFalse.length === 0 && <p className="truth-note">No disagreements recorded yet.</p>}
+          {regexFalse.slice(0, 20).map((d) => <DisagreementRow key={d.id} item={d} />)}
+        </section>
+        {jevFalse.length > 0 && <section className="disagreements"><h3>Jev disagreements</h3>{jevFalse.slice(0, 20).map((d) => <DisagreementRow key={d.id} item={d} />)}</section>}
       </div>
-    </section>
+    </aside>
   );
 }
 
-function Stat({ label, value, hot, hint, small }: { label: string; value: string; hot?: boolean; hint?: string; small?: boolean }) {
+function DisagreementRow({ item }: { item: Disagreement }) {
   return (
-    <div className={`stat ${hot ? "hot" : ""} ${small ? "small" : ""}`}>
-      <div className="v">{value}</div>
-      <div className="l">
-        {label}
-        {hint && <span className="hint"> · {hint}</span>}
-      </div>
-    </div>
+    <details className="disagreement">
+      <summary><div><span className={item.kind.endsWith("fp") ? "false-page" : "missed"}>{item.kind.endsWith("fp") ? "False alert" : "Missed"}</span><span>{item.service}</span></div><p>{summary(item.line)}</p></summary>
+      <pre>{item.line}</pre>
+    </details>
   );
 }
