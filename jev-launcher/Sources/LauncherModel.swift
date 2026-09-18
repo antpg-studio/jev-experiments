@@ -8,6 +8,8 @@ final class LauncherModel: ObservableObject {
   static let readyThreshold = 0.6
   /// A target this certain is treated as ready even when the readiness judgment hedges.
   static let certainTargetThreshold = 0.9
+  /// Jev's "all" probability needed before a group row shows the ready badge.
+  static let certainSetThreshold = 0.75
 
   @Published var query = "" {
     didSet { if query != oldValue { queryChanged() } }
@@ -34,7 +36,14 @@ final class LauncherModel: ObservableObject {
   private var indexTask: Task<Void, Never>?
 
   var isReady: Bool {
-    guard let judgment, judgmentIsFresh, let top = hits.first else { return false }
+    guard let judgment, judgmentIsFresh, selection == 0, let top = hits.first else {
+      return false
+    }
+    if top.isGroup {
+      // A set is ready when Jev clearly read the query as "all of them"; opening several
+      // things at once should never ride on a hedged answer.
+      return judgment.setProbability >= Self.certainSetThreshold
+    }
     if judgment.ready >= Self.readyThreshold { return true }
     return (top.jevProbability ?? 0) >= Self.certainTargetThreshold
   }
@@ -130,7 +139,8 @@ final class LauncherModel: ObservableObject {
       return
     }
     let request = JevQuestions.buildRequest(
-      query: query, context: context, candidates: prefiltered.candidates)
+      query: query, context: context, candidates: prefiltered.candidates,
+      window: prefiltered.window)
     let sent = prefiltered
     inFlight += 1
     Task { [client] in

@@ -1,7 +1,8 @@
 import Foundation
 
-/// Builds the local candidate index: application bundles, recent user files, system toggles and
-/// user Shortcuts. Pure code, no model involved. Rebuilt in the background when the panel opens.
+/// Builds the local candidate index: application bundles, recent user files, system toggles,
+/// user Shortcuts and Chrome history. Pure code, no model involved. Rebuilt in the background
+/// when the panel opens.
 struct LocalIndex: Sendable {
   var candidates: [Candidate]
 
@@ -17,6 +18,9 @@ struct LocalIndex: Sendable {
     candidates.append(contentsOf: scanFiles(fileManager: fileManager, now: now))
     candidates.append(contentsOf: SystemToggle.allCases.map(\.candidate))
     candidates.append(contentsOf: scanShortcuts())
+    candidates.append(
+      contentsOf: ChromeHistory.candidates(
+        from: ChromeHistory.load(fileManager: fileManager, now: now), now: now))
     return LocalIndex(candidates: candidates)
   }
 

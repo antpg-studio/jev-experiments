@@ -11,10 +11,14 @@ final class JevQuestionsTests: XCTestCase {
     let request = JevQuestions.buildRequest(
       query: "wifi off", context: context, candidates: [Fixtures.wifiOff, Fixtures.wifiOn])
     XCTAssertEqual(request.model, "jev-latest")
-    XCTAssertEqual(Set(request.questions.keys), ["target", "action", "ready"])
+    XCTAssertEqual(
+      Set(request.questions.keys),
+      ["target", "action", "ready", "scope", "match_c0", "match_c1"])
     XCTAssertEqual(request.questions["target"]?.type, "choice")
     XCTAssertEqual(request.questions["action"]?.type, "choice")
     XCTAssertEqual(request.questions["ready"]?.type, "noul")
+    XCTAssertEqual(request.questions["scope"]?.type, "choice")
+    XCTAssertEqual(request.questions["match_c0"]?.type, "noul")
 
     let json =
       try JSONSerialization.jsonObject(with: JSONEncoder().encode(request)) as? [String: Any]

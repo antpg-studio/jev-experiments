@@ -5,7 +5,10 @@ import Foundation
 enum Fuzzy {
   static let stopwords: Set<String> = [
     "the", "a", "an", "i", "my", "me", "to", "of", "that", "just", "please", "open", "launch",
-    "run", "go", "show", "find", "get", "up", "it",
+    "run", "go", "show", "find", "get", "up", "it", "ve", "s", "d", "ll", "re", "m", "in", "on",
+    "from", "for", "with", "all", "every", "everything", "any", "and", "was", "were", "been",
+    "have", "had", "ive", "did", "about", "at", "page", "pages", "site", "sites", "stuff",
+    "thing", "things", "read", "looked", "saw", "some", "those", "these", "them", "this",
   ]
 
   static func tokens(_ text: String) -> [String] {

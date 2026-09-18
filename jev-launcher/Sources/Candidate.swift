@@ -4,6 +4,7 @@ import Foundation
 enum ActionKind: String, CaseIterable, Codable, Sendable {
   case openApp = "open_app"
   case openFile = "open_file"
+  case openURL = "open_url"
   case webSearch = "web_search"
   case calculate = "calculate"
   case systemToggle = "system_toggle"
@@ -14,6 +15,7 @@ enum ActionKind: String, CaseIterable, Codable, Sendable {
     switch self {
     case .openApp: return "App"
     case .openFile: return "File"
+    case .openURL: return "Link"
     case .webSearch: return "Web"
     case .calculate: return "Calc"
     case .systemToggle: return "System"
@@ -27,6 +29,7 @@ enum ActionKind: String, CaseIterable, Codable, Sendable {
     switch self {
     case .openApp: return "Launch or switch to an installed application."
     case .openFile: return "Open a document, folder or file from disk."
+    case .openURL: return "Reopen a web page the user has visited before, from browser history."
     case .webSearch: return "Look something up on the web; a question or topic, not a local item."
     case .calculate: return "Evaluate arithmetic, percentages or unit-free math."
     case .systemToggle:
@@ -42,10 +45,14 @@ struct Candidate: Identifiable, Hashable, Sendable {
   enum Payload: Hashable, Sendable {
     case app(URL)
     case file(URL)
+    case url(URL)
     case webSearch(String)
     case calculation(expression: String, result: String)
     case toggle(SystemToggle)
     case shortcut(String)
+    /// Several candidates opened together; synthesized by the ranker when Jev judges that the
+    /// query describes a set rather than one item.
+    indirect case group([Candidate])
   }
 
   let id: String
@@ -54,7 +61,8 @@ struct Candidate: Identifiable, Hashable, Sendable {
   let kind: ActionKind
   let keywords: [String]
   let payload: Payload
-  /// Days since the item was last modified, for files; used to describe recency to Jev in words.
+  /// Days since the item was last modified or visited; used to describe recency to Jev in words
+  /// and to apply a time window such as "in the past 24 hours". Nil for timeless items.
   let ageDays: Double?
 
   init(
