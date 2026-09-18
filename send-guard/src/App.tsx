@@ -1,24 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Chips from "./Chips";
 import Composer from "./Composer";
-import Latency from "./Latency";
-import { AUDIENCE_LABEL, CHANNELS } from "./lib/channels";
+import GuardPanel, { type ScenarioResult } from "./GuardPanel";
+import { ChannelHeader, MessageList } from "./Messages";
+import { Rail, Sidebar, TopBar, WORKSPACE } from "./Shell";
+import { ALL_CHANNELS, CHANNELS, DECOR_CHANNELS } from "./lib/channels";
 import { decide } from "./lib/policy";
 import { SCENARIOS } from "./lib/scenarios";
+import { PEOPLE, SEED, type Message } from "./lib/seed";
 import { findSpans, regexOnlyFlags } from "./lib/spans";
 import type { Verdict } from "./lib/types";
 import { DEBOUNCE_MS, useGuard } from "./useGuard";
-
-interface ScenarioResult {
-  title: string;
-  channel: string;
-  expect: Verdict;
-  jev: Verdict;
-  jevReason: string;
-  regex: Verdict;
-  ms: number;
-  judgments: number;
-}
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -29,6 +20,15 @@ function regexVerdict(kinds: string[]): { verdict: Verdict; reason: string } {
   return { verdict: "send", reason: "regex: no pattern matched" };
 }
 
+const SIDEBAR_CHANNELS = [
+  ...DECOR_CHANNELS.filter((c) => c.id === "general"),
+  ...CHANNELS.filter((c) => c.kind === "channel"),
+  ...DECOR_CHANNELS.filter((c) => c.id !== "general"),
+];
+const DM_CHANNELS = CHANNELS.filter((c) => c.kind === "dm").map((c) => ({ channel: c, person: PEOPLE.jordan }));
+
+const now = () => new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
 export default function App() {
   const [channelId, setChannelId] = useState(CHANNELS[0].id);
   const [draft, setDraft] = useState("");
@@ -36,10 +36,11 @@ export default function App() {
   const [replaying, setReplaying] = useState(false);
   const [results, setResults] = useState<ScenarioResult[]>([]);
   const [health, setHealth] = useState<{ mock: boolean; hasKey: boolean } | null>(null);
-  const [sent, setSent] = useState<string | null>(null);
+  const [guardOpen, setGuardOpen] = useState(true);
+  const [history, setHistory] = useState<Record<string, Message[]>>(SEED);
   const abortReplay = useRef(false);
 
-  const channel = useMemo(() => CHANNELS.find((c) => c.id === channelId) ?? CHANNELS[0], [channelId]);
+  const channel = useMemo(() => ALL_CHANNELS.find((c) => c.id === channelId) ?? CHANNELS[0], [channelId]);
   const guard = useGuard(draft, channel);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function App() {
   const hasAnswers = Object.keys(guard.answers).length > 0;
 
   const empty = draft.trim().length === 0;
-  const shown: { verdict: Verdict; reason: string } = regexOnly ? regex : hasAnswers ? decision : { verdict: "send", reason: "Start typing…" };
+  const shown: { verdict: Verdict; reason: string } = regexOnly ? regex : hasAnswers ? decision : { verdict: "send", reason: "" };
   const buttonVerdict: Verdict = empty ? "send" : shown.verdict;
   // Jev mode: Send only unlocks once the exact current draft + channel has been judged.
   const awaitingJudgment = !regexOnly && !empty && (stale || guard.inflight || !hasAnswers);
@@ -73,7 +74,6 @@ export default function App() {
     }
     setReplaying(true);
     setResults([]);
-    setSent(null);
     abortReplay.current = false;
     for (const sc of SCENARIOS) {
       if (abortReplay.current) break;
@@ -118,177 +118,99 @@ export default function App() {
 
   const onSend = () => {
     if (!canSend) return;
-    setSent(`Sent to ${channel.name} at ${new Date().toLocaleTimeString()}`);
+    const msg: Message = { id: `sent-${Date.now()}`, author: "me", time: now(), text: draft.trim() };
+    setHistory((h) => ({ ...h, [channel.id]: [...(h[channel.id] ?? []), msg] }));
     setDraft("");
   };
 
+  const status = regexOnly ? (
+    <span className="dim">regex-only · 0 ms · {regexFlagged.length} pattern hit{regexFlagged.length === 1 ? "" : "s"}</span>
+  ) : (
+    <>
+      <span className={`spinner ${guard.inflight ? "on" : ""}`} />
+      {guard.last ? (
+        <span>
+          <b>{guard.last.judgments} judgments</b> in <b>{Math.round(guard.last.clientMs)} ms</b>
+          <span className="dim"> · API {Math.round(guard.last.apiMs)} ms</span>
+          {stale && !empty && <span className="dim"> · re-judging</span>}
+        </span>
+      ) : (
+        <span className="dim">Jev judges every pause · {DEBOUNCE_MS} ms debounce</span>
+      )}
+    </>
+  );
+
+  const dmPerson = channel.kind === "dm" ? PEOPLE.jordan : undefined;
+  const target = channel.kind === "dm" ? PEOPLE.jordan.name : channel.name;
+
   return (
-    <div className="app">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark">▣</span> Send Guard
-          <span className="brand-sub">every pause in typing → one Jev request → {10}+ judgments</span>
-        </div>
-        <div className="topbar-right">
-          {health?.mock && <span className="badge badge-mock">MOCK MODE — heuristic answers, not Jev</span>}
-          {health && !health.mock && !health.hasKey && <span className="badge badge-err">TYPESAFE_API_KEY missing on server</span>}
-          {guard.model && !guard.mock && <span className="badge">{guard.model}</span>}
-          <label className="toggle">
-            <input type="checkbox" checked={regexOnly} onChange={(e) => setRegexOnly(e.target.checked)} />
-            <span>regex-only DLP (the old way)</span>
-          </label>
-          <button className={`btn ${replaying ? "btn-stop" : "btn-replay"}`} onClick={() => void replay()}>
-            {replaying ? "■ Stop replay" : "▶ Replay 6 scenarios"}
-          </button>
-        </div>
-      </header>
-
-      <main className="grid">
-        <section className="panel compose-panel">
-          <div className="channel-row">
-            <label>
-              To
-              <select value={channelId} onChange={(e) => setChannelId(e.target.value)} disabled={replaying}>
-                {CHANNELS.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <span className={`audience audience-${channel.audience}`}>{AUDIENCE_LABEL[channel.audience]}</span>
-            <span className="channel-desc">{channel.description}</span>
-          </div>
-
-          <Composer
-            value={draft}
-            onChange={(v) => {
-              setSent(null);
-              setDraft(v);
-            }}
-            spans={regexOnly ? liveSpans : guard.spans}
-            culprits={new Set(decision.culpritSpanIds)}
-            regexOnly={regexOnly}
-            regexFlagged={new Set(regexFlagged.map((s) => s.id))}
-            disabled={replaying}
-            placeholder={`Message ${channel.name}…  (try pasting an API key, promising a date, or venting)`}
-          />
-
-          <div className="send-row">
-            <button className={`send send-${awaitingJudgment ? "pending" : buttonVerdict}`} disabled={!canSend} onClick={onSend}>
-              {awaitingJudgment ? "Judging…" : buttonVerdict === "block" ? "Blocked" : buttonVerdict === "warn" ? "Send anyway" : "Send"}
-              <span className="send-reason">{empty ? "" : awaitingJudgment ? "waiting for Jev on the current draft" : shown.reason}</span>
-            </button>
-            <div className="status">
-              {regexOnly ? (
-                <span className="status-regex">regex-only · 0 ms · {regexFlagged.length} pattern hit{regexFlagged.length === 1 ? "" : "s"}</span>
+    <div className={`app ${guardOpen ? "with-details" : ""}`}>
+      <TopBar guardOpen={guardOpen} onToggleGuard={() => setGuardOpen((v) => !v)} />
+      <div className="body">
+        <Rail />
+        <Sidebar channels={SIDEBAR_CHANNELS} dms={DM_CHANNELS} activeId={channel.id} unread={new Set(["support-escalations"])} onSelect={(id) => {
+            setDraft("");
+            setChannelId(id);
+          }}
+          disabled={replaying} />
+        <main className="main">
+          <ChannelHeader channel={channel} person={dmPerson} />
+          <MessageList channel={channel} messages={history[channel.id] ?? []} />
+          <div className="composer-wrap">
+            <Composer
+              value={draft}
+              onChange={setDraft}
+              onSend={onSend}
+              spans={regexOnly ? liveSpans : guard.spans}
+              culprits={new Set(decision.culpritSpanIds)}
+              regexOnly={regexOnly}
+              regexFlagged={new Set(regexFlagged.map((s) => s.id))}
+              disabled={replaying}
+              placeholder={`Message ${target}`}
+              verdict={buttonVerdict}
+              awaiting={awaitingJudgment}
+              canSend={canSend}
+              reason={shown.reason}
+              status={status}
+            />
+            <div className="hint">
+              {channel.shared || channel.audience === "public" ? (
+                <span>
+                  <b>{channel.audience === "public" ? "Public channel" : "Shared with Acme Corp"}</b> · people outside {WORKSPACE} can read this
+                </span>
               ) : (
-                <>
-                  <span className={`spinner ${guard.inflight ? "on" : ""}`} />
-                  {guard.last ? (
-                    <span>
-                      <b>{guard.last.judgments} judgments</b> in <b>{Math.round(guard.last.clientMs)} ms</b>
-                      <span className="dim"> (API {Math.round(guard.last.apiMs)} ms)</span>
-                      {stale && draft.trim() && <span className="dim"> · re-judging in {DEBOUNCE_MS} ms</span>}
-                    </span>
-                  ) : (
-                    <span className="dim">debounce {DEBOUNCE_MS} ms · stale requests cancelled</span>
-                  )}
-                </>
+                <span>&nbsp;</span>
               )}
-              {guard.error && <span className="error">{guard.error}</span>}
-              {sent && <span className="sent">{sent}</span>}
+              <span>
+                <b>Shift + Return</b> to add a new line
+              </span>
             </div>
           </div>
-
-          <div className="compare-row">
-            <span>Jev: </span>
-            <span className={`pill pill-${hasAnswers ? decision.verdict : "none"}`}>{hasAnswers ? decision.verdict : "—"}</span>
-            <span className="dim">{hasAnswers ? decision.reason : ""}</span>
-            <span className="sep">|</span>
-            <span>regex DLP: </span>
-            <span className={`pill pill-${draft.trim() ? regex.verdict : "none"}`}>{draft.trim() ? regex.verdict : "—"}</span>
-            <span className="dim">{draft.trim() ? regex.reason : ""}</span>
-          </div>
-        </section>
-
-        <section className="panel chips-panel">
-          <h2>
-            Live judgments <span className="dim">one request · {10 + guard.spans.length} questions</span>
-          </h2>
-          <Chips answers={guard.answers} inflight={guard.inflight} />
-          <h3>
-            Culprit spans <span className="dim">regex locates, Jev decides</span>
-          </h3>
-          <ul className="spans">
-            {guard.spans.length === 0 && <li className="dim">no candidate spans in draft</li>}
-            {guard.spans.map((s) => {
-              const a = guard.answers[s.id];
-              const p = a && a.type === "noul" ? a.noul : null;
-              const culprit = decision.culpritSpanIds.includes(s.id);
-              return (
-                <li key={s.id} className={culprit ? "span-bad" : "span-ok"}>
-                  <span className="span-kind">{s.kind}</span>
-                  <code>{s.text}</code>
-                  <span className="span-p">{p === null ? "…" : `${Math.round(p * 100)}% problem`}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        <section className="panel results-panel">
-          <h2>
-            Replay log <span className="dim">Jev vs regex DLP</span>
-          </h2>
-          <table className="results">
-            <thead>
-              <tr>
-                <th>scenario</th>
-                <th>channel</th>
-                <th>expected</th>
-                <th>Jev</th>
-                <th>regex</th>
-                <th>latency</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="dim">
-                    press ▶ Replay to type six prepared drafts hands-free
-                  </td>
-                </tr>
-              )}
-              {results.map((r) => (
-                <tr key={r.title}>
-                  <td>{r.title}</td>
-                  <td className="dim">{r.channel}</td>
-                  <td>
-                    <span className={`pill pill-${r.expect}`}>{r.expect}</span>
-                  </td>
-                  <td title={r.jevReason}>
-                    <span className={`pill pill-${r.jev} ${r.jev === r.expect ? "" : "pill-miss"}`}>{r.jev}</span>
-                  </td>
-                  <td>
-                    <span className={`pill pill-${r.regex} ${r.regex === r.expect ? "" : "pill-miss"}`}>{r.regex}</span>
-                  </td>
-                  <td className="mono">
-                    {r.judgments} in {Math.round(r.ms)} ms
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-
-        <section className="panel latency-panel">
-          <h2>
-            Latency <span className="dim">measured in the browser around each request, plus the proxy's API round trip</span>
-          </h2>
-          <Latency samples={guard.samples} cancelled={guard.cancelled} />
-        </section>
-      </main>
+        </main>
+        {guardOpen && (
+          <GuardPanel
+            onClose={() => setGuardOpen(false)}
+            answers={guard.answers}
+            spans={guard.spans}
+            decision={decision}
+            hasAnswers={hasAnswers}
+            inflight={guard.inflight}
+            samples={guard.samples}
+            cancelled={guard.cancelled}
+            model={guard.model}
+            mock={health?.mock ?? false}
+            hasKey={health?.hasKey ?? true}
+            regexOnly={regexOnly}
+            onRegexOnly={setRegexOnly}
+            regex={regex}
+            draftEmpty={empty}
+            replaying={replaying}
+            onReplay={() => void replay()}
+            results={results}
+            error={guard.error}
+          />
+        )}
+      </div>
     </div>
   );
 }
