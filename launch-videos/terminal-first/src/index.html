@@ -26,7 +26,7 @@
   #morph { position: absolute; background: var(--panel); border: 1px solid var(--lineStrong); box-sizing: border-box; box-shadow: 0 40px 120px rgba(0,0,0,0.6); }
 
   /* Section label outside the product */
-  #label { position: absolute; left: 80px; top: 44px; font-size: 26px; font-weight: 500; letter-spacing: -0.01em; color: var(--muted); white-space: nowrap; }
+  #label { position: absolute; left: 80px; top: 40px; font-size: 30px; font-weight: 500; letter-spacing: -0.01em; color: var(--muted); white-space: nowrap; }
   #label .caret { background: var(--muted); }
 
   /* Product window */
@@ -64,18 +64,18 @@
 
   /* Home: the new-session composer is the hero before the session view exists */
   #home { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; }
-  #homeMark { width: 64px; height: 64px; }
-  #homeComposer { position: relative; width: 1100px; height: 260px; border-radius: 28px; background: var(--raised); border: 1px solid var(--lineStrong); box-sizing: border-box; padding: 28px 30px; font-size: 36px; line-height: 1.35; letter-spacing: -0.01em; box-shadow: 0 30px 90px rgba(0,0,0,0.45); }
+  #homeMark { width: 72px; height: 72px; }
+  #homeComposer { position: relative; width: 1180px; height: 300px; border-radius: 30px; background: var(--raised); border: 1px solid var(--lineStrong); box-sizing: border-box; padding: 30px 34px; font-size: 40px; line-height: 1.35; letter-spacing: -0.01em; box-shadow: 0 30px 90px rgba(0,0,0,0.45); }
   #homePrompt { color: var(--text); white-space: pre-wrap; }
   #homePrompt.placeholder { color: var(--faint); }
-  #homeRow { position: absolute; left: 28px; right: 28px; bottom: 22px; display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 22px; }
-  #homeRow .ico { width: 26px; height: 26px; }
-  #homeRow .envChip { height: 42px; padding: 0 14px; border-radius: 11px; }
-  #homeRow .send { width: 54px; height: 54px; }
-  #homeRow .send .ico { width: 28px; height: 28px; }
+  #homeRow { position: absolute; left: 30px; right: 30px; bottom: 24px; display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 24px; }
+  #homeRow .ico { width: 28px; height: 28px; }
+  #homeRow .envChip { height: 46px; padding: 0 16px; border-radius: 12px; }
+  #homeRow .send { width: 58px; height: 58px; }
+  #homeRow .send .ico { width: 30px; height: 30px; }
 
   /* Editor */
-  #editor { position: absolute; left: 20px; right: 20px; top: 84px; bottom: 20px; border-radius: 14px; background: #121215; border: 1px solid var(--line); box-sizing: border-box; overflow: hidden; }
+  #editor { position: absolute; left: 20px; right: 20px; top: 84px; border-radius: 14px; background: #121215; border: 1px solid var(--line); box-sizing: border-box; overflow: hidden; }
   #editorHead { height: 56px; display: flex; align-items: center; padding: 0 20px; gap: 10px; font-size: 22px; color: var(--muted); border-bottom: 1px solid var(--line); }
   #editorHead b { color: var(--text); font-weight: 500; }
   #code { padding: 22px 0; font-family: var(--mono); font-size: 25px; line-height: 38px; color: #d9d9de; font-variant-ligatures: none; }
@@ -83,7 +83,7 @@
   .ln .n { width: 92px; text-align: right; padding-right: 30px; color: rgba(255,255,255,0.22); flex: none; }
   .kw { color: #ff7ab2; } .fn { color: #7fd6ff; } .en { color: #c8a5ff; } .num { color: #ffd479; }
   .ccaret { display: inline-block; width: 13px; height: 29px; background: #d9d9de; vertical-align: -5px; }
-  #buildBar { position: absolute; left: 0; right: 0; bottom: 0; height: 68px; border-top: 1px solid var(--line); display: flex; align-items: center; padding: 0 20px; gap: 14px; font-family: var(--mono); font-size: 24px; color: var(--muted); background: #121215; }
+  #buildBar { height: 68px; overflow: hidden; box-sizing: border-box; border-top: 1px solid var(--line); display: flex; align-items: center; padding: 0 20px; gap: 14px; font-family: var(--mono); font-size: 24px; color: var(--muted); background: #121215; }
   #buildBar .ok { margin-left: auto; color: var(--green); }
 
   /* Computer pane: Mac desktop with Simulator */
@@ -241,6 +241,7 @@ function renderCode(chars) {
     body.innerHTML = '';
     const toks = CODE_LINES[i].t;
     const lineLen = Math.max(1, toks.reduce((b, tok) => b + tok.s.length, 0));
+    body.parentElement.style.display = left <= 0 ? 'none' : 'flex';
     if (left <= 0) return;
     let budget = Math.min(left, lineLen);
     const partial = budget < lineLen;
@@ -269,10 +270,10 @@ function camera(t) {
   return CAMERA[CAMERA.length - 1].slice(1);
 }
 
-// Stage-space positions used by the cursor (home composer: 1100x260 centered in the window, below the mark)
-const HOME_C = { x: 80 + (1760 - 1100) / 2, y: 100 + (940 - (64 + 44 + 260)) / 2 + 64 + 44 };
-const SEND_POS = [HOME_C.x + 1100 - 28 - 27, HOME_C.y + 260 - 22 - 27];
-const PROMPT_END_POS = [HOME_C.x + 30 + 560, HOME_C.y + 28 + 36 + 60];
+// Stage-space positions used by the cursor (home composer: 1180x300 centered in the window, below the mark)
+const HOME_C = { x: 80 + (1760 - 1180) / 2, y: 100 + (940 - (72 + 44 + 300)) / 2 + 72 + 44 };
+const SEND_POS = [HOME_C.x + 1180 - 30 - 29, HOME_C.y + 300 - 24 - 29];
+const PROMPT_END_POS = [HOME_C.x + 34 + 600, HOME_C.y + 30 + 40 + 64];
 
 const footageImg = $('footage');
 const footageFrameFile = (i) => MEDIA.footageFramesDir + '/' + MEDIA.footageFramePattern.replace('%05d', String(i + 1).padStart(5, '0'));
@@ -286,7 +287,17 @@ function setMsg(el, on, t0, t) {
 window.seek = async function seek(t) {
   const fps = 30;
   // Camera
-  const [cx, cy, s] = camera(t);
+  let [cx, cy, s] = camera(t);
+  // While code types, the camera follows the growing editor panel (which starts at content height).
+  {
+    const chars = Math.floor(prog(t, T.codeType, (x) => x) * codeTotalChars);
+    let left = chars, lines = 0;
+    for (const l of CODE_LINES) { if (left <= 0) break; lines++; left -= Math.max(1, l.t.reduce((b, tok) => b + tok.s.length, 0)); }
+    const h = 56 + 44 + lines * 38;
+    const target = Math.min(684, Math.max(414, 184 + h / 2));
+    const w = prog(t, [T.codeType[0] - 0.3, T.codeType[0] + 0.3], easeInOut) * (1 - prog(t, [T.codeType[1] - 0.1, T.codeType[1] + 0.4], easeInOut));
+    cy = lerp(cy, target, w);
+  }
   $('stage').style.transform = `translate(${960 - cx * s}px, ${540 - cy * s}px) scale(${s})`;
 
   // Opening
@@ -352,7 +363,8 @@ window.seek = async function seek(t) {
   win.style.opacity = winVisible ? uiIn : 0;
   const contentOut = 1 - prog(t, [T.windowToLine[0] - 0.3, T.windowToLine[0]], easeInOut);
   const sessionIn = prog(t, [T.sendClick + 0.2, T.sendClick + 0.65], easeOut);
-  $('left').style.opacity = Math.min(contentOut, sessionIn); $('right').style.opacity = Math.min(contentOut, sessionIn);
+  const leftIn = prog(t, [T.computerIn[0] + 0.2, T.computerIn[0] + 0.7], easeOut);
+  $('left').style.opacity = Math.min(contentOut, leftIn); $('right').style.opacity = Math.min(contentOut, sessionIn);
   const home = $('home');
   const homeOut = prog(t, [T.sendClick + 0.05, T.sendClick + 0.4], easeInOut);
   home.style.opacity = t < T.sendClick + 0.4 ? 1 - homeOut : 0;
@@ -428,7 +440,9 @@ window.seek = async function seek(t) {
   ed.style.transform = `translateY(${lerp(16, 0, prog(t, T.editorIn, easeOut))}px)`;
   const codeChars = Math.floor(prog(t, T.codeType, (x) => x) * codeTotalChars);
   renderCode(codeChars);
-  $('buildBar').style.opacity = t >= T.buildResultIn ? prog(t, [T.buildResultIn, T.buildResultIn + 0.35], easeOut) : 0;
+  const buildIn = t >= T.buildResultIn ? prog(t, [T.buildResultIn, T.buildResultIn + 0.35], easeOut) : 0;
+  $('buildBar').style.opacity = buildIn;
+  $('buildBar').style.height = `${lerp(0, 68, buildIn)}px`;
 
   const comp = $('computer');
   comp.classList.toggle('hidden', !showComputer);

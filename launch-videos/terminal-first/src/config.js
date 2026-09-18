@@ -58,7 +58,6 @@ export const COPY = {
   ],
   result: 'RTX Afterdark builds, runs in the Simulator, and pause and resume work.',
   sectionLabels: [
-    { at: 3.6, text: 'prompt' },
     { at: 8.9, text: 'build' },
     { at: 12.8, text: 'run in the simulator' },
     { at: 21.4, text: 'verify pause and resume' },
@@ -105,7 +104,7 @@ export const T = {
   // Build
   planIn: 9.0,
   editorIn: [8.95, 9.45],
-  codeType: [9.7, 11.8],
+  codeType: [9.15, 11.7],
   buildResultIn: 11.9,
   // Run
   computerIn: [12.8, 13.3],
@@ -121,13 +120,11 @@ export const T = {
 // Camera keyframes: [time, cx, cy, scale]. Interpolated with smooth easing.
 export const CAMERA = [
   [0.0, 960, 540, 1.0],
-  [4.8, 960, 540, 1.0],
-  [6.2, 960, 620, 1.18],   // slow push into the home composer while typing
-  [8.7, 960, 620, 1.18],
-  [9.8, 1270, 577, 1.5],   // Swift editor fills the frame while code types
-  [11.7, 1270, 577, 1.5],
-  [12.2, 1270, 665, 1.5],  // settle on the build result line
-  [12.8, 1270, 665, 1.5],
+  [8.7, 960, 540, 1.0],    // home composer is already the hero at 1x
+  [9.5, 1280, 575, 1.72],  // Swift editor fills the frame while code types (view = right pane width)
+  [11.7, 1280, 575, 1.72],
+  [12.2, 1280, 684, 1.72], // settle on the build result line
+  [12.8, 1280, 684, 1.72],
   [13.9, 1134, 590, 1.36], // simulator running
   [21.4, 1134, 590, 1.36],
   [22.2, 1247, 600, 1.62], // pause menu
