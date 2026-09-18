@@ -3,10 +3,11 @@
 A 29.93 second, 1920x1080, 30 fps, silent H.264 (yuv420p) launch film for "macOS in Devin Cloud".
 The final frame is pixel identical to the first, so the film plays as an unbroken loop.
 
-Story: Devin lockup -> composer assembles -> environment menu -> macOS selected -> the Silverroom
-request is typed and sent -> Devin writes Swift -> Silverroom runs in the iOS Simulator inside the
-Devin session view while Devin tests it -> "macOS in Devin Cloud." -> lockup and devin.ai -> back
-to the opening pose.
+Story: title card (Devin lockup, "macOS in Devin Cloud.", devin.ai) -> the headline leaves and the
+lockup slides into the header of the composer, which assembles -> environment menu -> macOS selected
+-> the Silverroom request is typed and sent -> Devin writes Swift -> Silverroom runs in the iOS
+Simulator inside the Devin session view while Devin tests it -> the lockup returns, the headline
+builds word by word and devin.ai follows -> the same title card, drifting, closes the loop.
 
 ## Files
 
@@ -51,10 +52,10 @@ pixels (checked by hashing the decoded RGB of frame 0 and frame 897).
 | Constant | Meaning |
 | --- | --- |
 | `T`, `FPS` | Total duration and frame rate. The renderer produces `T * FPS + 1` frames; the last one is the loop frame. |
-| `PROMPT`, `HEADLINE` | Typed request and the closing headline words. |
+| `PROMPT`, `HEADLINE` | Typed request and the title card headline words. |
 | `RECORDING_IN`, `DEMO_LENGTH` | Where in the raw take playback starts, and how many seconds play (1x, uncut). |
 | `TL` | Every beat of the timeline: `[start, duration]` pairs or single click times, in seconds. |
-| `LOCKUP_OPEN`, `LOCKUP_HEADER`, `LOCKUP_RETURN`, `DRIFT` | Lockup poses (center, width) and the slow brand drift amplitude. |
+| `LOCKUP_OPEN`, `LOCKUP_HEADER`, `HEADLINE_Y`, `DEVINAI_TOP`, `DRIFT` | Title card layout (lockup center and width, headline center, devin.ai top), the header lockup pose, and the slow brand drift amplitude. |
 | `MESSAGES` | Devin chat lines in the session view and when they appear. |
 | `CODE` | Swift lines shown in the Changes pane (from `silverroom/Silverroom/Models.swift`). |
 | `PHONE`, `SCREEN`, `CAM` | Phone placement inside the Simulator pane and the camera path (`{t, x, y, s}` keyframes). |

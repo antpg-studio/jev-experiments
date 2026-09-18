@@ -31,14 +31,14 @@
   #lockup img { display: block; width: 100%; height: auto; }
 
   /* composer */
-  #composer { position: absolute; left: 370px; top: 380px; width: 1180px; }
+  #composer { position: absolute; left: 340px; top: 380px; width: 1240px; }
   #agentToggle { position: absolute; right: 0; top: -84px; display: flex; gap: 4px; padding: 5px; background: #efefef; border-radius: 999px; font-size: 24px; font-weight: 500; }
   #agentToggle span { padding: 8px 26px; border-radius: 999px; color: var(--muted); }
   #agentToggle span.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  #card { position: absolute; left: 0; top: 0; width: 1180px; height: 250px; background: var(--surface); border-radius: 24px; box-shadow: 0 0 0 1px var(--line), 0 14px 40px rgba(0,0,0,0.06); transform-origin: 50% 40%; }
-  #field { position: absolute; left: 34px; top: 30px; right: 34px; font-size: 34px; line-height: 1.35; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; }
+  #card { position: absolute; left: 0; top: 0; width: 1240px; height: 262px; background: var(--surface); border-radius: 24px; box-shadow: 0 0 0 1px var(--line), 0 14px 40px rgba(0,0,0,0.06); transform-origin: 50% 40%; }
+  #field { position: absolute; left: 34px; top: 28px; right: 34px; font-size: 38px; line-height: 1.32; font-weight: 400; color: var(--ink); letter-spacing: -0.01em; }
   #field .ph { color: var(--faint); }
-  #caret { display: inline-block; width: 2px; height: 36px; background: var(--ink); vertical-align: -6px; margin-left: 2px; }
+  #caret { display: inline-block; width: 2px; height: 40px; background: var(--ink); vertical-align: -6px; margin-left: 2px; }
   #toolbar { position: absolute; left: 24px; right: 24px; bottom: 22px; height: 56px; display: flex; align-items: center; gap: 18px; }
   #toolbar .ico { width: 44px; height: 44px; display: grid; place-items: center; color: #5a5a5a; }
   #toolbar .ico svg { width: 30px; height: 30px; }
@@ -46,7 +46,7 @@
   #toolbar .spacer { flex: 1; }
   #send { width: 54px; height: 54px; border-radius: 999px; background: #262626; display: grid; place-items: center; transform-origin: 50% 50%; }
   #send svg { width: 26px; height: 26px; }
-  #envRow { position: absolute; left: 12px; top: 278px; display: flex; align-items: center; gap: 12px; font-size: 26px; color: var(--text); font-weight: 500; padding: 10px 14px; border-radius: 12px; }
+  #envRow { position: absolute; left: 12px; top: 290px; display: flex; align-items: center; gap: 12px; font-size: 26px; color: var(--text); font-weight: 500; padding: 10px 14px; border-radius: 12px; }
   #envRow.active { background: rgba(0,0,0,0.05); }
   #envRow svg { width: 28px; height: 28px; }
 
@@ -61,8 +61,8 @@
   .menu .head { font-size: 20px; color: var(--muted); padding: 10px 18px 6px; letter-spacing: 0.01em; }
   .menu .item .check { margin-left: auto; width: 24px; height: 24px; opacity: 0; }
   .menu .item .check.on { opacity: 1; }
-  #menu { left: 382px; top: 728px; width: 520px; }
-  #submenu { left: 916px; top: 728px; width: 400px; }
+  #menu { left: 352px; top: 740px; width: 520px; }
+  #submenu { left: 886px; top: 740px; width: 400px; }
 
   /* cursor */
   #cursor { position: absolute; left: 0; top: 0; width: 34px; height: 46px; transform-origin: 6px 4px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); }
@@ -87,10 +87,10 @@
   #pane { position: absolute; left: 701px; top: 79px; width: 1219px; height: 1001px; background: var(--pane); overflow: hidden; }
 
   /* code view */
-  #code { position: absolute; left: 60px; top: 60px; width: 1100px; height: 880px; background: #fff; border-radius: 18px; box-shadow: 0 0 0 1px var(--line), 0 14px 40px rgba(0,0,0,0.05); overflow: hidden; transform-origin: 50% 50%; }
+  #code { position: absolute; left: 90px; top: 60px; width: 1040px; height: 880px; background: #fff; border-radius: 18px; box-shadow: 0 0 0 1px var(--line), 0 14px 40px rgba(0,0,0,0.05); overflow: hidden; transform-origin: 50% 50%; }
   #code .fh { height: 62px; display: flex; align-items: center; gap: 12px; padding: 0 26px; border-bottom: 1px solid #eee; font-size: 22px; color: var(--muted); font-weight: 500; }
   #code .fh svg { width: 24px; height: 24px; }
-  #code pre { margin: 0; padding: 26px 30px; font: 24px/1.62 "SF Mono", Menlo, monospace; color: #1d1d1d; }
+  #code pre { margin: 0; padding: 24px 30px; font: 26px/1.55 "SF Mono", Menlo, monospace; color: #1d1d1d; }
   #code .ln { display: block; white-space: pre; }
   .k { color: #9b2393; } .ty { color: #3f6e74; } .s { color: #c41a16; } .c { color: #6b7a86; } .n { color: #1c00cf; } .f { color: #326d74; }
 
@@ -103,9 +103,9 @@
   #screenBorder { position: absolute; left: 14px; top: 14px; width: 377px; height: 820px; border-radius: 54px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05); pointer-events: none; }
 
   /* headline + close */
-  #headline { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: flex; align-items: center; justify-content: center; gap: 0.26em; font-family: "Brand", "Inter Tight", "Helvetica Neue", sans-serif; font-weight: 500; font-size: 128px; letter-spacing: -0.035em; color: var(--ink); }
-  #headline span { display: inline-block; will-change: transform, opacity; }
-  #devinai { position: absolute; left: 0; width: 1920px; text-align: center; font-family: "Brand", "Inter Tight", "Helvetica Neue", sans-serif; font-weight: 500; font-size: 54px; letter-spacing: -0.02em; color: var(--ink); }
+  #headline { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: flex; align-items: center; justify-content: center; gap: 0.26em; font-family: "Brand", "Inter Tight", "Helvetica Neue", sans-serif; font-weight: 500; font-size: 104px; letter-spacing: -0.035em; color: var(--ink); }
+  #headline span { display: inline-block; }
+  #devinai { position: absolute; left: 0; width: 1920px; text-align: center; font-family: "Brand", "Inter Tight", "Helvetica Neue", sans-serif; font-weight: 500; font-size: 46px; letter-spacing: -0.02em; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -209,6 +209,7 @@ const RECORDING_IN = 14.0;               // seconds into the raw take where the 
 const DEMO_LENGTH = 18.28;               // seconds of the take that play, at 1x, uncut (to the end of the take)
 
 const TL = {
+  cardOut:     [0.25, 0.45],   // opening card headline and devin.ai leave
   lockupMove:  [0.35, 0.70],   // start, duration
   card:        [0.75, 0.60],
   field:       [0.95, 0.50],
@@ -230,18 +231,16 @@ const TL = {
   simTab:      [8.05, 0.45],   // code pane leaves, phone arrives
   demoStart:    8.45,          // composition time at which take time RECORDING_IN is shown
   productOut:  [26.85, 0.55],
-  headlineIn:  [27.35, 0.18],  // first word, stagger per word
-  headlineOut: [28.45, 0.35],
-  lockupBack:  [28.82, 0.55],
-  devinaiIn:   [29.02, 0.35],
-  devinaiOut:  [29.42, 0.28],
-  lockupHome:  [29.38, 0.52],  // eases to the exact opening pose, finishing at T
+  lockupBack:  [27.35, 0.60],  // lockup eases into its exact opening pose
+  headlineIn:  [27.55, 0.16],  // first word, stagger per word
+  devinaiIn:   [28.35, 0.45],  // end card is complete by 28.8 and drifts until T
 };
 
-// Lockup poses: center x, center y, width
-const LOCKUP_OPEN = { x: 960, y: 540, w: 560 };
-const LOCKUP_HEADER = { x: 445, y: 322, w: 150 };
-const LOCKUP_RETURN = { x: 960, y: 496, w: 520 };
+// Opening / closing card: lockup (center x, center y, width), headline center y, devin.ai top
+const LOCKUP_OPEN = { x: 960, y: 430, w: 420 };
+const LOCKUP_HEADER = { x: 415, y: 322, w: 150 };
+const HEADLINE_Y = 614;
+const DEVINAI_TOP = 714;
 const DRIFT = { ax: 6, ay: 5 };           // px amplitude of the slow brand drift, one period per loop
 
 // Devin chat messages during the session (composition time, text)
@@ -259,7 +258,9 @@ const MESSAGES = [
 const CODE = [
   '<span class="k">import</span> Foundation',
   '',
-  '<span class="k">enum</span> <span class="ty">Film</span>: <span class="ty">String</span>, <span class="ty">Codable</span>, <span class="ty">CaseIterable</span>, <span class="ty">Identifiable</span>, <span class="ty">Sendable</span> {',
+  '<span class="k">enum</span> <span class="ty">Film</span>: <span class="ty">String</span>, <span class="ty">Codable</span>, <span class="ty">CaseIterable</span>,',
+  '  <span class="ty">Identifiable</span>, <span class="ty">Sendable</span>',
+  '{',
   '  <span class="k">case</span> original, silver, noir, dune, faded',
   '',
   '  <span class="k">var</span> id: <span class="ty">String</span> { rawValue }',
@@ -292,6 +293,10 @@ const SCREEN = { w: 377, h: 820 };
 function screenPt(u, v) {                  // normalized screen coords -> stage coords
   return { x: PHONE.x - SCREEN.w / 2 + u * SCREEN.w, y: PHONE.y - SCREEN.h / 2 + v * SCREEN.h };
 }
+function pushPt(u, v) {                    // camera target for a push: biased left so the chat stays in frame
+  const p = screenPt(u, v);
+  return { x: p.x - 200, y: p.y };
+}
 
 // Camera keyframes: {t, x, y, s}. Between keys we ease; camera is identity at t=0 and t=T.
 const CAM = [
@@ -303,36 +308,33 @@ const CAM = [
   { t: 3.50,  x: 1040, y: 820, s: 1.46 },
   { t: 4.10,  x: 940, y: 520, s: 1.20 },
   { t: 6.40,  x: 990, y: 540, s: 1.28 },
-  { t: 6.80,  x: 1240, y: 590, s: 1.36 },
-  { t: 7.40,  x: 960, y: 540, s: 1.00 },
-  { t: 8.00,  x: 1140, y: 560, s: 1.08 },
-  { t: 8.70,  x: 960, y: 540, s: 1.00 },
-  { t: 9.50,  ...screenPt(0.50, 0.36), s: 1.30 },   // the photo develops
-  { t: 10.30, ...screenPt(0.50, 0.72), s: 1.55 },   // Looks strip, Noir
-  { t: 11.40, ...screenPt(0.50, 0.72), s: 1.58 },
-  { t: 12.10, ...screenPt(0.50, 0.36), s: 1.30 },   // Noir photo
-  { t: 13.30, ...screenPt(0.50, 0.76), s: 1.62 },   // exposure slider
-  { t: 14.60, ...screenPt(0.50, 0.76), s: 1.66 },
-  { t: 16.30, ...screenPt(0.52, 0.74), s: 1.60 },
-  { t: 17.10, ...screenPt(0.52, 0.38), s: 1.34 },   // hold to compare, photo
-  { t: 18.90, ...screenPt(0.48, 0.40), s: 1.30 },
-  { t: 20.90, ...screenPt(0.50, 0.42), s: 1.28 },
-  { t: 21.70, ...screenPt(0.50, 0.72), s: 1.60 },   // Frame tools, rotate
-  { t: 23.00, ...screenPt(0.50, 0.72), s: 1.62 },
-  { t: 23.80, ...screenPt(0.50, 0.40), s: 1.26 },   // rotated photo
-  { t: 25.20, ...screenPt(0.50, 0.70), s: 1.50 },   // square crop
-  { t: 26.40, ...screenPt(0.50, 0.42), s: 1.28 },   // the result
-  { t: 26.90, x: 960, y: 540, s: 1.08 },
+  { t: 6.80,  x: 1300, y: 560, s: 1.22 },          // Changes pane, Swift
+  { t: 7.90,  x: 1330, y: 600, s: 1.28 },
+  { t: 8.70,  x: 960, y: 540, s: 1.00 },            // full session view, phone lands
+  { t: 9.80,  x: 985, y: 550, s: 1.03 },            // photo opens, whole phone in view
+  { t: 11.60, x: 1010, y: 560, s: 1.06 },           // Noir chosen
+  { t: 12.60, ...pushPt(0.50, 0.74), s: 1.26 },     // exposure slider
+  { t: 14.60, ...pushPt(0.50, 0.75), s: 1.30 },
+  { t: 16.30, ...pushPt(0.50, 0.70), s: 1.28 },
+  { t: 17.10, ...pushPt(0.50, 0.42), s: 1.18 },     // hold to compare, photo
+  { t: 18.90, ...pushPt(0.50, 0.44), s: 1.15 },
+  { t: 20.90, x: 1080, y: 560, s: 1.06 },           // back to the whole phone
+  { t: 21.70, ...pushPt(0.50, 0.72), s: 1.26 },     // Frame tools, rotate
+  { t: 23.00, ...pushPt(0.50, 0.72), s: 1.30 },
+  { t: 23.80, ...pushPt(0.50, 0.42), s: 1.18 },     // rotated photo
+  { t: 25.20, ...pushPt(0.50, 0.70), s: 1.28 },     // square crop
+  { t: 26.40, x: 1040, y: 560, s: 1.06 },           // the result, whole phone
+  { t: 26.90, x: 960, y: 540, s: 1.02 },
   { t: 27.60, x: 960, y: 540, s: 1.00 },
   { t: T,     x: 960, y: 540, s: 1.00 },
 ];
 
 // Cursor keyframes and click times (stage coords, tip of the arrow)
-const ENV_ROW_PT = { x: 470, y: 700 };
-const MI_ENV_PT = { x: 560, y: 770 };
-const SM_MAC_PT = { x: 1010, y: 852 };
+const ENV_ROW_PT = { x: 440, y: 712 };
+const MI_ENV_PT = { x: 530, y: 782 };
+const SM_MAC_PT = { x: 980, y: 864 };
 const FIELD_PT = { x: 620, y: 470 };
-const SEND_PT = { x: 1497, y: 588 };
+const SEND_PT = { x: 1529, y: 592 };
 const CUR = [
   { t: TL.cursorIn[0], x: 1080, y: 1000 },
   { t: TL.clickEnv - 0.06, ...ENV_ROW_PT },
@@ -376,7 +378,8 @@ function keyframed(keys, t, ease = easeInOut) {
 
 function drift(t) {
   const p = (2 * Math.PI * t) / T;
-  return { dx: DRIFT.ax * Math.sin(p), dy: DRIFT.ay * (Math.cos(p) - 1) };
+  const z = (v) => (Math.abs(v) < 1e-9 ? 0 : v);   // exact zero at t = 0 and t = T so the loop frames match
+  return { dx: z(DRIFT.ax * Math.sin(p)), dy: z(DRIFT.ay * (Math.cos(p) - 1)) };
 }
 
 /* ============================ static setup ============================== */
@@ -424,19 +427,17 @@ function render(t) {
 
   // ---- lockup ----
   const lockup = $("lockup");
-  let L = { ...LOCKUP_OPEN, o: 1 };
+  let L, driftK;
   if (t < TL.lockupBack[0]) {
     const k = seg(t, TL.lockupMove);
     L = { x: lerp(LOCKUP_OPEN.x, LOCKUP_HEADER.x, k), y: lerp(LOCKUP_OPEN.y, LOCKUP_HEADER.y, k), w: lerp(LOCKUP_OPEN.w, LOCKUP_HEADER.w, k), o: 1 };
     if (t >= TL.composerOut[0]) L.o = 1 - seg(t, TL.composerOut, easeInOut);
-  } else if (t < TL.lockupHome[0]) {
-    const k = seg(t, TL.lockupBack);
-    L = { x: LOCKUP_RETURN.x, y: lerp(LOCKUP_RETURN.y + 46, LOCKUP_RETURN.y, k), w: lerp(LOCKUP_RETURN.w * 0.94, LOCKUP_RETURN.w, k), o: k };
+    driftK = 1 - k;                        // header lockup does not drift
   } else {
-    const k = seg(t, TL.lockupHome, easeInOut);
-    L = { x: LOCKUP_OPEN.x, y: lerp(LOCKUP_RETURN.y, LOCKUP_OPEN.y, k), w: lerp(LOCKUP_RETURN.w, LOCKUP_OPEN.w, k), o: 1 };
+    const k = seg(t, TL.lockupBack);
+    L = { x: LOCKUP_OPEN.x, y: lerp(LOCKUP_OPEN.y + 44, LOCKUP_OPEN.y, k), w: lerp(LOCKUP_OPEN.w * 0.95, LOCKUP_OPEN.w, k), o: k };
+    driftK = 1;
   }
-  const driftK = t < TL.lockupMove[0] ? 1 : t < TL.lockupBack[0] ? 1 - seg(t, TL.lockupMove) : 1; // header lockup does not drift
   const lw = L.w, lh = (L.w * 1024) / 2984;
   lockup.style.width = px(lw);
   lockup.style.opacity = L.o.toFixed(4);
@@ -561,27 +562,30 @@ function render(t) {
     }
   }
 
-  // ---- headline ----
-  const headlineOn = between(t, TL.headlineIn[0], TL.headlineOut[0] + TL.headlineOut[1]);
-  show(headlineEl, headlineOn);
-  if (headlineOn) {
-    const out = t >= TL.headlineOut[0] ? seg(t, TL.headlineOut, easeInOut) : 0;
+  // ---- headline (opening card leaves, closing card builds word by word) ----
+  const opening = t < TL.cardOut[0] + TL.cardOut[1];
+  const closing = t >= TL.headlineIn[0];
+  show(headlineEl, opening || closing);
+  if (opening || closing) {
+    headlineEl.style.transform = `translate(${px(d.dx)}, ${px(HEADLINE_Y - 540 + d.dy)})`;
     headlineWords.forEach((w, i) => {
-      const k = seg(t, [TL.headlineIn[0] + i * TL.headlineIn[1], 0.55]);
-      w.style.opacity = (k * (1 - out)).toFixed(4);
-      w.style.transform = `translateY(${px((1 - k) * 34 - out * 40)})`;
+      let k = 1, dy = 0;
+      if (opening) { k = 1 - seg(t, TL.cardOut, easeInOut); dy = 0 - (1 - k) * 30; }
+      else { k = seg(t, [TL.headlineIn[0] + i * TL.headlineIn[1], 0.5]); dy = (1 - k) * 34; }
+      w.style.opacity = k.toFixed(4);
+      w.style.transform = `translateY(${px(dy)})`;
     });
   }
 
   // ---- devin.ai ----
   const dai = $("devinai");
-  const daiOn = between(t, TL.devinaiIn[0], TL.devinaiOut[0] + TL.devinaiOut[1]);
-  show(dai, daiOn);
-  if (daiOn) {
-    const kin = seg(t, TL.devinaiIn);
-    const kout = t >= TL.devinaiOut[0] ? seg(t, TL.devinaiOut, easeInOut) : 0;
-    dai.style.opacity = (kin * (1 - kout)).toFixed(4);
-    dai.style.top = px(LOCKUP_RETURN.y + 118 + (1 - kin) * 18 + kout * 14 + d.dy);
+  const daiOpening = t < TL.cardOut[0] + TL.cardOut[1] * 0.9;
+  const daiClosing = t >= TL.devinaiIn[0];
+  show(dai, daiOpening || daiClosing);
+  if (daiOpening || daiClosing) {
+    const k = daiOpening ? 1 - seg(t, [TL.cardOut[0], TL.cardOut[1] * 0.9], easeInOut) : seg(t, TL.devinaiIn);
+    dai.style.opacity = k.toFixed(4);
+    dai.style.top = px(DEVINAI_TOP + (1 - k) * 18 + d.dy);
     dai.style.transform = `translateX(${px(d.dx)})`;
   }
 
