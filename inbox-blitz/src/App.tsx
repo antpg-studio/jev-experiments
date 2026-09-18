@@ -73,6 +73,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const moreRef = useRef<HTMLDetailsElement>(null);
   const filterLabels = useMemo(() => labelFilter.map((id) => labels.labels.find((l) => l.id === id)).filter((l): l is IntentLabel => Boolean(l)), [labelFilter, labels.labels]);
   const filterDone = filterLabels.length > 0 && filterLabels.every((l) => l.phase === "done");
 
@@ -127,13 +128,6 @@ export default function App() {
     // Only fire on completion; stats are read once at that moment.
   }, [done]);
 
-  // Every re-rank (triage or label run completing) jumps to the new top of the queue.
-  useEffect(() => {
-    if (rerankTick === 0) return;
-    if (sorted[0]) setSelectedId(sorted[0].email.id);
-    listRef.current?.scrollTo({ top: 0 });
-  }, [rerankTick]);
-
   const laneCounts = useMemo(() => {
     const c: Record<LaneFilter, number> = { all: 0, priority: 0, human: 0, fyi: 0, spam: 0, archived: 0, disagree: 0 };
     for (const r of rows) {
@@ -164,6 +158,13 @@ export default function App() {
     const matched = inLane.filter((r) => keep.has(r.email.id));
     return filterDone ? sortByMatch(matched.map((r) => ({ id: r.email.id, r })), filterLabels).map((x) => x.r) : matched;
   }, [sorted, laneFilter, archived, filterLabels, filterDone]);
+
+  // Every re-rank (triage or label run completing) jumps to the new top of the queue.
+  useEffect(() => {
+    if (rerankTick === 0) return;
+    if (visible[0]) setSelectedId(visible[0].email.id);
+    listRef.current?.scrollTo({ top: 0 });
+  }, [rerankTick]);
 
   // A label run finishing re-sorts the filtered view by match probability.
   useEffect(() => {
@@ -234,9 +235,6 @@ export default function App() {
         case "b":
           setRulesOn((v) => !v);
           break;
-        case "Enter":
-          if (phase === "idle") void triage.start(concurrency);
-          break;
         case "/":
           e.preventDefault();
           searchRef.current?.focus();
@@ -245,7 +243,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [move, archive, toggleReply, phase, triage, concurrency]);
+  }, [move, archive, toggleReply]);
 
   useEffect(() => {
     const el = listRef.current?.querySelector<HTMLElement>(`[data-id="${selectedId}"]`);
@@ -255,6 +253,7 @@ export default function App() {
   const isMock = meta?.mock ?? health?.mock ?? false;
   const modelLabel = meta?.model ?? health?.model ?? "jev-latest";
   const running = phase === "running";
+  const triaged = phase !== "idle";
 
   // The HUD follows whatever is (or was last) executing: a label run, else the triage run.
   const hudLabel = labels.active ?? (!running && filterLabels.length ? filterLabels[filterLabels.length - 1] : null);
@@ -386,23 +385,16 @@ export default function App() {
 
       <main className="body">
         <nav className="nav">
-          {running ? (
-            <button className="compose stop" onClick={triage.stop}>
-              <Icon d="M6 6h12v12H6z" />
-              <span>Stop</span>
-            </button>
-          ) : (
-            <button className="compose" onClick={() => void triage.start(concurrency)} title={`${EMAILS.length} emails · ${QUESTIONS_PER_EMAIL} judgments each`}>
-              <Icon d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
-              <span>{phase === "idle" ? "Triage" : "Re-triage"}</span>
-            </button>
-          )}
           <div className="nav-list">
             <NavItem id="all" label="Inbox" count={laneCounts.all} active={labelFilter.length ? null : laneFilter} set={pickLane} icon="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h3.56c.69 1.19 1.97 2 3.45 2h1.98c1.48 0 2.75-.81 3.45-2H20v6zm0-8h-5.99c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2H4V6h16v4z" />
-            <NavItem id="priority" label="Priority" count={laneCounts.priority} active={laneFilter} set={pickLane} icon="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-            <NavItem id="human" label="Needs review" count={laneCounts.human} active={laneFilter} set={pickLane} icon="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            <NavItem id="fyi" label="FYI" count={laneCounts.fyi} active={laneFilter} set={pickLane} icon="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
-            <NavItem id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={pickLane} icon="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z" />
+            {triaged && (
+              <>
+                <NavItem id="priority" label="Priority" count={laneCounts.priority} active={laneFilter} set={pickLane} icon="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                <NavItem id="human" label="Needs review" count={laneCounts.human} active={laneFilter} set={pickLane} icon="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                <NavItem id="fyi" label="FYI" count={laneCounts.fyi} active={laneFilter} set={pickLane} icon="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+                <NavItem id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={pickLane} icon="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z" />
+              </>
+            )}
             <NavItem id="archived" label="Archived" count={laneCounts.archived} active={laneFilter} set={pickLane} icon="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
             {rulesOn && <NavItem id="disagree" label="Rules ≠ Sift" count={laneCounts.disagree} active={laneFilter} set={pickLane} icon="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />}
           </div>
@@ -439,6 +431,7 @@ export default function App() {
             })}
           </div>
 
+          {triaged && (
           <div className="nav-section">
             <label className="nav-item toggle">
               <input type="checkbox" checked={rulesOn} onChange={(e) => setRulesOn(e.target.checked)} />
@@ -469,6 +462,7 @@ export default function App() {
               </div>
             )}
           </div>
+          )}
         </nav>
 
         <section className="card">
@@ -478,9 +472,20 @@ export default function App() {
               <button className="ib" aria-label="Refresh">
                 <Icon d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
               </button>
-              <button className="ib" aria-label="More">
-                <Icon d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
-              </button>
+              <details className="more" ref={moreRef}>
+                <summary className="ib" aria-label="More">
+                  <Icon d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+                </summary>
+                <div className="menu" onClick={() => moreRef.current?.removeAttribute("open")}>
+                  {running ? (
+                    <button onClick={triage.stop}>Stop triage</button>
+                  ) : (
+                    <button onClick={() => void triage.start(concurrency)} title={`${EMAILS.length} emails · ${QUESTIONS_PER_EMAIL} judgments each`}>
+                      {phase === "idle" ? "Triage inbox" : "Re-triage inbox"}
+                    </button>
+                  )}
+                </div>
+              </details>
             </div>
             <div className="tb-r">
               <span className="count">

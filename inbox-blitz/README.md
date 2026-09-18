@@ -156,7 +156,8 @@ npm run dev                   # server on :8787 + Vite on :5173, one command
 ```
 
 Open http://localhost:5173, press `/`, type an intent (e.g. *customers threatening to cancel*)
-and hit Enter — or press **Triage** for the fixed seven-question pass.
+and hit Enter. The fixed seven-question triage pass lives under the toolbar's **⋮ → Triage inbox**
+menu; its lanes (Priority, Needs review, FYI, Spam) and the keyword-rules comparison appear once it has run.
 
 Intent labels are live-only (`MOCK=1` only has recorded answers for the seven triage questions).
 
@@ -170,7 +171,7 @@ npm run lint && npm run typecheck && npm test && npm run build
 ```
 
 Keyboard: `/` focus the intent box, `j`/`k` or arrows move, `e` archive, `r` toggle
-reply-needed, `b` toggle keyword rules, `Enter` start triage.
+reply-needed, `b` toggle keyword rules.
 
 ## Notes on question design
 
