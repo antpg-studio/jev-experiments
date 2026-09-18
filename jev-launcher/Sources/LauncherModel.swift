@@ -36,7 +36,9 @@ final class LauncherModel: ObservableObject {
   private var indexTask: Task<Void, Never>?
 
   var isReady: Bool {
-    guard let judgment, judgmentIsFresh, let top = hits.first else { return false }
+    guard let judgment, judgmentIsFresh, selection == 0, let top = hits.first else {
+      return false
+    }
     if top.isGroup {
       // A set is ready when Jev clearly read the query as "all of them"; opening several
       // things at once should never ride on a hedged answer.
