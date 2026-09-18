@@ -47,11 +47,8 @@ function spanify(el, text) { el.textContent = text; }
 const headline = $('.headline');
 headline.innerHTML = COPY.headline.map((l) => `<span class="line"><span>${l}</span></span>`).join('');
 spanify($('#prompt-copy .lede .rise'), COPY.promptLede);
-spanify($('#prompt-copy .body .rise'), COPY.promptBody);
 spanify($('#code-copy .lede .rise'), COPY.codeLede);
-spanify($('#code-copy .body .rise'), COPY.codeBody);
 spanify($('#result-copy .lede .rise'), COPY.resultLede);
-spanify($('#result-copy .body .rise'), COPY.resultBody);
 $('#session-title').textContent = COPY.sessionTitle;
 $('#session-prompt').textContent = COPY.prompt;
 $('.cta').textContent = COPY.cta;
@@ -112,8 +109,8 @@ const promptText = $('#prompt-text'), caret = $('#prompt-caret'), cursor = $('#p
 const envPop = $('#env-pop'), envChip = $('#env-chip'), envLabel = $('#env-chip .env-label'), sendBtn = $('#send-btn');
 const popItems = [...document.querySelectorAll('.pop-item')];
 const wrap = $('#composer-wrap');
-const WRAP = { x: 760, y: 320 };      // matches .composer-wrap in styles.css
-const ZOOM = { scale: 1.35, at: { x: 820, y: 640 } }; // where the env chip sits while zoomed
+const WRAP = { x: 640, y: 256 };      // matches .composer-wrap in styles.css
+const ZOOM = { scale: 1.25, at: { x: 700, y: 640 } }; // where the env chip sits while zoomed
 let P = null;                          // measured local positions inside composer-wrap
 function measurePrompt() {
   wrap.style.transform = 'none';
@@ -140,7 +137,6 @@ function prompt(t) {
   const toAbs = (p) => ({ x: WRAP.x + tx + p.x * z, y: WRAP.y + ty + p.y * z });
   // copy
   riseIn($('#prompt-copy .lede .rise'), easeOut(prog(u, 0.2, 0.8)));
-  riseIn($('#prompt-copy .body .rise'), easeOut(prog(u, 0.35, 0.8)));
   $('#prompt-copy').style.opacity = String((1 - pOut) * (1 - zp));
   // composer wipe in / out
   // cursor path
@@ -174,13 +170,13 @@ function prompt(t) {
 }
 
 // 3 code
+const EDITOR = { bar: 54, pad: 18, line: 31, minLines: 4 }; // matches .editor-bar / .editor-body / #code-lines
 function code(t) {
   const { on, pIn, pOut, u } = sceneWindow('code', t);
   scenes.code.classList.toggle('on', on); if (!on) return;
   riseIn($('#code-copy .lede .rise'), easeOut(prog(u, 0.45, 0.8)));
-  riseIn($('#code-copy .body .rise'), easeOut(prog(u, 0.6, 0.8)));
   $('#code-copy').style.opacity = String(1 - pOut);
-  const chars = Math.floor(codeTotal * easeInOut(prog(u, 0.35, 2.9)));
+  const chars = Math.floor(codeTotal * easeInOut(prog(u, 0.15, 3.0)));
   let acc = 0, curIdx = -1;
   codeLis.forEach((li, i) => {
     const full = CODE[i]; const len = Math.max(full.length, 1);
@@ -194,7 +190,12 @@ function code(t) {
   });
   if (curIdx >= 0) codeLis[curIdx].classList.add('cur');
   else if (chars >= codeTotal) codeLis[codeLis.length - 1].classList.add('cur');
-  $('#editor').style.transform = `scale(${lerp(1, 1.03, easeInOut(prog(u, 0, 4)))})`;
+  // the panel is sized to the lines written so far and grows from its centre as code arrives
+  const visible = codeLis.filter((li) => li.style.visibility !== 'hidden').length;
+  const h = EDITOR.bar + EDITOR.pad * 2 + Math.max(visible, EDITOR.minLines) * EDITOR.line;
+  const ed = $('#editor');
+  ed.style.height = `${h}px`;
+  ed.style.top = `${Math.round((VIDEO.height - h) / 2)}px`;
 }
 
 // 4 session
@@ -244,7 +245,6 @@ function result(t) {
   const cx = 1348, cy = 470; // panel centre (desktop coords)
   img.style.transform = `translate(${420 - cx * sc}px, ${540 - cy * sc}px) scale(${sc})`;
   riseIn($('#result-copy .lede .rise'), easeOut(prog(u, 0.15, 0.85)));
-  riseIn($('#result-copy .body .rise'), easeOut(prog(u, 0.35, 0.85)));
   $('#result-copy').style.opacity = String(1 - pOut);
 }
 

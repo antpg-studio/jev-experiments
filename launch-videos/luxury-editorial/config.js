@@ -58,9 +58,7 @@ export const COPY = {
   headline: ['macOS.', 'Now in', 'Devin Cloud.'],
   prompt: 'Build Aster, an orbital mechanics lab for macOS, and run it on the Mac',
   promptLede: 'One request.',
-  promptBody: 'Devin now works on a Mac of its own in the cloud.',
   codeLede: 'Devin writes the Swift.',
-  codeBody: 'SwiftUI and AppKit, built on its Mac.',
   sessionTitle: 'Build Aster for macOS',
   steps: [
     { at: 12.6, text: 'Cloned macos-experiments and read the Aster README', done: 12.6 },
@@ -71,9 +69,7 @@ export const COPY = {
     { at: 18.6, text: 'Burn complete. Resuming flight', done: 20.4 },
   ],
   demoWord: 'Live.',
-  demoBody: 'Devin flies the mission itself. Time warp to 600×.',
   resultLede: 'Objective achieved.',
-  resultBody: 'Devin verified the 2,400 km transfer corridor on its own Mac.',
   cta: 'devin.ai',
 };
 
