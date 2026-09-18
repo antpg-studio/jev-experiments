@@ -89,8 +89,9 @@ h1 {
   color: var(--ink-3);
 }
 
-/* Launcher panel — a faithful HTML/CSS recreation of the real window.
-   --u is 1px at 680pt and scales down proportionally on narrow screens. */
+/* Launcher panel — an HTML/CSS recreation of the real window, set in the
+   page's serif. --u is 1px at 680pt and scales down proportionally on
+   narrow screens. */
 
 .panel {
   --u: min(1px, (100vw - 48px) / 680);
@@ -102,7 +103,6 @@ h1 {
   --p-faint: #616675;
   --p-accent: #6bc7ff;
   --p-ready: #73eb94;
-  --p-sans: ui-rounded, -apple-system, BlinkMacSystemFont, "SF Pro Rounded", system-ui, sans-serif;
   --p-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
   width: calc(680 * var(--u));
@@ -112,7 +112,7 @@ h1 {
   border: 1px solid var(--p-border);
   border-radius: calc(18 * var(--u));
   box-shadow: var(--shadow);
-  font-family: var(--p-sans);
+  font-family: var(--serif);
   text-align: left;
   overflow: hidden;
 }
@@ -134,7 +134,7 @@ h1 {
 }
 
 .p-query {
-  font-size: calc(24 * var(--u));
+  font-size: calc(25 * var(--u));
   line-height: 1;
   white-space: nowrap;
 }
@@ -187,8 +187,8 @@ h1 {
   line-height: 1.25;
 }
 
-.p-title { font-size: calc(15 * var(--u)); font-weight: 500; }
-.p-sub { font-size: calc(12 * var(--u)); color: var(--p-dim); }
+.p-title { font-size: calc(16 * var(--u)); font-weight: 500; }
+.p-sub { font-size: calc(13 * var(--u)); color: var(--p-dim); }
 
 .p-conf {
   display: flex;
@@ -232,7 +232,7 @@ h1 {
   border-radius: calc(6 * var(--u));
   background: rgba(115, 235, 148, 0.18);
   color: var(--p-ready);
-  font: 700 calc(12 * var(--u)) var(--p-sans);
+  font: 700 calc(13 * var(--u)) var(--serif);
 }
 
 .p-foot {
