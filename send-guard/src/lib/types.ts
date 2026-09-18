@@ -6,6 +6,12 @@ export interface Channel {
   label: string;
   audience: Audience;
   description: string;
+  kind: "channel" | "dm";
+  /** Slack Connect: shared with another organisation. */
+  shared?: boolean;
+  private?: boolean;
+  members: number;
+  topic: string;
 }
 
 export type SpanKind = "email" | "phone" | "key" | "money" | "date" | "url";

@@ -1,8 +1,10 @@
 # Send Guard
 
-**A Slack/Intercom-style composer where every pause in typing runs 10+ semantic judgments on the draft in ~100 ms — so the guard feels like a spellchecker, not a compliance gate.**
+**A pixel-faithful Slack-style workspace (own logo, invented "Northwind" org) where every pause in typing runs 10+ semantic judgments on the draft in ~100 ms — so the guard feels like a spellchecker, not a compliance gate.**
 
-![Send Guard replaying six scenarios](screenshots/send-guard-demo.webp)
+![Send Guard replaying six scenarios inside the Slack-style composer](screenshots/send-guard-demo.webp)
+
+The guard is woven into the composer people already know: culprit spans get a red wavy underline in the message box, the reason line sits under the text, and the Send button itself turns green / amber ("Send anyway") / red ("Blocked"). A **Send Guard** pane on the right (toggle with the shield icon in the top bar) shows the live judgments, the regex-only comparison, the latency HUD and the replay table. The whole UI renders at 1.15× (`--zoom` in `src/style.css`) so it demos well on a projector.
 
 ## The problem
 
@@ -66,9 +68,9 @@ npm ci
 TYPESAFE_API_KEY=… npm run dev      # Vite on :5173 + proxy on :8787
 ```
 
-Open http://localhost:5173, pick a channel, start typing — or press **▶ Replay 6 scenarios** to type six prepared drafts character by character (live API key, guaranteed ship date, polite refusal, hostile reply, internal pricing leak in the external channel, benign public update) while the latency histogram fills in.
+Open http://localhost:5173, pick a channel or DM in the sidebar (`#customer-acme` is a Slack Connect channel shared with a customer, `#eng-internal` is private, the Jordan Lee DM is a customer, `#public-community` is public), start typing — or press **▶ Replay** in the Send Guard pane to type six prepared drafts character by character (live API key, guaranteed ship date, polite refusal, hostile reply, internal pricing leak in the external channel, benign public update) while the latency histogram fills in.
 
-`MOCK=1 npm run dev` runs a clearly-labelled heuristic mode without the API (a `MOCK MODE` badge is shown; the numbers it produces are not Jev). Other scripts: `npm run build`, `npm run typecheck`, `npm run lint`, `npm test`.
+`MOCK=1 npm run dev` runs a clearly-labelled heuristic mode without the API (a `MOCK — heuristic answers, not Jev` badge is shown in the Send Guard pane; the numbers it produces are not Jev). Other scripts: `npm run build`, `npm run typecheck`, `npm run lint`, `npm test`.
 
 ## Measured numbers
 
@@ -76,14 +78,15 @@ From the recorded run above (real API, `jev-1.13.0`, Linux VM, measured in the b
 
 | metric | value |
 | --- | --- |
-| typing pauses judged | 77 |
-| judgments returned | 791 (10 core + 1 per candidate span, per pause) |
-| p50 end-to-end (browser → proxy → Jev → browser) | **100 ms** |
-| p95 end-to-end | 256 ms |
-| p50 API round trip (proxy ↔ api.typesafe.ai) | 95 ms |
-| p95 API round trip | 250 ms |
+| typing pauses judged | 81 |
+| judgments returned | 826 (10 core + 1 per candidate span, per pause) |
+| p50 end-to-end (browser → proxy → Jev → browser) | **105 ms** |
+| p95 end-to-end | 193 ms |
+| p50 API round trip (proxy ↔ api.typesafe.ai) | 100 ms |
+| p95 API round trip | 183 ms |
 | throughput | 85 judgments / s while typing |
-| per-pause cost | ~11 judgments in ~100 ms |
+| per-pause cost | ~10 judgments in ~105 ms |
+| stale requests cancelled | 2 |
 
 Scenario results on that run (Jev vs regex-only DLP):
 
@@ -91,14 +94,14 @@ Scenario results on that run (Jev vs regex-only DLP):
 | --- | --- | --- | --- | --- |
 | pasted a live API key | #eng-internal | block | **block** | block |
 | guaranteed ship date to a customer | #customer-acme | warn | **warn** | send |
-| polite refusal | DM: customer support | send | **send** | send |
-| hostile reply | DM: customer support | block | **block** | send |
+| polite refusal | DM: Jordan Lee (customer) | send | **send** | send |
+| hostile reply | DM: Jordan Lee (customer) | block | **block** | send |
 | internal pricing leak in external channel | #customer-acme | block | **block** | send |
 | benign status update | #public-community | send | **send** | send |
 
 Regex catches 1 of the 4 risky drafts; Jev catches all 4 and lets the two safe ones through, at ~100 ms per pause.
 
-![Send Guard after the replay](screenshots/send-guard.jpg)
+![Internal pricing leak blocked in the shared customer channel](screenshots/send-guard.jpg)
 
 ## Layout
 
@@ -111,7 +114,12 @@ src/lib/spans.ts      regex candidate-span locator
 src/lib/policy.ts     thresholds → send/warn/block + culprit spans
 src/lib/stats.ts      p50/p95, judgments/s, histogram buckets
 src/useGuard.ts       120 ms debounce, AbortController for stale requests, timing samples
-src/*.tsx             composer with mirrored highlight layer, chips, latency panel
+src/lib/channels.ts   channels/DMs with audience + Slack metadata (shared, private, members, topic)
+src/lib/seed.ts       invented people and message history for each channel
+src/Shell.tsx         top bar, workspace rail, sidebar (Slack-style chrome), custom Relay logo in Icons.tsx
+src/Messages.tsx      channel header + message timeline
+src/Composer.tsx      Slack composer with mirrored highlight layer, reason line, green/amber/red Send
+src/GuardPanel.tsx    Send Guard pane: verdict cards, chips, spans, latency HUD, replay table
 ```
 
 Unit tests cover the pure parts (`spans`, `policy`, `stats`, `questions`): `npm test`.
