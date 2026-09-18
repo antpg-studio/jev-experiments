@@ -27,21 +27,23 @@ export function Transcript({
   }, [rows.length, interim]);
 
   return (
-    <Pane idx={0} className="transcript" active={active} onActivate={onActivate} right={<span className="muted">{rows.length} utterances</span>}>
+    <Pane idx={0} className="transcript" active={active} onActivate={onActivate} right={<span className="muted">{rows.length} sentences</span>}>
       <div className="scroll">
         {micError && <p className="empty mic-error">{micError}</p>}
         {rows.length === 0 && !interim && !micError && (
           <p className="empty">
-            $ press <b>s</b> (or ▶ start) to replay the standup · <b>m</b> switches to live mic · <b>1</b>/<b>4</b>/<b>a</b> set speed
+            Press <b>Start meeting</b> to replay the standup. Every finished sentence is judged the moment it ends.
           </p>
         )}
         {rows.map((r) => (
           <div key={r.id} className={`utt ${r.status}`}>
+            <span className={`avatar sm ${speakerClass(r.speaker)}`}>{r.speaker[0]}</span>
+            <span className="utt-speaker">{r.speaker.split(" ")[0]}</span>
             <span className="utt-time">{fmtClock(r.endsAt)}</span>
-            <span className={`utt-speaker ${speakerClass(r.speaker)}`}>{r.speaker.split(" ")[0]}</span>
             <span className="utt-text">{r.text}</span>
             <span className="utt-tag">
               {r.status === "pending" && <span className="spin" title="judging…" />}
+              {r.status === "pending" && <span className="lat">judging</span>}
               {r.status === "error" && <span className="tag err" title={r.error}>error</span>}
               {r.status === "done" && r.judgment && (
                 <>
@@ -54,12 +56,22 @@ export function Transcript({
         ))}
         {interim && (
           <div className="utt interim">
+            <span className={`avatar sm ${speakerClass(micSpeaker)}`}>{micSpeaker[0] ?? "?"}</span>
+            <span className="utt-speaker">{micSpeaker}</span>
             <span className="utt-time">…</span>
-            <span className={`utt-speaker ${speakerClass(micSpeaker)}`}>{micSpeaker}</span>
             <span className="utt-text">{interim}</span>
           </div>
         )}
-        {running && !interim && <div className="utt"><span className="utt-time">&nbsp;</span><span /><span className="cursor" /></div>}
+        {running && !interim && (
+          <div className="utt listening">
+            <span className="avatar sm">…</span>
+            <span className="utt-speaker muted">Listening</span>
+            <span className="utt-time" />
+            <span className="utt-text">
+              <span className="cursor" />
+            </span>
+          </div>
+        )}
         <div ref={bottom} />
       </div>
     </Pane>

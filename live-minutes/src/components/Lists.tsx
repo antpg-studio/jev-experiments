@@ -31,7 +31,7 @@ export function Lists({ items, rows, attendees, onShown, onFix, active, onActiva
         return (
           <Pane key={b} idx={pane} className={`list ${b}`} active={active} onActivate={onActivate} right={<span className="count">{list.length}</span>}>
             <div className="scroll">
-              {list.length === 0 && <p className="empty">—</p>}
+              {list.length === 0 && <p className="empty">Nothing yet</p>}
               {list.map((x) => (
                 <ItemCard
                   key={x.id}

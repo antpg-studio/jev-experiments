@@ -20,17 +20,17 @@ export function PostMeetingPanel({ phase, clock, wallStart, wallEnd, items, acti
       className="baseline post"
       active={active}
       onActivate={onActivate}
-      title={<>post-meeting-summary <span className="pill illustrative">illustrative</span></>}
-      right={<span className="muted">{phase === "done" ? "delivered" : "waiting…"}</span>}
+      title={<>Post-meeting summary <span className="pill illustrative">illustrative</span></>}
+      right={<span className="muted">{phase === "done" ? "Delivered" : "Waiting…"}</span>}
     >
       <div className="scroll">
         {phase !== "done" ? (
           <div className="waiting">
             <div className="big-timer">{fmtClock(clock)}</div>
             <p>
-              {phase === "idle" ? "LLM-style summary: one prompt over the full transcript, after the meeting. Nothing until the call ends." : "Meeting in progress — the summariser has nothing to show yet."}
+              {phase === "idle" ? "The usual way: one big summarisation prompt over the whole transcript, after the call. Nothing until the meeting ends." : "Meeting in progress — the summariser has nothing to show yet."}
             </p>
-            <p className="muted small">Live items on the right have been visible for the whole time this counter has been running.</p>
+            <p className="muted small">The notes on the left have been visible for as long as this counter has been running.</p>
           </div>
         ) : (
           <div className="dump">
@@ -76,23 +76,23 @@ export function KeywordPanel({ rows, hasTruth, active, onActivate }: { rows: Row
       className="baseline keyword"
       active={active}
       onActivate={onActivate}
-      title={<>keyword-heuristic <span className="pill">old way</span></>}
-      right={<span className="muted mono small">/{ACTION_KEYWORDS.source.slice(0, 32)}…/</span>}
+      title={<>Keyword heuristic <span className="pill">old way</span></>}
+      right={<span className="muted mono small" title={ACTION_KEYWORDS.source}>/{ACTION_KEYWORDS.source.slice(0, 22)}…/</span>}
     >
       <div className="kw-stats">
         <div className="stat">
           <span className="v">{flagged.length}</span>
-          <span className="l">flagged</span>
+          <span className="l">Flagged</span>
         </div>
         {hasTruth && (
           <>
             <div className="stat bad">
               <span className="v">{(missRate * 100).toFixed(0)}%</span>
-              <span className="l">miss rate · {missed.length}/{trueActions.length} real action items</span>
+              <span className="l">Missed · {missed.length} of {trueActions.length} real action items</span>
             </div>
             <div className="stat bad">
               <span className="v">{fps.length}</span>
-              <span className="l">false positives</span>
+              <span className="l">False positives</span>
             </div>
             <div className="stat good">
               <span className="v">{trueActions.length ? (((trueActions.length - jevMissed.length) / trueActions.length) * 100).toFixed(0) : 0}%</span>
@@ -105,7 +105,7 @@ export function KeywordPanel({ rows, hasTruth, active, onActivate }: { rows: Row
         {hasTruth &&
           missed.slice(-6).map((r) => (
             <div key={r.id} className="kw-miss">
-              <span className="tag err">missed</span> <span className="muted">{r.speaker.split(" ")[0]}:</span> {r.text}
+              <span className="tag err">Missed</span> <span className="muted">{r.speaker.split(" ")[0]}:</span> {r.text}
             </div>
           ))}
         {!hasTruth && flagged.slice(-6).map((r) => <div key={r.id} className="kw-miss">{r.text}</div>)}
