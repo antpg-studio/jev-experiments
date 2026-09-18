@@ -3,7 +3,7 @@ import { EMAILS } from "./data/emails";
 import type { Category, Email, Judgment, JudgmentResult } from "./lib/types";
 import { SENTIMENT_LEVELS, URGENCY_LEVELS } from "./lib/types";
 import { DEFAULT_WEIGHTS, HUMAN_CONFIDENCE, lane, priority, rank, type Lane } from "./lib/priority";
-import { fmtMs, fmtUsd, QUESTIONS_PER_EMAIL } from "./lib/stats";
+import { fmtMs, QUESTIONS_PER_EMAIL } from "./lib/stats";
 import { agreement, classifyRules, DIMENSIONS, disagreements, type Dimension, type RuleVerdict } from "./lib/rules";
 import { useTriage } from "./useTriage";
 import { useLabels } from "./useLabels";
@@ -121,7 +121,7 @@ export default function App() {
   useEffect(() => {
     if (!done) return;
     setRerankTick((t) => t + 1);
-    setBanner(`${stats.processed} emails · ${stats.judgments.toLocaleString()} judgments in ${fmtMs(stats.elapsedMs)} — inbox re-ranked by priority`);
+    setBanner(`Inbox sorted by priority · ${fmtMs(stats.elapsedMs)}`);
     const id = setTimeout(() => setBanner(null), 4500);
     return () => clearTimeout(id);
     // Only fire on completion; stats are read once at that moment.
@@ -171,7 +171,7 @@ export default function App() {
     setRerankTick((t) => t + 1);
     const last = filterLabels[filterLabels.length - 1];
     const s = summarize(last.matches.values());
-    setBanner(`“${last.name}” — ${s.matched} of ${s.judged} emails match · ${s.judged} judgments in ${fmtMs(last.stats.elapsedMs)}`);
+    setBanner(`“${last.name}” · ${s.matched} of ${s.judged} emails · ${fmtMs(last.stats.elapsedMs)}`);
     const id = setTimeout(() => setBanner(null), 4500);
     return () => clearTimeout(id);
   }, [filterDone]);
@@ -348,20 +348,12 @@ export default function App() {
                 </div>
                 <div className="ir-stats">
                   <span>
-                    <b>{activeSummary.matched}</b> match
+                    <b>{activeSummary.matched}</b> {activeSummary.matched === 1 ? "match" : "matches"}
                   </span>
                   <span>
-                    <b>{labels.active.stats.processed}</b> / {labels.active.stats.total} judged
+                    {labels.active.stats.processed} of {labels.active.stats.total}
                   </span>
-                  <span>
-                    <b>{labels.active.stats.perSecond.toFixed(0)}</b> emails/s
-                  </span>
-                  <span>
-                    p50 <b>{fmtMs(labels.active.stats.p50)}</b>
-                  </span>
-                  <span>
-                    <b>{fmtMs(labels.active.stats.elapsedMs)}</b>
-                  </span>
+                  <span>{fmtMs(labels.active.stats.elapsedMs)}</span>
                 </div>
               </div>
             )}
@@ -504,30 +496,20 @@ export default function App() {
             {hudRunning && <div className="loading" style={{ width: `${pct}%`, background: hudLabel?.color }} />}
           </div>
 
-          <div className={`hud ${hudRunning ? "live" : ""}`}>
-            <div className="hud-title">
-              {hudLabel ? (
-                <>
-                  <span className="dot" style={{ background: hudLabel.color }} />
-                  <span className="ht-name">{hudLabel.name}</span>
-                  <span className="ht-sub">1 question · “{hudLabel.intent}”</span>
-                </>
-              ) : (
-                <>
-                  <Sparkle />
-                  <span className="ht-name">Triage</span>
-                  <span className="ht-sub">{QUESTIONS_PER_EMAIL} questions per email</span>
-                </>
+          {(hudLabel || phase !== "idle") && (
+            <div className={`hud ${hudRunning ? "live" : ""}`}>
+              {hudLabel ? <span className="dot" style={{ background: hudLabel.color }} /> : <Sparkle spin={hudRunning} />}
+              <span className="ht-name">{hudLabel ? hudLabel.name : hudRunning ? "Triaging" : "Triaged"}</span>
+              {hudLabel && (
+                <span>
+                  {summarize(hudLabel.matches.values()).matched} {summarize(hudLabel.matches.values()).matched === 1 ? "match" : "matches"}
+                </span>
               )}
+              <span>{hudRunning ? `${hudStats.processed} of ${hudStats.total}` : `${hudStats.processed} emails`}</span>
+              <span>{fmtMs(hudStats.elapsedMs)}</span>
+              {hudStats.errors > 0 && <span className="err-dot">{hudStats.errors} failed</span>}
             </div>
-            <Metric label={hudLabel ? "Match" : "Processed"} value={hudLabel ? `${summarize(hudLabel.matches.values()).matched}` : `${hudStats.processed}`} sub={hudLabel ? `of ${hudStats.processed} judged` : `of ${hudStats.total}${hudStats.errors ? ` · ${hudStats.errors} err` : ""}`} />
-            <Metric label="Judgments" value={hudStats.judgments.toLocaleString()} sub={`${hudLabel ? 1 : QUESTIONS_PER_EMAIL} per email`} />
-            <Metric label="Emails / sec" value={hudStats.perSecond.toFixed(1)} hot />
-            <Metric label="p50 latency" value={fmtMs(hudStats.p50)} sub="per request" />
-            <Metric label="p95 latency" value={fmtMs(hudStats.p95)} />
-            <Metric label="Elapsed" value={fmtMs(hudStats.elapsedMs)} hot={hudRunning} />
-            <Metric label="Cost" value={fmtUsd(hudStats.costUsd)} sub={`${hudStats.inputTokens.toLocaleString()} tok`} />
-          </div>
+          )}
 
           <div className="list" ref={listRef}>
             {visible.length === 0 && (
@@ -546,7 +528,6 @@ export default function App() {
                 error={errors.get(r.email.id)}
                 replyFlag={replyFlag.has(r.email.id)}
                 archived={archived.has(r.email.id)}
-                done={done}
                 labels={labels.labels}
                 filterLabels={filterLabels}
               />
@@ -596,18 +577,6 @@ function Logo() {
   );
 }
 
-function Metric({ label, value, sub, hot }: { label: string; value: string; sub?: string; hot?: boolean }) {
-  return (
-    <div className={`metric ${hot ? "hot" : ""}`}>
-      <div className="m-value">{value}</div>
-      <div className="m-label">
-        {label}
-        {sub && <span className="m-sub"> · {sub}</span>}
-      </div>
-    </div>
-  );
-}
-
 function Sparkle({ spin }: { spin?: boolean }) {
   return (
     <svg className={`sparkle ${spin ? "spin" : ""}`} viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -624,7 +593,7 @@ function LabelChips({ id, labels, filterLabels }: { id: string; labels: IntentLa
         if (!isMatch(m)) return null;
         const filtered = filterLabels.includes(l);
         return (
-          <span key={l.id} className={`badge user ${m!.match < SURE_THRESHOLD ? "soft" : ""}`} style={{ background: l.color }} title={`${l.intent} · ${(m!.match * 100).toFixed(0)}% · ${m!.latencyMs.toFixed(0)} ms`}>
+          <span key={l.id} className={`badge user ${m!.match < SURE_THRESHOLD ? "soft" : ""}`} style={{ background: l.color }} title={`${l.intent} · ${(m!.match * 100).toFixed(0)}%`}>
             {l.name}
             {filtered && <em>{(m!.match * 100).toFixed(0)}%</em>}
           </span>
@@ -700,10 +669,8 @@ function clock(iso: string): string {
   return `${h}:${m} ${ap}`;
 }
 
-function EmailRow({ row, index, selected, onSelect, rulesOn, error, replyFlag, archived, done, labels, filterLabels }: { row: Row; index: number; selected: boolean; onSelect: () => void; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
-  const { email, judgment, result } = row;
-  const lastFilter = filterLabels[filterLabels.length - 1];
-  const shownLatency = lastFilter ? lastFilter.matches.get(email.id)?.latencyMs : result?.latencyMs;
+function EmailRow({ row, index, selected, onSelect, rulesOn, error, replyFlag, archived, labels, filterLabels }: { row: Row; index: number; selected: boolean; onSelect: () => void; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; labels: IntentLabel[]; filterLabels: IntentLabel[] }) {
+  const { email, judgment } = row;
   const dis = rulesOn && row.disagree.length > 0;
   const needsReply = replyFlag || (judgment ? yes(judgment.needsReply) : false);
   const unread = !judgment || needsReply;
@@ -729,10 +696,6 @@ function EmailRow({ row, index, selected, onSelect, rulesOn, error, replyFlag, a
         <span className="subj">{email.subject}</span>
         <span className="snip"> - {snippet}</span>
       </span>
-      <span className="meta">
-        {judgment && done && <span className="prio" title="priority score (computed locally from the judgments)">{priority(judgment, DEFAULT_WEIGHTS).toFixed(0)}</span>}
-        {shownLatency !== undefined && <span className="lat" title="request latency, server-measured">{shownLatency.toFixed(0)} ms</span>}
-      </span>
       <span className="date">{clock(email.receivedAt)}</span>
     </div>
   );
@@ -748,7 +711,7 @@ function Prob({ label, p }: { label: string; p: number }) {
 }
 
 function Preview({ row, rulesOn, replyFlag, error, labels }: { row: Row; rulesOn: boolean; replyFlag: boolean; error?: string; labels: IntentLabel[] }) {
-  const { email, judgment, result, rule } = row;
+  const { email, judgment, rule } = row;
   const dis = new Set(row.disagree);
   const judgedLabels = labels.filter((l) => l.matches.has(email.id));
   return (
@@ -801,11 +764,6 @@ function Preview({ row, rulesOn, replyFlag, error, labels }: { row: Row; rulesOn
       <div className="pv-judg">
         <div className="pv-title">
           Sift judgments
-          {result && (
-            <span className="hint">
-              {result.latencyMs.toFixed(0)} ms · {result.inputTokens} tok{result.retries ? ` · ${result.retries} retries` : ""} · priority {judgment ? priority(judgment, DEFAULT_WEIGHTS).toFixed(1) : ""}
-            </span>
-          )}
         </div>
         {error && <div className="fatal small">{error}</div>}
         {judgment ? (
