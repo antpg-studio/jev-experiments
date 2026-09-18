@@ -9,32 +9,57 @@ export type CellView = {
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
-/** Diverging tint for a 0..1 position: red (0) → amber (0.5) → green (1). */
+/** Google Sheets' standard palette (the "light 2/3" fills of the conditional-format picker). */
+const RED = [244, 204, 204];
+const YELLOW = [255, 242, 204];
+const GREEN = [217, 234, 211];
+const PICK_FILLS = [
+  [207, 226, 243], // light blue
+  [217, 210, 233], // light purple
+  [252, 229, 205], // light orange
+  [217, 234, 211], // light green
+  [255, 242, 204], // light yellow
+  [234, 209, 220], // light magenta
+  [208, 224, 227], // light cyan
+  [244, 204, 204], // light red
+];
+
+const mix = (a: number[], b: number[], t: number) => a.map((x, i) => Math.round(x + (b[i] - x) * t));
+const rgba = (c: number[], alpha: number) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${alpha.toFixed(3)})`;
+
+/** red (0) → yellow (0.5) → green (1), Sheets colour-scale style. */
 function diverging(t: number, alpha: number): string {
-  const hue = 8 + clamp01(t) * 130; // 8 = red, 138 = green
-  return `hsla(${hue.toFixed(0)}, 70%, 45%, ${alpha.toFixed(3)})`;
+  const x = clamp01(t);
+  return rgba(x < 0.5 ? mix(RED, YELLOW, x * 2) : mix(YELLOW, GREEN, (x - 0.5) * 2), alpha);
+}
+
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
 }
 
 export function viewOf(v: Value): CellView {
   if (v === null || v === undefined) return { text: "", className: "cell" };
   if (isError(v)) {
-    if (v.error === "#PENDING") return { text: "…", className: "cell pending", title: "waiting for Jev" };
+    if (v.error === "#PENDING") return { text: "", className: "cell pending", title: "predicting…" };
     return { text: v.error, className: "cell error", title: v.message };
   }
   if (isJev(v)) {
     if (v.jev === "judge") {
       const p = typeof v.value === "number" ? v.value : 0;
-      // single-hue heat: intensity scales with probability
-      const bg = `rgba(56, 189, 248, ${(0.06 + p * 0.55).toFixed(3)})`;
+      const yes = p >= 0.5;
       return {
-        text: `${Math.round(p * 100)}%`,
+        text: `${yes ? "Yes" : "No"} · ${Math.round(p * 100)}%`,
         className: "cell jev judge",
-        style: { background: bg, color: p > 0.6 ? "#0b1220" : "#cbd5e1" },
-        title: `JUDGE → p=${p.toFixed(3)}`,
+        style: { background: rgba(yes ? GREEN : RED, 0.35 + Math.abs(p - 0.5) * 1.3) },
+        title: `probability ${p.toFixed(3)}`,
       };
     }
     if (v.jev === "pick") {
-      const bg = `rgba(167, 139, 250, ${(0.08 + v.confidence * 0.5).toFixed(3)})`;
+      const label = String(v.value);
+      const idx = Math.max(0, v.levels?.indexOf(label) ?? -1);
+      const fill = v.levels ? PICK_FILLS[idx % PICK_FILLS.length] : PICK_FILLS[hash(label) % PICK_FILLS.length];
       const probs = v.probabilities
         ? Object.entries(v.probabilities)
             .sort((a, b) => b[1] - a[1])
@@ -42,20 +67,20 @@ export function viewOf(v: Value): CellView {
             .join(" · ")
         : "";
       return {
-        text: String(v.value),
+        text: label,
         className: "cell jev pick",
-        style: { background: bg },
-        title: `PICK → ${v.value} (confidence ${Math.round(v.confidence * 100)}%)\n${probs}`,
+        style: { background: rgba(fill, 0.4 + v.confidence * 0.6) },
+        title: `${label} (confidence ${Math.round(v.confidence * 100)}%)\n${probs}`,
       };
     }
     const n = typeof v.value === "number" ? v.value : 0;
     const max = Math.max(1, (v.levels?.length ?? 2) - 1);
     const label = v.levels?.[Math.round(n)] ?? "";
     return {
-      text: formatNumber(n),
+      text: label || formatNumber(n),
       className: "cell jev rate",
-      style: { background: diverging(n / max, 0.12 + v.confidence * 0.5) },
-      title: `RATE → ${n} = ${label} (confidence ${Math.round(v.confidence * 100)}%)`,
+      style: { background: diverging(n / max, 0.45 + v.confidence * 0.55) },
+      title: `score ${n.toFixed(2)} of ${max} = ${label} (confidence ${Math.round(v.confidence * 100)}%)`,
     };
   }
   if (typeof v === "number") return { text: formatNumber(v), className: "cell num" };

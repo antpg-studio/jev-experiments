@@ -23,10 +23,10 @@ describe("fixtures", () => {
     const leadTexts = new Set(generateLeads(LEAD_COUNT).map((x) => x.text));
     expect(batches.length).toBe(reviewTexts.size + leadTexts.size);
     const reviewBatch = batches.find((b) => reviewTexts.has(b.text))!;
-    expect(reviewBatch.specs.map((s) => s.kind).sort()).toEqual(["judge", "judge", "pick", "rate"]);
+    expect(reviewBatch.specs.map((s) => s.kind)).toEqual(["rate"]);
     const leadBatch = batches.find((b) => leadTexts.has(b.text))!;
-    expect(leadBatch.specs.map((s) => s.kind).sort()).toEqual(["pick", "rate"]);
+    expect(leadBatch.specs.map((s) => s.kind)).toEqual(["pick"]);
     // Summary block evaluates without Jev answers (pending cells are skipped)
-    expect(wb.getValue("Reviews", 1, 9)).toBe(0);
+    expect(wb.getValue("Reviews", 1, 7)).toBe(0);
   });
 });
