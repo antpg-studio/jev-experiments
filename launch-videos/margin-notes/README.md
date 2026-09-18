@@ -21,6 +21,7 @@ Launch video for "macOS in Devin Cloud" in the Margin Notes direction: the produ
 | `index.html` | The composition. Exposes `window.seek(t)` so the renderer can draw any timestamp deterministically |
 | `render.mjs` | Extracts the take to JPEG frames, drives Chromium with Playwright, screenshots every frame, encodes with ffmpeg, writes the contact sheet |
 | `assets/` | Simulator take, Terminal capture, Devin logos |
+| `capture/` | How the take was recorded: `tap.swift` (CoreGraphics tap/drag/hold helper, `swiftc -O tap.swift -o tap`) and `record-take.sh` (installs the built app, starts `simctl recordVideo`, drives the interaction sequence). Screen coordinates assume the Simulator window placement used on the recording Mac |
 | `out/` | Render output (`margin-notes.mp4`, `contact-sheet.png`); PNG frames and stills are gitignored |
 
 ## Requirements
