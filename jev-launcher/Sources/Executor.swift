@@ -12,6 +12,11 @@ enum Executor {
     case .file(let url):
       NSWorkspace.shared.open(url)
       return "Opened \(candidate.title)"
+    case .url(let url):
+      openInBrowser([url])
+      return "Opened \(candidate.title)"
+    case .group(let members):
+      return executeGroup(members)
     case .webSearch(let query):
       var components = URLComponents(string: "https://www.google.com/search")!
       components.queryItems = [URLQueryItem(name: "q", value: query)]
@@ -26,6 +31,35 @@ enum Executor {
       return "Running shortcut \(name)"
     case .toggle(let toggle):
       return performToggle(toggle)
+    }
+  }
+
+  /// Opens every member. Web pages go to the browser in one call so they land as tabs of one
+  /// window; everything else runs through the normal single-item path.
+  @MainActor
+  static func executeGroup(_ members: [Candidate]) -> String {
+    var urls: [URL] = []
+    var others: [Candidate] = []
+    for member in members {
+      if case .url(let url) = member.payload { urls.append(url) } else { others.append(member) }
+    }
+    if !urls.isEmpty { openInBrowser(urls) }
+    for other in others { _ = execute(other) }
+    return "Opened \(members.count) items"
+  }
+
+  static let chromeBundleID = "com.google.Chrome"
+
+  /// History comes from Chrome, so pages reopen there when it is installed; otherwise the
+  /// default browser. URLs are passed as values, never through a shell.
+  @MainActor
+  static func openInBrowser(_ urls: [URL]) {
+    if let chrome = NSWorkspace.shared.urlForApplication(withBundleIdentifier: chromeBundleID) {
+      NSWorkspace.shared.open(urls, withApplicationAt: chrome, configuration: .init()) {
+        _, _ in
+      }
+    } else {
+      for url in urls { NSWorkspace.shared.open(url) }
     }
   }
 

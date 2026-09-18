@@ -57,12 +57,16 @@ struct JevRequest: Encodable, Sendable {
     }
     let query: String
     let queryNote: String
+    /// Present when the query contained a time phrase; the candidate list is already filtered
+    /// to that period in code, so Jev only needs to know the period was honoured.
+    let timeWindow: String?
     let context: LaunchContext
     let candidates: [CandidateSummary]
 
     enum CodingKeys: String, CodingKey {
       case query
       case queryNote = "query_note"
+      case timeWindow = "time_window"
       case context
       case candidates
     }
@@ -106,23 +110,33 @@ struct JevJudgment: Equatable, Sendable {
   var actionConfidence: Double
   /// Probability that Enter should execute the top hit without the user needing to see a list.
   var ready: Double
+  /// Probability that the user means every matching item rather than one specific item.
+  var setProbability: Double = 0
+  /// Per-candidate probability that the candidate fits the description in the query.
+  var matchProbabilities: [String: Double] = [:]
 }
 
 enum JevQuestions {
   static let model = "jev-latest"
   static let noneOption = "none"
-  static let maxCandidates = 15
+  static let maxCandidates = 32
+  static let scopeOne = "one"
+  static let scopeAll = "all"
 
   static let queryNote =
     "Text the user has typed so far into a Spotlight-style macOS launcher. It is often an incomplete prefix or a short natural-language phrase."
 
-  /// Builds one fan-out request: three independent questions over one state.
-  static func buildRequest(query: String, context: LaunchContext, candidates: [Candidate])
+  /// Builds one fan-out request over one state: target Choice, action Choice, ready Noul,
+  /// a one-vs-all scope Choice, and one match Noul per candidate so that sets can be selected.
+  static func buildRequest(
+    query: String, context: LaunchContext, candidates: [Candidate], window: TimeWindow? = nil
+  )
     -> JevRequest
   {
     let shown = Array(candidates.prefix(maxCandidates))
     var summaries: [JevRequest.State.CandidateSummary] = []
     var targetCriteria: [String: String] = [:]
+    var questions: [String: JevRequest.Question] = [:]
     for (index, candidate) in shown.enumerated() {
       let shortID = "c\(index)"
       summaries.append(
@@ -131,6 +145,14 @@ enum JevQuestions {
           detail: candidate.subtitle))
       targetCriteria[shortID] =
         "\(candidate.kind.label): \(candidate.title) — \(candidate.subtitle)"
+      guard candidate.kind != .webSearch, candidate.kind != .calculate else { continue }
+      questions[matchKey(index)] = JevRequest.Question(
+        type: "noul",
+        instructions:
+          "Consider only the candidate with id `\(shortID)` in `candidates`. Judged on its own, does it fit the description the user typed in `query`? Ignore whether other candidates fit better; several candidates may all fit. A time phrase in `query` has already been applied, so do not reject the candidate for its age.",
+        criteria: .yesNo(
+          yes: "This candidate's title, detail and kind fit what `query` describes.",
+          no: "This candidate does not fit the description in `query`."))
     }
     targetCriteria[noneOption] = "None of the listed candidates is what the user means."
 
@@ -158,11 +180,28 @@ enum JevQuestions {
           "Several candidates fit `query` roughly equally, or only the web_search fallback fits, so the user should choose from the list."
       ))
 
+    let scope = JevRequest.Question(
+      type: "choice",
+      instructions:
+        "Does `query` refer to one specific item, or to every item that fits a description? Plural nouns, words like all, every, everything, the links, the files, and phrases describing a period of activity (\"the pages I visited today\") mean all. A singular noun, a name, or \"the X I just …\" means one, even if several candidates loosely fit.",
+      criteria: .options([
+        scopeOne: "The user wants exactly one item opened or run.",
+        scopeAll: "The user wants every candidate that fits the description opened together.",
+      ]))
+
+    questions["target"] = target
+    questions["action"] = action
+    questions["ready"] = ready
+    questions["scope"] = scope
     return JevRequest(
-      state: .init(query: query, queryNote: queryNote, context: context, candidates: summaries),
+      state: .init(
+        query: query, queryNote: queryNote, timeWindow: window?.description, context: context,
+        candidates: summaries),
       model: model,
-      questions: ["target": target, "action": action, "ready": ready])
+      questions: questions)
   }
+
+  static func matchKey(_ index: Int) -> String { "match_c\(index)" }
 
   /// Maps the short ids in a response back to the candidates that were sent.
   static func parse(_ response: JevResponse, candidates: [Candidate]) -> JevJudgment? {
@@ -180,6 +219,10 @@ enum JevQuestions {
       if let kind = ActionKind(rawValue: key) { actionProbabilities[kind] = value }
     }
     let action = actionAnswer?.choice.flatMap(ActionKind.init(rawValue:)) ?? .unclear
+    var matches: [String: Double] = [:]
+    for (index, candidate) in shown.enumerated() {
+      if let noul = response.answers[matchKey(index)]?.noul { matches[candidate.id] = noul }
+    }
     return JevJudgment(
       targetProbabilities: targets,
       noneProbability: probabilities[noneOption] ?? 0,
@@ -187,6 +230,8 @@ enum JevQuestions {
       action: action,
       actionProbabilities: actionProbabilities,
       actionConfidence: actionAnswer?.confidence ?? 0,
-      ready: response.answers["ready"]?.noul ?? 0)
+      ready: response.answers["ready"]?.noul ?? 0,
+      setProbability: response.answers["scope"]?.probabilities?[scopeAll] ?? 0,
+      matchProbabilities: matches)
   }
 }

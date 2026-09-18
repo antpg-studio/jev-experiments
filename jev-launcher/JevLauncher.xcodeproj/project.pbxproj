@@ -9,8 +9,10 @@
 /* Begin PBXBuildFile section */
 		0A3131FD056A9BB77AE2531C /* CalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EC08356D4BB9015E71450EC /* CalculatorTests.swift */; };
 		1CEBFF657F1C9BD8042BE33B /* StatsAndIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */; };
+		2D901C733F4096D81B04C883 /* TimeWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AC71663AC83731AF4D5D1E /* TimeWindow.swift */; };
 		2F25A06D065A6FC73ABD5DF5 /* Ranker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */; };
 		5152F52E9FF4C8C1AC4735D1 /* Fuzzy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364AB77D4E5E2C84224EF6D8 /* Fuzzy.swift */; };
+		5C278B0DA6719F02D2F14713 /* SetsAndHistoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7B956AE5A913ECE64ED1A37 /* SetsAndHistoryTests.swift */; };
 		7422E3AACC95E38E9CAD294C /* JevQuestionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */; };
 		7624E1801292443844BA082F /* JevQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC5AE9F9DB8086F755633ACB /* JevQuestions.swift */; };
 		7AEE5718C424116E00571207 /* JevLauncherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA4F2A3387CD6B7EE692C12 /* JevLauncherApp.swift */; };
@@ -18,6 +20,7 @@
 		8C8263B1CF8EB2DDB286D370 /* JevClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 781D7E1A1227797B76B6AB81 /* JevClient.swift */; };
 		B47E380FA12909D19DD56F72 /* LatencyStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFA2B0083CA208C66E94437 /* LatencyStats.swift */; };
 		C2F425CB423982628531693B /* LauncherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E414ABBE8C4B65435AF1DEE /* LauncherView.swift */; };
+		CB3BB6FF7D58AD799523CD12 /* ChromeHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6AE5CA94C19B94A7654FA7B /* ChromeHistory.swift */; };
 		CC4E85F50160876CA6E08C02 /* HotKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AE5996EE56BBE0F79713E4 /* HotKey.swift */; };
 		CD888953163671058C582738 /* LauncherPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC611D803571AD8C3726794 /* LauncherPanel.swift */; };
 		D8B05EF6F16144F72EAFBA2A /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11F9739CE18CF22459CEF03 /* Calculator.swift */; };
@@ -54,8 +57,11 @@
 		9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ranker.swift; sourceTree = "<group>"; };
 		9EC08356D4BB9015E71450EC /* CalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTests.swift; sourceTree = "<group>"; };
 		A4AE5996EE56BBE0F79713E4 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
+		A7B956AE5A913ECE64ED1A37 /* SetsAndHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetsAndHistoryTests.swift; sourceTree = "<group>"; };
 		B11F9739CE18CF22459CEF03 /* Calculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculator.swift; sourceTree = "<group>"; };
+		B6AE5CA94C19B94A7654FA7B /* ChromeHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeHistory.swift; sourceTree = "<group>"; };
 		B6FAB00F4D64BADE280B59A3 /* Executor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Executor.swift; sourceTree = "<group>"; };
+		C2AC71663AC83731AF4D5D1E /* TimeWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeWindow.swift; sourceTree = "<group>"; };
 		CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsAndIndexTests.swift; sourceTree = "<group>"; };
 		CC5AE9F9DB8086F755633ACB /* JevQuestions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JevQuestions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -67,6 +73,7 @@
 				9EC08356D4BB9015E71450EC /* CalculatorTests.swift */,
 				85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */,
 				4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */,
+				A7B956AE5A913ECE64ED1A37 /* SetsAndHistoryTests.swift */,
 				CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */,
 			);
 			path = Tests;
@@ -95,6 +102,7 @@
 			children = (
 				B11F9739CE18CF22459CEF03 /* Calculator.swift */,
 				29D5C1AB51EC9E299A063CF0 /* Candidate.swift */,
+				B6AE5CA94C19B94A7654FA7B /* ChromeHistory.swift */,
 				B6FAB00F4D64BADE280B59A3 /* Executor.swift */,
 				364AB77D4E5E2C84224EF6D8 /* Fuzzy.swift */,
 				A4AE5996EE56BBE0F79713E4 /* HotKey.swift */,
@@ -107,6 +115,7 @@
 				7E414ABBE8C4B65435AF1DEE /* LauncherView.swift */,
 				9C3611FA2E6B7D612B0B19F1 /* LocalIndex.swift */,
 				9E7FD548C3DCCAAD3B79F785 /* Ranker.swift */,
+				C2AC71663AC83731AF4D5D1E /* TimeWindow.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -196,6 +205,7 @@
 				0A3131FD056A9BB77AE2531C /* CalculatorTests.swift in Sources */,
 				7422E3AACC95E38E9CAD294C /* JevQuestionsTests.swift in Sources */,
 				F7788AB8E529DF9AC18D6B7D /* RankingTests.swift in Sources */,
+				5C278B0DA6719F02D2F14713 /* SetsAndHistoryTests.swift in Sources */,
 				1CEBFF657F1C9BD8042BE33B /* StatsAndIndexTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -206,6 +216,7 @@
 			files = (
 				D8B05EF6F16144F72EAFBA2A /* Calculator.swift in Sources */,
 				84AA30C3BBE5B1D2AD7F48BA /* Candidate.swift in Sources */,
+				CB3BB6FF7D58AD799523CD12 /* ChromeHistory.swift in Sources */,
 				F9198A994AC8E40D74BACD3B /* Executor.swift in Sources */,
 				5152F52E9FF4C8C1AC4735D1 /* Fuzzy.swift in Sources */,
 				CC4E85F50160876CA6E08C02 /* HotKey.swift in Sources */,
@@ -218,6 +229,7 @@
 				C2F425CB423982628531693B /* LauncherView.swift in Sources */,
 				DFFD9F58A57B977DB52D3D0D /* LocalIndex.swift in Sources */,
 				2F25A06D065A6FC73ABD5DF5 /* Ranker.swift in Sources */,
+				2D901C733F4096D81B04C883 /* TimeWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

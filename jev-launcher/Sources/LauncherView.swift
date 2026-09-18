@@ -141,6 +141,14 @@ struct HitRow: View {
           .lineLimit(1)
       }
       Spacer(minLength: 12)
+      if hit.inSet {
+        Image(systemName: "checkmark.circle.fill")
+          .font(.system(size: 13, weight: .semibold))
+          .foregroundStyle(Theme.accent)
+          .opacity(stale ? 0.45 : 1)
+          .help("Part of the set the “Open all” row opens")
+          .transition(.opacity)
+      }
       Confidence(probability: hit.jevProbability, emphasized: selected, stale: stale)
       if ready {
         Text("↵")
@@ -157,6 +165,7 @@ struct HitRow: View {
         .fill(selected ? Theme.surface : Color.clear)
     )
     .animation(.easeOut(duration: 0.12), value: ready)
+    .animation(.easeOut(duration: 0.12), value: hit.inSet)
     .contentShape(Rectangle())
     .accessibilityElement(children: .combine)
     .accessibilityLabel("\(hit.candidate.title), \(hit.candidate.kind.label)")
@@ -204,6 +213,23 @@ struct CandidateIcon: View {
         .resizable()
         .interpolation(.high)
         .frame(width: 32, height: 32)
+    case .group(let members):
+      ZStack {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+          .fill(tint)
+          .frame(width: 32, height: 32)
+        Image(systemName: "square.stack.3d.up.fill")
+          .font(.system(size: 14, weight: .semibold))
+          .foregroundStyle(Theme.text)
+        Text("\(members.count)")
+          .font(.system(size: 9, weight: .bold, design: .rounded))
+          .foregroundStyle(Theme.background)
+          .padding(.horizontal, 4)
+          .frame(height: 13)
+          .background(Theme.accent, in: Capsule())
+          .offset(x: 13, y: -12)
+      }
+      .frame(width: 32, height: 32)
     default:
       Image(systemName: symbol)
         .font(.system(size: 14, weight: .semibold))
@@ -217,6 +243,7 @@ struct CandidateIcon: View {
     switch candidate.kind {
     case .openApp: return "app.fill"
     case .openFile: return "doc.fill"
+    case .openURL: return "link"
     case .webSearch: return "globe"
     case .calculate: return "equal"
     case .systemToggle: return "switch.2"
@@ -229,6 +256,7 @@ struct CandidateIcon: View {
     switch candidate.kind {
     case .calculate: return Color(red: 0.95, green: 0.55, blue: 0.25)
     case .webSearch: return Color(red: 0.30, green: 0.55, blue: 0.95)
+    case .openURL: return Color(red: 0.25, green: 0.62, blue: 0.85)
     case .systemToggle: return Color(red: 0.50, green: 0.52, blue: 0.60)
     case .runShortcut: return Color(red: 0.62, green: 0.40, blue: 0.95)
     default: return Theme.faint
@@ -238,7 +266,9 @@ struct CandidateIcon: View {
 
 struct EmptyHint: View {
   @ObservedObject var model: LauncherModel
-  private let examples = ["dark", "wifi off", "15% of 240", "the pdf I just downloaded", "sleep"]
+  private let examples = [
+    "dark", "wifi off", "15% of 240", "the pdf I just downloaded", "links I visited today",
+  ]
 
   var body: some View {
     HStack(spacing: 8) {
