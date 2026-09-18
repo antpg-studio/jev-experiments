@@ -81,11 +81,11 @@
   const leadBlue = mk('path', { d: `M -40 120 C 200 140, 240 ${W.y0 - 20}, ${W.x0} ${W.y0}`, fill: 'none', stroke: C.colors.blue, 'stroke-width': W.stroke, 'stroke-linecap': 'round' });
   const leadInk = mk('path', { d: `M 1960 120 C 1700 140, 1680 ${W.y0 - 20}, ${W.x1} ${W.y0}`, fill: 'none', stroke: C.colors.ink, 'stroke-width': W.stroke, 'stroke-linecap': 'round' });
   const hStr = [], vStr = [], overSegs = [];
-  const hy = []; for (let y = W.y0; y <= W.y1 + 0.1; y += W.step) hy.push(y);
-  const vx = []; for (let x = W.x0; x <= W.x1 + 0.1; x += W.step) vx.push(x);
+  const hy = []; for (let y = W.y0; y <= W.y1 + 0.1; y += W.stepY) hy.push(y);
+  const vx = []; for (let x = W.x0; x <= W.x1 + 0.1; x += W.stepX) vx.push(x);
   hy.forEach((y) => hStr.push(mk('line', { x1: W.x0, y1: y, x2: W.x1, y2: y, stroke: C.colors.blue, 'stroke-width': W.stroke, 'stroke-linecap': 'round' })));
   vx.forEach((x) => vStr.push(mk('line', { x1: x, y1: W.y0, x2: x, y2: W.y1, stroke: C.colors.ink, 'stroke-width': W.stroke, 'stroke-linecap': 'round' })));
-  const half = W.step * 0.36;
+  const half = W.cross;
   hy.forEach((y, j) => vx.forEach((x, i) => {
     if ((i + j) % 2 !== 0) return;
     const g = mk('g', {});
@@ -102,13 +102,11 @@
 
   // Outcome phones.
   const outP = document.querySelectorAll('#outcomes .phone');
-  const outScale = L.outcomeScale;
-  const gap = 90;
-  const pw = 442 * outScale, lw = 914 * outScale;
-  const total = pw + gap + lw;
-  const centerY = (W.y0 + W.y1) / 2;
-  outP[0].style.transform = `translate(${-total / 2 + pw / 2}px, ${centerY - 540}px) scale(${outScale})`;
-  outP[1].style.transform = `translate(${total / 2 - lw / 2}px, ${centerY - 540}px) scale(${outScale})`;
+  const O = L.outcome;
+  const pw = 442 * O.portraitScale, lw = 914 * O.landscapeScale;
+  const total = pw + O.gap + lw;
+  outP[0].style.transform = `translate(${-total / 2 + pw / 2}px, ${O.centerY - 540}px) scale(${O.portraitScale})`;
+  outP[1].style.transform = `translate(${total / 2 - lw / 2}px, ${O.centerY - 540}px) scale(${O.landscapeScale})`;
 
   // Session threads.
   const thBlue = $('thBlue'), thInk = $('thInk');
@@ -252,8 +250,10 @@
       // editor vs computer
       const codeN = Math.round(codeChars.length * seg(t, T.codeStart, T.codeEnd - T.codeStart));
       renderCode(codeN);
-      const eo = 1 - easeInOutCubic(seg(t, T.editorOut, T.editorOutDur));
-      $('editor').style.opacity = eo; setVis($('editor'), eo > 0.001);
+      // editor pushes up and out of the pane while the computer view pushes in from below
+      const push = easeInOutCubic(seg(t, T.editorOut, T.editorOutDur));
+      $('editor').style.transform = `translateY(${-push * geo.pane.h}px)`; setVis($('editor'), push < 0.999);
+      $('computer').style.transform = `translateY(${(1 - push) * geo.pane.h}px)`;
       // chat blocks
       const swap = easeInOutCubic(seg(t, T.chatSwap, 0.4));
       const block1 = [$('uMsg1'), $('dMsg1'), $('steps1')], block2 = [$('uMsg2'), $('dMsg2'), $('steps2')];
@@ -280,8 +280,7 @@
       const landscape = t >= T.rotateStart + T.rotateDur;
       setVis(pP, !landscape); setVis(pL, landscape);
       const ps = L.phoneScale;
-      const enter = easeOutQuint(seg(t, T.editorOut, 0.7));
-      pP.style.transform = `scale(${ps * lerp(0.96, 1, enter)}) rotate(${-90 * rot}deg)`;
+      pP.style.transform = `scale(${ps}) rotate(${-90 * rot}deg)`;
       pP.style.opacity = 1;
       $('imgSilver').style.opacity = 1 - easeInOutCubic(seg(t, T.rotateStart, 0.3));
       pL.style.transform = `scale(${ps})`;

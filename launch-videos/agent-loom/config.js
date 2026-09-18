@@ -95,9 +95,9 @@ const CONFIG = {
     // Scene C: session
     sRise: 8.4, sRiseDur: 0.7,
     codeStart: 8.5, codeEnd: 9.95,
-    editorOut: 9.85, editorOutDur: 0.45,
-    silverStart: 10.0,
-    blueDraw: 10.0, blueDrawDur: 1.5,
+    editorOut: 9.85, editorOutDur: 0.6,
+    silverStart: 10.15,
+    blueDraw: 10.1, blueDrawDur: 1.5,
     rotateStart: 18.35, rotateDur: 0.6,
     rtxStart: 18.9,
     inkDraw: 18.9, inkDrawDur: 1.4,
@@ -130,11 +130,11 @@ const CONFIG = {
   },
 
   layout: {
-    composer: { left: 340, top: 350, width: 1240 },
+    composer: { left: 340, top: 316, width: 1240 },
     session: { left: 80, top: 60, width: 1760, height: 960, chatWidth: 640 },
     phoneScale: 0.9,
-    outcomeScale: 0.6,
-    weave: { x0: 300, x1: 1620, y0: 300, y1: 828, step: 48, stroke: 13 },
+    outcome: { portraitScale: 0.68, landscapeScale: 0.96, gap: 96, centerY: 620 },
+    weave: { x0: 220, x1: 1700, y0: 330, y1: 910, stepX: 185, stepY: 145, stroke: 12, cross: 22 },
   },
 };
 
