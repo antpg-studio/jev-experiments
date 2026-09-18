@@ -1,6 +1,6 @@
 # ModStream — pre-publish chat moderation at chat speed
 
-![ModStream mid-run: raid recovered, review and care queues populated](screenshots/modstream.jpg)
+![ModStream with larger chat text, live metrics, and a moderation inbox](screenshots/modstream.jpg)
 
 ![Live run](screenshots/modstream-demo.webp)
 
@@ -40,7 +40,7 @@ Jev returns probabilities, not text. **Everything else is code**: `shared/policy
 4. Jev chose `escalate_to_human`, or its action confidence `< 0.6` → **human review** queue (approve / reject buttons);
 5. otherwise **allow**.
 
-Because policy is pure, dragging a threshold in the ⚙ drawer re-decides the last 500 messages from their stored judgments **instantly, with no new inference** — which is what makes the settings drawer usable at all.
+Because policy is pure, dragging a threshold in the settings drawer re-decides the last 500 messages from their stored judgments **instantly, with no new inference** — which is what makes the settings drawer usable at all. The policy indicator shows when custom thresholds are active.
 
 Other engineering bits: FIFO concurrency limiter (default 16 in flight, adjustable live), exponential backoff with jitter on 429 / 529 / 5xx and network errors, 3 s request timeout, per-message `queuedMs / jevMs / heldMs` timings, and a clearly labelled `MOCK=1` mode that replays canned judgments (the header shows a yellow **MOCK MODE** badge; the default hits the real API).
 
@@ -54,7 +54,9 @@ npm ci
 npm run dev          # starts the Node server on :8787 and Vite on :5173
 ```
 
-Open http://localhost:5173, press **▶ Go live**, then **⚡ Raid** to dump 150 spam/harassment messages onto the queue and watch it drain. Drag the rate slider to 40–60 msg/s. Open **⚙ Thresholds** and move a slider to see the whole window re-decide.
+Open http://localhost:5173, press **Go live**, then **Simulate raid** to dump 150 spam/harassment messages onto the queue and watch it drain. Drag the rate slider to 40–60 msg/s. Open **Thresholds** and move a slider to see the whole window re-decide.
+
+The moderation workspace uses larger chat text and three primary metrics: throughput, p95 hold time, and in-flight/queued requests. Search by message or participant, switch to **Interventions**, and use the **Human review** and **Care** tabs in the moderation inbox. The latency trace and p50/p95 values use the last 300 measured hold times. Expand **View judgment** on a review item for individual signal probabilities, or **Actions taken** below the chat for decision totals. The sidebar is collapsed initially; policy settings open in a centered dialog.
 
 ```sh
 MOCK=1 npm run dev   # offline demo, canned judgments, labelled MOCK MODE in the UI
@@ -73,7 +75,7 @@ Headless run of the same server (`ws://localhost:8787/ws`, real `jev-latest`, co
 | raid: +150 messages in 1.5 s | queue peaks at ~16 in flight / ~48 queued and is back to 0 / 0 within ~5 s |
 | API / parse errors | **0** of 1,361 requests, 1 retry |
 
-Browser run behind the screenshot and recording (rate 40, 1,323 messages): 37 releases/s sustained, hold p50/p95 114 / 515 ms, Jev p50/p95 100 / 423 ms, 0 errors.
+Latest workspace capture (real API, default thresholds, rate 40, concurrency 16): the final frame shows 6,096 moderated messages, 33.7 releases/s over the rolling three-second window, hold and Jev p50/p95 of 117 / 514 ms, and 0 API errors. These are live snapshot values, not an average over the entire run. During the 20-second recording, a raid snapshot shows 16 in flight / 38 queued; the final frame has 5 in flight / 0 queued. The original 1920×1080, 30 fps MP4 was delivered separately; the animation above is a smaller derivative.
 
 Ground truth comes from the fixture: `shared/corpus.ts` labels every generated line, so both filters are scored live against the same 1,361 messages:
 
@@ -83,7 +85,7 @@ Ground truth comes from the fixture: `shared/corpus.ts` labels every generated l
 | **Jev + policy** | **381 of 383 (99.5 %)** — slur evasion 52/52, scam 58/58, doxxing 21/21, harassment 116/116, spam 109/109, political derailing 25/27 (1 allowed, 1 held for review) | **0 of 958** |
 | self-harm (20 messages) | 20/20 routed to the care queue with the supportive auto-reply — none hidden or banned | |
 
-Notes: with default thresholds Jev is confident enough that the human-review queue stays almost empty (1 of 1,361); the screenshot above was taken with the *Hide* threshold raised to 0.95 to show the queue populated. A message held for review counts as neither caught nor wrongly blocked until a moderator decides.
+Notes: with default thresholds the human-review queue is usually sparse (1 of 1,361 in the headless run). The redesigned screenshot and animation use default thresholds, with one review item and four care items visible in the final frame. Raising the *Hide* threshold to 0.95 can route more borderline cases to review for demonstration; the workspace labels custom thresholds explicitly. A message held for review counts as neither caught nor wrongly blocked until a moderator decides.
 
 ## Layout
 
