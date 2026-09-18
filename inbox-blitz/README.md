@@ -43,8 +43,9 @@ The Gmail search pill is an *intent* box, not a keyword box. Type a description 
    > keywords? — `true`: clearly fits · `false`: does not fit, or only mentions related words in
    > passing, sarcastically, in quoted history or in marketing copy.
 
-2. Match probabilities stream back as NDJSON; the UI shows progress, matches so far, emails/s,
-   p50 and elapsed in a Sheets-style card under the search bar.
+2. Match probabilities stream back as NDJSON; the UI shows a one-line status (matches so far,
+   emails judged, elapsed); per-request latency, p50/p95 and cost are measured in code but not
+   displayed (the tables below come from those measurements).
 3. Code does the rest: probability ≥ 0.5 gets the label (≥ 0.8 solid, 0.5–0.8 translucent), the
    inbox filters to matches, and when the run finishes the rows sort by match probability.
    Selecting several labels ANDs them; nothing is re-inferred.
