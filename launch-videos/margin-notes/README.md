@@ -2,7 +2,7 @@
 
 Launch video for "macOS in Devin Cloud" in the Margin Notes direction: the product occupies a warm paper page, the explanation lives in the right margin as short notes on leader lines.
 
-- 1920x1080, 30 fps, H.264 (yuv420p), silent, 29.8 s
+- 1920x1080, 30 fps, H.264 (yuv420p), silent, 29.2 s
 - Light theme (paper page, Devin light UI)
 - Demo app: Silverroom (github.com/dabit3/macos-experiments, `silverroom`), recorded for real in the iOS Simulator
 - Final render: `out/margin-notes.mp4`, contact sheet: `out/contact-sheet.png`
@@ -10,7 +10,7 @@ Launch video for "macOS in Devin Cloud" in the Margin Notes direction: the produ
 ## What is real
 
 - `assets/silverroom-take.mov` is one continuous 1x `xcrun simctl io booted recordVideo` take of Silverroom on an iPhone 17 Pro Simulator: open a photo, Noir look, exposure drag, hold to compare and release, Frame tools, rotate, square crop. It plays uncut inside the reconstructed Devin session window (whole phone left, enlarged detail panel right).
-- `assets/xcodebuild-terminal.png` is a screenshot of the real Terminal window after `xcodebuild ... build` finished with `** BUILD SUCCEEDED **`. The composition pushes a crop toward that line.
+- The Swift typed into the Changes tab is taken from `silverroom/Silverroom/ImageEngine.swift` (the film saturation switch and the `CIColorControls` filter). The build strip below it is an Xcode-style progress view inside the Devin session, not a Terminal capture. The app was built for real with `xcodebuild` before recording.
 - The Devin composer, environment selector and session window are rebuilt in HTML/CSS; the Devin lockups and marks are the supplied brand files.
 
 ## Files
@@ -20,7 +20,7 @@ Launch video for "macOS in Devin Cloud" in the Margin Notes direction: the produ
 | `config.js` | Every editable constant: timings, copy, colors, media paths, detail-panel focus keyframes, margin notes |
 | `index.html` | The composition. Exposes `window.seek(t)` so the renderer can draw any timestamp deterministically |
 | `render.mjs` | Extracts the take to JPEG frames, drives Chromium with Playwright, screenshots every frame, encodes with ffmpeg, writes the contact sheet |
-| `assets/` | Simulator take, Terminal capture, Devin logos |
+| `assets/` | Simulator take, Devin logos |
 | `capture/` | How the take was recorded: `tap.swift` (CoreGraphics tap/drag/hold helper, `swiftc -O tap.swift -o tap`) and `record-take.sh` (installs the built app, starts `simctl recordVideo`, drives the interaction sequence). Screen coordinates assume the Simulator window placement used on the recording Mac |
 | `out/` | Render output (`margin-notes.mp4`, `contact-sheet.png`); PNG frames and stills are gitignored |
 
@@ -55,9 +55,11 @@ Encoding uses `-c:v libx264 -pix_fmt yuv420p -crf 16 -r 30 -movflags +faststart`
 All constants live in `config.js`:
 
 - `duration`, `fps`: master length and frame rate. `timeline.outro.end` should match `duration`.
-- `text.*`: headline, composer placeholder, typed prompt, margin notes, outro line and URL.
+- `text.*`: headline, composer placeholder, typed prompt, margin notes, session chat copy, build strip labels and URL.
+- `code`: the Swift lines typed into the Changes tab (27 px monospace, syntax highlighted in `index.html`).
 - `colors.paper`: page color. UI colors are in the `<style>` block of `index.html`.
-- `timeline.title | composer | term | sim | outro`: scene in/out and beat times in seconds. Composer beats: `cursorStart`, `menuOpen`, `hoverMac`, `macPick`, `noteIn/noteOut`, `typeStart/typeEnd`, `send`.
+- `timeline.title | composer | build | sim | outro`: scene in/out and beat times in seconds. Composer beats: `cursorStart`, `menuOpen`, `hoverMac`, `macPick`, `noteIn/noteOut`, `typeStart/typeEnd`, `send`. Build beats: `codeStart/codeEnd` (typing), `buildStart/buildEnd` (progress to Build Succeeded), `noteIn/noteOut` (Built with Xcode).
+- `simZoom`, `zoomOrigin`: camera pushes onto the phone (take time) for the Noir, exposure and rotate beats, and the stage point they scale around so the window chrome stays in frame.
 - `take`: path, frame count, duration and pixel size of the Simulator recording. If you swap the take, delete `frames/` and update `frameCount` (`duration * 30`) and `width/height`.
 - `focus`: detail-panel crop keyframes in take time (`t` seconds into the take, `cx/cy/w` as fractions of the source frame, `tr` travel time).
 - `simNotes`: one margin note at a time in take time, each fully clearing before the next.
