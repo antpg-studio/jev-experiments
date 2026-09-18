@@ -1,6 +1,6 @@
 import Foundation
 
-/// Request/response shapes for `POST /v1/systemone`.
+/// Request/response shapes for `POST /api/alpha/decisions`.
 enum Jev {
   struct Question: Encodable, Equatable {
     var type: String
@@ -55,7 +55,7 @@ enum Jev {
 
   struct Request: Encodable {
     var state: JSONValue
-    var model = "jev-latest"
+    var model = "typesafe/jev-1.13"
     var questions: [String: Question]
   }
 

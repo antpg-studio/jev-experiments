@@ -12,7 +12,7 @@ import {
 } from "../src/jev.ts";
 
 const okResponse = (answers: SystemOneResponse["answers"]): SystemOneResponse => ({
-  model: "jev-latest",
+  model: "typesafe/jev-1.13",
   answers,
   usage: { input_tokens: 10, output_tokens: 2 },
 });
@@ -32,7 +32,7 @@ const fullAnswers = (): SystemOneResponse["answers"] => ({
 
 describe("JevClient", () => {
   it("requires an API key", () => {
-    vi.stubEnv("TYPESAFE_API_KEY", "");
+    vi.stubEnv("OPENROUTER_API_KEY", "");
     try {
       expect(() => new JevClient({ apiKey: undefined, fetchImpl: fetch })).toThrow(MissingApiKeyError);
     } finally {
@@ -48,9 +48,9 @@ describe("JevClient", () => {
     }) as typeof fetch;
     const client = new JevClient({ apiKey: "test-key", fetchImpl });
     const r = await client.systemOne({ a: 1 }, { q: { type: "noul", instructions: "x" } });
-    expect(seen!.url).toBe("https://api.typesafe.ai/v1/systemone");
+    expect(seen!.url).toBe("https://openrouter.ai/api/alpha/decisions");
     expect((seen!.init.headers as Record<string, string>).Authorization).toBe("Bearer test-key");
-    expect(JSON.parse(seen!.init.body as string)).toEqual({ state: { a: 1 }, model: "jev-latest", questions: { q: { type: "noul", instructions: "x" } } });
+    expect(JSON.parse(seen!.init.body as string)).toEqual({ state: { a: 1 }, model: "typesafe/jev-1.13", questions: { q: { type: "noul", instructions: "x" } } });
     expect(r.attempts).toBe(1);
     expect(r.latencyMs).toBeGreaterThanOrEqual(0);
   });

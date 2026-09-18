@@ -139,7 +139,7 @@ export function buildSpanQuestions(spans: Span[]): Record<string, NoulQuestion> 
 
 export function buildRequestBody(req: JudgeRequest) {
   return {
-    model: "jev-latest",
+    model: "typesafe/jev-1.13",
     state: {
       channel: req.channel,
       draft: req.draft,

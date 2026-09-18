@@ -25,11 +25,11 @@ A pre-send check that takes seconds is a modal you learn to click through. A che
 
 ## How Jev is used
 
-All network calls live in `server/jev.ts`; the typed question builders live in `src/lib/questions.ts`. One `POST /v1/systemone` request per pause with:
+All network calls live in `server/jev.ts`; the typed question builders live in `src/lib/questions.ts`. One `POST /api/alpha/decisions` request per pause with:
 
 ```jsonc
 {
-  "model": "jev-latest",
+  "model": "typesafe/jev-1.13",
   "state": {
     "channel": { "name": "#customer-acme", "audience": "external_customer" }, // or "internal" | "public"
     "draft": "…what the user has typed so far…",
@@ -60,12 +60,12 @@ The policy that turns those answers into green / amber / red lives in plain code
 
 ## Running it
 
-Requires Node 22 and `TYPESAFE_API_KEY` in the environment (the key stays on the Node proxy; the browser never sees it).
+Requires Node 22 and `OPENROUTER_API_KEY` in the environment (the key stays on the Node proxy; the browser never sees it).
 
 ```sh
 cd send-guard
 npm ci
-TYPESAFE_API_KEY=… npm run dev      # Vite on :5173 + proxy on :8787
+OPENROUTER_API_KEY=… npm run dev      # Vite on :5173 + proxy on :8787
 ```
 
 Open http://localhost:5173, pick a channel or DM in the sidebar (`#customer-acme` is a Slack Connect channel shared with a customer, `#eng-internal` is private, the Jordan Lee DM is a customer, `#public-community` is public), start typing — or press **▶ Replay** in the Send Guard pane to type six prepared drafts character by character (live API key, guaranteed ship date, polite refusal, hostile reply, internal pricing leak in the external channel, benign public update) while the latency histogram fills in.
@@ -82,7 +82,7 @@ From the recorded run above (real API, `jev-1.13.0`, Linux VM, measured in the b
 | judgments returned | 826 (10 core + 1 per candidate span, per pause) |
 | p50 end-to-end (browser → proxy → Jev → browser) | **105 ms** |
 | p95 end-to-end | 193 ms |
-| p50 API round trip (proxy ↔ api.typesafe.ai) | 100 ms |
+| p50 API round trip (proxy ↔ openrouter.ai) | 100 ms |
 | p95 API round trip | 183 ms |
 | throughput | 85 judgments / s while typing |
 | per-pause cost | ~10 judgments in ~105 ms |
@@ -107,7 +107,7 @@ Regex catches 1 of the 4 risky drafts; Jev catches all 4 and lets the two safe o
 
 ```
 server/index.ts       node:http proxy — POST /api/judge, GET /api/health
-server/jev.ts         the only module that talks to api.typesafe.ai (timing, 429/529 backoff, missing-key error)
+server/jev.ts         the only module that talks to openrouter.ai (timing, 429/529 backoff, missing-key error)
 server/mock.ts        MOCK=1 heuristic answers (labelled in the UI)
 src/lib/questions.ts  typed noul/choice/score builders and the request body
 src/lib/spans.ts      regex candidate-span locator

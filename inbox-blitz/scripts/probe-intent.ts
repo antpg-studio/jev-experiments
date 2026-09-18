@@ -1,12 +1,12 @@
 // Dev helper: label the whole fixture against a free-text intent and print the matches.
-// Usage: TYPESAFE_API_KEY=... npx tsx scripts/probe-intent.ts "customers threatening to cancel" [count]
+// Usage: OPENROUTER_API_KEY=... npx tsx scripts/probe-intent.ts "customers threatening to cancel" [count]
 import { EMAILS } from "../src/data/emails.ts";
 import { matchEmail } from "../server/jev.ts";
 import { summarize } from "../src/lib/labels.ts";
 import type { MatchResult } from "../src/lib/types.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY missing");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY missing");
 const intent = process.argv[2];
 if (!intent) throw new Error("intent missing");
 const n = Number(process.argv[3] ?? EMAILS.length);

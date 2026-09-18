@@ -36,10 +36,10 @@ The whole simulation is seeded (`DEFAULT_SEED = 20260917`), and unit assignment 
 | KPI math | median, percentile, rate per second, formatting helpers |
 | Dispatch engine | manual mode decides one report per 12 s FIFO; nearest units of the right type are assigned and move toward the scene; duplicates merge instead of opening a new incident; slow Jev answer → fallback, late answer discarded as stale; failed request → fallback; critical-waiting KPI and surge injection; same seed twice gives identical heuristic runs |
 
-## Live checks (need `TYPESAFE_API_KEY`)
+## Live checks (need `OPENROUTER_API_KEY`)
 
 ```sh
-export TYPESAFE_API_KEY=...
+export OPENROUTER_API_KEY=...
 npm run dev             # open http://localhost:5173, pick Jev, watch the latency KPI
 npm run bench           # ~3 min; the Jev leg runs in real time against the API
 npm run accuracy        # ~40 s; 40 live decisions vs generator ground truth

@@ -32,7 +32,7 @@ Expected: `** BUILD SUCCEEDED **`, `Executed 35 tests, with 0 failures`, and no 
   regex slot candidates (durations, rooms, contacts).
 - State omits `assistant_is_saying` while listening; `is_barge_in` is only asked while
   speaking; slot questions appear only when candidates exist and always include `none`.
-- Request body serializes to valid JSON with `model: jev-latest`.
+- Request body serializes to valid JSON with `model: typesafe/jev-1.13`.
 - Partial-transcript merging keeps original word timestamps, applies recognizer
   revisions, and shrinks when the recognizer drops words.
 
@@ -56,10 +56,10 @@ Expected: `** BUILD SUCCEEDED **`, `Executed 35 tests, with 0 failures`, and no 
 
 ## Manual verification against live Jev
 
-1. `export TYPESAFE_API_KEY=...` in the shell, build as above, and run
+1. `export OPENROUTER_API_KEY=...` in the shell, build as above, and run
    `build/Build/Products/Debug/JevVoiceTurn.app/Contents/MacOS/JevVoiceTurn` from that
    shell (or paste the key into JevVoiceTurn > Settings).
-2. The header must not show "TYPESAFE_API_KEY not set".
+2. The header must not show "OPENROUTER_API_KEY not set".
 3. Leave **Simulated microphone** selected and press **Start**. The label under
    "Live transcript" reads "Simulated microphone: scripted transcript with realistic
    word timings".

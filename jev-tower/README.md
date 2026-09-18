@@ -20,12 +20,12 @@ Slow mode does not stall the UI. It simply answers late, so the queue of aircraf
 
 ## Run
 
-Node 22.12+ or 24. The TypeSafe key stays on the server: the browser only ever calls same-origin `/api/jev`, which a tiny Node proxy (`jev-proxy.mjs`, used by both the Vite dev middleware and `server.mjs`) forwards to `https://api.typesafe.ai/v1/systemone` with the `Authorization` header added server-side. The key is never logged or bundled.
+Node 22.12+ or 24. The TypeSafe key stays on the server: the browser only ever calls same-origin `/api/jev`, which a tiny Node proxy (`jev-proxy.mjs`, used by both the Vite dev middleware and `server.mjs`) forwards to `https://openrouter.ai/api/alpha/decisions` with the `Authorization` header added server-side. The key is never logged or bundled.
 
 ```sh
 cd jev-tower
 npm ci
-export TYPESAFE_API_KEY=...        # see .env.example
+export OPENROUTER_API_KEY=...        # see .env.example
 npm run dev                        # http://localhost:5173
 ```
 
@@ -79,7 +79,7 @@ Iterating on the wording against real cases mattered: the first version let Jev 
 
 ## Measured runs
 
-Numbers below come from `npm run measure`, the same `Controller` and `Sim` as the browser driven headless at wall-clock pace against the live API (`measure/run.live.ts`), seed 7, 300 s of simulated time each. Latency is the full round trip from this machine (macOS, US) through `fetch` to `api.typesafe.ai`, including Jev's inference. Cost uses the published Jev input-token price of $0.042 per million tokens; output tokens are free.
+Numbers below come from `npm run measure`, the same `Controller` and `Sim` as the browser driven headless at wall-clock pace against the live API (`measure/run.live.ts`), seed 7, 300 s of simulated time each. Latency is the full round trip from this machine (macOS, US) through `fetch` to `openrouter.ai`, including Jev's inference. Cost uses the published Jev input-token price of $0.042 per million tokens; output tokens are free.
 
 **1x, normal traffic** (seed 7, 300 s sim)
 

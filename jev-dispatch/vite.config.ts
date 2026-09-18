@@ -2,7 +2,7 @@ import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
-const JEV_URL = "https://api.typesafe.ai/v1/systemone";
+const JEV_URL = "https://openrouter.ai/api/alpha/decisions";
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@ function jevProxy(apiKey: string | undefined): Plugin {
         if (!apiKey) {
           res.statusCode = 503;
           res.setHeader("content-type", "application/json");
-          res.end(JSON.stringify({ error: "TYPESAFE_API_KEY is not set on the server" }));
+          res.end(JSON.stringify({ error: "OPENROUTER_API_KEY is not set on the server" }));
           return;
         }
         try {
@@ -53,7 +53,7 @@ function jevProxy(apiKey: string | undefined): Plugin {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const apiKey = process.env.TYPESAFE_API_KEY ?? env.TYPESAFE_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY ?? env.OPENROUTER_API_KEY;
   return {
     base: "./",
     plugins: [react(), jevProxy(apiKey)],

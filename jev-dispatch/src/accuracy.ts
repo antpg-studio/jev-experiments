@@ -2,7 +2,7 @@
  * Live accuracy sample: runs the Jev mode on the default seed until N reports
  * are triaged, then compares every Jev decision with the generator's ground truth.
  *
- *   TYPESAFE_API_KEY=... node src/accuracy.ts [--n 40] [--seed N]
+ *   OPENROUTER_API_KEY=... node src/accuracy.ts [--n 40] [--seed N]
  */
 import { makeLiveDecider } from "./live.ts";
 import { DEFAULT_SEED, Sim, type FeedItem } from "./sim.ts";
@@ -14,13 +14,13 @@ function flag(name: string): string | null {
 }
 const n = Number(flag("--n") ?? 40);
 const seed = Number(flag("--seed") ?? DEFAULT_SEED);
-const key = process.env.TYPESAFE_API_KEY;
+const key = process.env.OPENROUTER_API_KEY;
 if (!key) {
-  process.stderr.write("TYPESAFE_API_KEY not set\n");
+  process.stderr.write("OPENROUTER_API_KEY not set\n");
   process.exit(1);
 }
 
-const sim = new Sim("jev", seed, makeLiveDecider("https://api.typesafe.ai/v1/systemone", { authorization: `Bearer ${key}` }));
+const sim = new Sim("jev", seed, makeLiveDecider("https://openrouter.ai/api/alpha/decisions", { authorization: `Bearer ${key}` }));
 let last = performance.now();
 const decided = (): FeedItem[] => sim.feed.filter((f) => f.status === "done" && f.decision !== null);
 while (decided().length < n && sim.finalKpis === null) {

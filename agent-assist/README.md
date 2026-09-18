@@ -48,7 +48,7 @@ Everything that is a rule stays in code: `refund_eligible_by_policy` is computed
 
 ## Measured numbers
 
-"Run all 8 conversations", live `jev-latest`, 40 customer messages, 8 chats interleaved on timers, browser on a Linux VM:
+"Run all 8 conversations", live `typesafe/jev-1.13`, 40 customer messages, 8 chats interleaved on timers, browser on a Linux VM:
 
 | metric | value |
 | --- | --- |
@@ -68,19 +68,19 @@ Judgment quality on the seeded scripts (checked by hand): duplicate charge → `
 
 ## Run
 
-Requires Node 22+ and a TypeSafe API key.
+Requires Node 22+ and an OpenRouter API key.
 
 ```sh
 cd agent-assist
 npm ci
-TYPESAFE_API_KEY=... npm run dev     # starts the Node proxy (:8787) and Vite (:5173)
+OPENROUTER_API_KEY=... npm run dev     # starts the Node proxy (:8787) and Vite (:5173)
 ```
 
 Open http://localhost:5173 and press **Run all 8 conversations**. Or click a chat and step it with **Next message**.
 
 - The API key is only read by `server/jev.ts`; the browser talks to `/api/judge` on the local proxy. It never reaches the bundle.
 - `MOCK=1 npm run dev` runs with canned keyword-based answers for offline UI work — the header shows a **MOCK MODE** pill and no numbers from that mode should be quoted.
-- Missing key → the header shows `TYPESAFE_API_KEY not set` and `/api/judge` returns a clear 503. 429/5xx are retried by the SDK with exponential backoff (4 retries); at most 8 Jev calls are in flight at once.
+- Missing key → the header shows `OPENROUTER_API_KEY not set` and `/api/judge` returns a clear 503. 429/5xx are retried by the SDK with exponential backoff (4 retries); at most 8 Jev calls are in flight at once.
 
 ```sh
 npm run typecheck && npm run lint && npm test && npm run build

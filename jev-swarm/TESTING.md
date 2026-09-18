@@ -30,7 +30,7 @@ No test touches the network; the Jev client is injected as a controllable fake.
 
 The world is seeded (`seed: 7` in `src/swarm.ts`), so every reset produces the identical spawn layout. Pressing **pause** immediately after **reset** always shows the same arena.
 
-1. `cp .env.example .env`, put a real `TYPESAFE_API_KEY` in it (or export it), `npm run dev`, open http://localhost:5173.
+1. `cp .env.example .env`, put a real `OPENROUTER_API_KEY` in it (or export it), `npm run dev`, open http://localhost:5173.
 2. Within two seconds the big green number (Jev decisions / s) should climb toward 60 with 32 agents; **in-flight requests** oscillates between 0 and 12; **round-trip latency** p50 should be in the 150–250 ms range from a US machine. **errors · 429** should stay at 0 or grow only occasionally.
 3. Move the mouse: the green agent follows; press space: it bursts for 1.5 s and the boost is unavailable for 8 s.
 4. Click **targets**: dashed lines show each agent's chosen target; agents with a dashed ring have a request in flight; agents flash when a fresh Jev answer lands.
@@ -44,7 +44,7 @@ The world is seeded (`seed: 7` in `src/swarm.ts`), so every reset produces the i
 
 ```sh
 npm run build
-TYPESAFE_API_KEY=... npm run preview    # http://localhost:4173
+OPENROUTER_API_KEY=... npm run preview    # http://localhost:4173
 ```
 
 `server.mjs` serves `dist/` and proxies `/api/jev` with the same handler as the dev middleware. Confirm the built bundle contains no key:
@@ -60,4 +60,4 @@ curl -s -X POST localhost:5173/api/jev -H 'content-type: application/json' \
   -d '{"state":{"a":"you: greedy, size 16"},"questions":{"m":{"type":"choice","instructions":"direction for `a`","criteria":{"N":"open","hold":"stay"}}}}'
 ```
 
-Expect `{"model":"jev-1.x","answers":{"m":{"type":"choice",...}},"usage":{...}}`. Without a key the proxy answers `500 {"error":"TYPESAFE_API_KEY is not set on the server"}` and the UI counts errors while the heuristic fallback keeps agents moving.
+Expect `{"model":"jev-1.x","answers":{"m":{"type":"choice",...}},"usage":{...}}`. Without a key the proxy answers `500 {"error":"OPENROUTER_API_KEY is not set on the server"}` and the UI counts errors while the heuristic fallback keeps agents moving.

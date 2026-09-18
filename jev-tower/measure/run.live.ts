@@ -9,9 +9,9 @@ const MODES: readonly Mode[] = ["rules", "jev", "slow"];
 
 /** Same wire call the /api/jev proxy makes, with the key read from the environment (never printed). */
 async function live(req: JevRequest, signal?: AbortSignal): Promise<JevResponse> {
-  const key = process.env.TYPESAFE_API_KEY;
-  if (!key) throw new Error("TYPESAFE_API_KEY is not set");
-  const r = await fetch("https://api.typesafe.ai/v1/systemone", {
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new Error("OPENROUTER_API_KEY is not set");
+  const r = await fetch("https://openrouter.ai/api/alpha/decisions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${key}` },
     body: JSON.stringify(req),

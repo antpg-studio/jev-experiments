@@ -1,8 +1,8 @@
 /**
- * The only module that talks to TypeSafe. Everything else consumes typed judgments.
+ * The only module that talks to Jev. Everything else consumes typed judgments.
  *
- * POST https://api.typesafe.ai/v1/systemone
- *   { state, model: "jev-latest", questions: { id: { type, instructions, criteria } } }
+ * POST https://openrouter.ai/api/alpha/decisions
+ *   { state, model: "typesafe/jev-1.13", questions: { id: { type, instructions, criteria } } }
  */
 import { performance } from "node:perf_hooks";
 import { addedLines, removedLines } from "./diff.ts";
@@ -95,7 +95,7 @@ export interface JevClientOptions {
 export class MissingApiKeyError extends Error {
   constructor() {
     super(
-      "TYPESAFE_API_KEY is not set. Export it (export TYPESAFE_API_KEY=...) or run with --mock to replay recorded judgments.",
+      "OPENROUTER_API_KEY is not set. Export it (export OPENROUTER_API_KEY=...) or run with --mock to replay recorded judgments.",
     );
     this.name = "MissingApiKeyError";
   }
@@ -123,11 +123,11 @@ export class JevClient {
   public retries = 0;
 
   constructor(opts: JevClientOptions = {}) {
-    const key = opts.apiKey ?? process.env.TYPESAFE_API_KEY;
+    const key = opts.apiKey ?? process.env.OPENROUTER_API_KEY;
     if (!key) throw new MissingApiKeyError();
     this.apiKey = key;
-    this.baseUrl = opts.baseUrl ?? process.env.TYPESAFE_BASE_URL ?? "https://api.typesafe.ai";
-    this.model = opts.model ?? "jev-latest";
+    this.baseUrl = opts.baseUrl ?? process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai";
+    this.model = opts.model ?? "typesafe/jev-1.13";
     this.maxAttempts = opts.maxAttempts ?? 5;
     this.timeoutMs = opts.timeoutMs ?? 15_000;
     this.fetchImpl = opts.fetchImpl ?? fetch;
@@ -143,7 +143,7 @@ export class JevClient {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), this.timeoutMs);
       try {
-        const res = await this.fetchImpl(`${this.baseUrl}/v1/systemone`, {
+        const res = await this.fetchImpl(`${this.baseUrl}/api/alpha/decisions`, {
           method: "POST",
           headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
           body,

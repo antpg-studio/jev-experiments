@@ -11,7 +11,7 @@ export function TitleBar({ title, health }: { title: string; health: Health }) {
       : health.mode === "mock"
         ? { cls: "warn", text: "Mock mode — replayed answers" }
         : health.mode === "nokey"
-          ? { cls: "bad", text: "No API key — set TYPESAFE_API_KEY" }
+          ? { cls: "bad", text: "No API key — set OPENROUTER_API_KEY" }
           : { cls: "bad", text: "Prediction server offline" };
   return (
     <header className="titlebar">

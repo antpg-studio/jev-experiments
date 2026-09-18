@@ -13,11 +13,11 @@ A mid-size stream produces 300-500 chat lines per second. A moderator cannot rea
 ```sh
 cd jev-firehose
 npm install
-cp .env.example .env            # put TYPESAFE_API_KEY=... in it, or export it in the shell
-TYPESAFE_API_KEY=... npm run dev  # http://localhost:5173
+cp .env.example .env            # put OPENROUTER_API_KEY=... in it, or export it in the shell
+OPENROUTER_API_KEY=... npm run dev  # http://localhost:5173
 ```
 
-Production build: `npm run build && TYPESAFE_API_KEY=... npm run preview` (serves `dist/` and the proxy on port 4173).
+Production build: `npm run build && OPENROUTER_API_KEY=... npm run preview` (serves `dist/` and the proxy on port 4173).
 
 The key is read only by Node (`jevProxy.mjs`, used by both the Vite dev middleware and `server.mjs`). The browser talks to `/api/jev` (HTTP) or `/api/jev/ws` (WebSocket) on the same origin and never sees the key.
 
@@ -83,7 +83,7 @@ Policy lives in `policy.ts`, not in the prompts: mod queue = `needs_mod_attentio
 
 ## Measured on the live API
 
-Run from a US machine against `jev-latest` (resolved `jev-1.13.0`), seed 2024, headless Chromium at 1280x720. Numbers read off the console after the run settled.
+Run from a US machine against `typesafe/jev-1.13` (resolved `jev-1.13.0`), seed 2024, headless Chromium at 1280x720. Numbers read off the console after the run settled.
 
 ### Sustained: 300 msg/s, 96 in flight, 30 s
 

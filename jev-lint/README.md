@@ -17,7 +17,7 @@ editor change
   -> changedLines(prev, next)                              deterministic diff, 1-based line numbers
   -> enclosingFunction(extractFunctions(text, lang), n)    brace / indent / SQL-block aware, six languages
   -> buildRequest(...)                                     state + 6 questions per changed line, one request per function
-  -> POST /api/jev  (Node proxy adds the key)  -> api.typesafe.ai/v1/systemone
+  -> POST /api/jev  (Node proxy adds the key)  -> openrouter.ai/api/alpha/decisions
   -> markersFromAnswers(refs, answers)                     thresholds -> Marker{line, severity, kinds[], ...}
   -> clusterMarkers(markers)                               demotes adjacent same-kind spillover to info
   -> CodeMirror setDiagnostics                             gutter dot + squiggle + hover
@@ -65,17 +65,17 @@ Each question names the specific `lines_under_review[i]` and tells Jev to read i
 ```sh
 cd jev-lint
 npm ci
-cp .env.example .env         # or export TYPESAFE_API_KEY in your shell
+cp .env.example .env         # or export OPENROUTER_API_KEY in your shell
 npm run dev                  # http://localhost:5173 — Vite middleware proxies /api/jev
 ```
 
-Production build: `npm run build && TYPESAFE_API_KEY=... npm run preview` serves `dist/` and `/api/jev` from `server.mjs` on port 4173 (`PORT` overrides). The key is read from the environment by the Node process only; the browser never sees it, and the proxy forwards `retry-after` so the client's single bounded retry on `429` works. Node 22.12+ or 24.
+Production build: `npm run build && OPENROUTER_API_KEY=... npm run preview` serves `dist/` and `/api/jev` from `server.mjs` on port 4173 (`PORT` overrides). The key is read from the environment by the Node process only; the browser never sees it, and the proxy forwards `retry-after` so the client's single bounded retry on `429` works. Node 22.12+ or 24.
 
 Controls: file tabs (six samples), **Full-file scan** (every judgeable line of the file in one parallel burst, wall-clock shown), **Type it for me** (types a buggy function character by character into the current file), **Reveal planted issues** (highlights the seeded lines and shows live precision/recall against the current markers), **Reset file**, and the baseline switch (**Jev live** / **Regex only** / **LLM +3 s**), which rescans the file in the selected mode.
 
 ## Measured numbers
 
-All numbers below are from real runs against `jev-latest` (`jev-1.13.0` in responses) from a machine in the US on 2026-09-17, captured by the Playwright golden-path script that also took the screenshots and by `scripts/evaluate.ts`.
+All numbers below are from real runs against `typesafe/jev-1.13` (`jev-1.13.0` in responses) from a machine in the US on 2026-09-17, captured by the Playwright golden-path script that also took the screenshots and by `scripts/evaluate.ts`.
 
 ### Latency, throughput, cost
 

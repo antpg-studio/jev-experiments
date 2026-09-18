@@ -105,7 +105,7 @@ export function Header({ s, title, attendees, onStart, onStop, onReset, onMode, 
             )}
           </div>
         )}
-        {noKey && <p className="warn">TYPESAFE_API_KEY is not set on the server, so nothing can be judged.</p>}
+        {noKey && <p className="warn">OPENROUTER_API_KEY is not set on the server, so nothing can be judged.</p>}
         {s.health === null && <p className="warn">The local proxy is not running — start it with <code>npm run dev</code>.</p>}
       </div>
     </header>

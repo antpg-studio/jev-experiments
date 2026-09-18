@@ -7,7 +7,7 @@ describe("buildRequestBody", () => {
     const draft = "we'll refund $500 by Friday, contact jane@example.com";
     const spans = findSpans(draft);
     const body = buildRequestBody({ channel: { name: "#customer-acme", audience: "external_customer" }, draft, spans });
-    expect(body.model).toBe("jev-latest");
+    expect(body.model).toBe("typesafe/jev-1.13");
     expect(Object.keys(body.questions)).toEqual([...CORE_QUESTION_IDS, ...spans.map((s) => s.id)]);
     expect(body.state.spans).toHaveLength(spans.length);
     expect(body.state.spans[0]).not.toHaveProperty("start");

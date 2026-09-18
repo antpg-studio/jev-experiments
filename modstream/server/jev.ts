@@ -1,11 +1,11 @@
 /**
- * The only module that talks to TypeSafe. One request per chat message carrying
+ * The only module that talks to Jev. One request per chat message carrying
  * all seven questions (speculative fan-out); code owns the policy.
  */
 import type { JevAction, Judgment, Truth } from "../shared/types.ts";
 
-const ENDPOINT = process.env.TYPESAFE_ENDPOINT ?? "https://api.typesafe.ai/v1/systemone";
-const MODEL = process.env.TYPESAFE_MODEL ?? "jev-latest";
+const ENDPOINT = process.env.OPENROUTER_ENDPOINT ?? "https://openrouter.ai/api/alpha/decisions";
+const MODEL = process.env.OPENROUTER_MODEL ?? "typesafe/jev-1.13";
 
 // ---- typed question builders -------------------------------------------------
 

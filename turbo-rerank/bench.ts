@@ -62,7 +62,7 @@ async function main() {
       } catch (err) {
         const { message } = describeError(err);
         console.log(`  ${c.red}ERR${c.reset} ${bq.query}: ${message}`);
-        if (message.includes("TYPESAFE_API_KEY")) process.exit(1);
+        if (message.includes("OPENROUTER_API_KEY")) process.exit(1);
       }
     }
   };

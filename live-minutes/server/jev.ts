@@ -1,7 +1,7 @@
 import type { JudgeAnswers, JudgeRequest } from "../src/lib/types.ts";
 
-const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
-const MODEL = "jev-latest";
+const ENDPOINT = "https://openrouter.ai/api/alpha/decisions";
+const MODEL = "typesafe/jev-1.13";
 
 type Instructions = string | Record<string, unknown>;
 type Question =

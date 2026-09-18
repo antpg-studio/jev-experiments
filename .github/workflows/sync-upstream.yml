@@ -1,0 +1,139 @@
+# Rebuild this fork from dabit3/jev-experiments every morning.
+#
+# The fork is a build output, not a hand-edited repo: `main` is always exactly
+# upstream plus scripts/openrouterize.sh. That is why this force-pushes -- there
+# is no local history worth preserving, and it means upstream renames can never
+# produce a merge conflict.
+#
+# Before this can run you must enable Actions on the fork: Actions tab ->
+# "I understand my workflows, go ahead and enable them". GitHub disables
+# workflows on forks by default.
+
+name: Sync upstream
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild even if upstream has not moved"
+        type: boolean
+        default: false
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+env:
+  UPSTREAM: https://github.com/dabit3/jev-experiments.git
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the fork
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Identify the bot
+        run: |
+          git config user.name  "upstream-sync[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        id: upstream
+        run: |
+          git remote add upstream "$UPSTREAM"
+          git fetch --no-tags upstream main
+          sha=$(git rev-parse upstream/main)
+          last=$(cat .upstream-sync 2>/dev/null || echo none)
+          echo "sha=$sha"   >> "$GITHUB_OUTPUT"
+          echo "last=$last" >> "$GITHUB_OUTPUT"
+          if [ "$sha" = "$last" ] && [ "${{ inputs.force }}" != "true" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Already at upstream $sha; nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Upstream moved: $last -> $sha"
+            git log --oneline "$last..$sha" 2>/dev/null | head -40 || true
+          fi
+
+      # Reset the tree to pristine upstream, then put our tooling back on top.
+      # The tooling is the only thing that must survive the reset.
+      - name: Rebuild the tree from upstream
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          tools=$(mktemp -d)
+          cp -r scripts .github "$tools/"
+          git checkout -B main upstream/main
+          cp -r "$tools/scripts" "$tools/.github" .
+          ./scripts/openrouterize.sh
+          echo "${{ steps.upstream.outputs.sha }}" > .upstream-sync
+
+      - name: Set up Node
+        if: steps.upstream.outputs.changed == 'true'
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      # The rename pass cannot break the build, but sdk_override.py can: it edits
+      # the three apps that construct a TypeSafeClient. Typecheck exactly those,
+      # so a reshaped upstream client fails here rather than on someone's machine.
+      - name: Typecheck the SDK apps
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          for app in turbo-rerank agent-assist log-sentinel; do
+            echo "::group::$app"
+            (
+              cd "$app"
+              npm ci --no-audit --no-fund
+              if npm run | grep -q '^  typecheck'; then npm run typecheck; else npx tsc -b; fi
+            )
+            echo "::endgroup::"
+          done
+
+      - name: Commit and push
+        if: steps.upstream.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Transform produced no change; skipping push."
+            exit 0
+          fi
+          git commit -m "Sync upstream @ ${{ steps.upstream.outputs.sha }}" \
+                     -m "Rebuilt from dabit3/jev-experiments via scripts/openrouterize.sh."
+          git push --force origin main
+
+      # A failure here means upstream changed something the transform cannot
+      # handle on its own. File an issue rather than failing silently at 6am.
+      - name: Report a broken sync
+        if: failure() && steps.upstream.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "Upstream sync failed at ${{ steps.upstream.outputs.sha }}" \
+            --body "The scheduled rebuild from dabit3/jev-experiments failed.
+
+          Upstream moved \`${{ steps.upstream.outputs.last }}\` -> \`${{ steps.upstream.outputs.sha }}\`.
+
+          Usually this means one of:
+          - \`scripts/sdk_override.py\` lost an anchor (upstream reshaped \`new TypeSafeClient({ ... })\`)
+          - \`scripts/verify.sh\` found a TypeSafe identifier a rename rule does not cover yet
+          - the SDK apps stopped typechecking
+
+          [Run log](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          \`main\` was left untouched, so the fork is still on the last good sync." \
+            --label "sync" 2>/dev/null || gh issue create \
+            --title "Upstream sync failed at ${{ steps.upstream.outputs.sha }}" \
+            --body "Scheduled rebuild failed. See ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

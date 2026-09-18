@@ -1,7 +1,7 @@
 /**
  * Same-seed benchmark of the three modes over a full RUN_SECONDS run.
  *
- *   TYPESAFE_API_KEY=... node src/bench.ts [--seed N] [--surge-at SECONDS] [--skip-jev]
+ *   OPENROUTER_API_KEY=... node src/bench.ts [--seed N] [--surge-at SECONDS] [--skip-jev]
  *
  * Manual and Slow LLM are deterministic and run instantly. Jev runs in real time
  * against the live API (one fan-out request per report), so it takes RUN_SECONDS.
@@ -94,12 +94,12 @@ process.stderr.write(`seed ${seed}, ${RUN_SECONDS} s run${surgeAt !== null ? `, 
 results.manual = runInstant("manual");
 results.slow = runInstant("slow");
 if (!skipJev) {
-  const key = process.env.TYPESAFE_API_KEY;
+  const key = process.env.OPENROUTER_API_KEY;
   if (!key) {
-    process.stderr.write("TYPESAFE_API_KEY not set; skipping the Jev run\n");
+    process.stderr.write("OPENROUTER_API_KEY not set; skipping the Jev run\n");
   } else {
     process.stderr.write(`Jev run (real time, ${RUN_SECONDS} s)...\n`);
-    results.jev = await runRealtime("jev", makeLiveDecider("https://api.typesafe.ai/v1/systemone", { authorization: `Bearer ${key}` }));
+    results.jev = await runRealtime("jev", makeLiveDecider("https://openrouter.ai/api/alpha/decisions", { authorization: `Bearer ${key}` }));
   }
 }
 console.log(table(results));

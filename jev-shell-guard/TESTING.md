@@ -6,7 +6,7 @@
 git clone https://github.com/dabit3/private-experiments.git
 cd private-experiments/jev-shell-guard
 swift build -c release --product jevsh          # macOS 14+, Xcode 16+ CLT
-export TYPESAFE_API_KEY=...                     # never committed; without it jevsh uses the regex fallback
+export OPENROUTER_API_KEY=...                     # never committed; without it jevsh uses the regex fallback
 ./install.sh                                    # ~/.local/bin/jevsh, ~/.local/share/jevsh/jevsh.zsh, guarded line in ~/.zshrc
 exec zsh
 ```
@@ -45,14 +45,14 @@ Nothing in the test target touches the network; `JevClient` is only exercised by
 ## Offline behaviour without a key
 
 ```sh
-env -u TYPESAFE_API_KEY jevsh explain 'rm -rf ~/'      # prints "jev offline (TYPESAFE_API_KEY is not set)" and the fallback block
-env -u TYPESAFE_API_KEY jevsh check -- 'ls'; echo $?   # 0, no output
+env -u OPENROUTER_API_KEY jevsh explain 'rm -rf ~/'      # prints "jev offline (OPENROUTER_API_KEY is not set)" and the fallback block
+env -u OPENROUTER_API_KEY jevsh check -- 'ls'; echo $?   # 0, no output
 ```
 
 Deadline: `echo '{"deadline_ms": 1}' > ~/.config/jevsh/config.json`, then any `jevsh explain`
 reports `deadline exceeded (1ms)` and the fallback decision. Remove the file afterwards.
 
-## Live verification (needs TYPESAFE_API_KEY)
+## Live verification (needs OPENROUTER_API_KEY)
 
 ```sh
 jevsh explain 'git push --force origin main'   # confirm: wrong_target + destructive over threshold

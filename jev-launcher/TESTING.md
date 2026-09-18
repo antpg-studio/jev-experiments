@@ -46,7 +46,7 @@ xcrun swift-format lint --strict --recursive Sources Tests
 `Tests/LiveJevTests.swift` runs the set and single queries from the README against the real API using the machine's real index, prints every candidate with its target and match probability, and asserts the expected shape (group row on top for the Ambassador and last-hour-files queries, no group for `the pdf I just downloaded`, `dark`, `wifi off`). It needs the fixtures below and the two variables forwarded into the test runner:
 
 ```sh
-TEST_RUNNER_JEV_LIVE=1 TEST_RUNNER_TYPESAFE_API_KEY="$TYPESAFE_API_KEY" \
+TEST_RUNNER_JEV_LIVE=1 TEST_RUNNER_OPENROUTER_API_KEY="$OPENROUTER_API_KEY" \
   xcodebuild -project JevLauncher.xcodeproj -scheme JevLauncher -configuration Debug \
   -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO \
   -only-testing:JevLauncherTests/LiveJevTests test
@@ -54,7 +54,7 @@ TEST_RUNNER_JEV_LIVE=1 TEST_RUNNER_TYPESAFE_API_KEY="$TYPESAFE_API_KEY" \
 
 ## Manual verification (live Jev)
 
-Requires `TYPESAFE_API_KEY` in the shell. Everything below was run on the VM; screenshots of each step are in `docs/`.
+Requires `OPENROUTER_API_KEY` in the shell. Everything below was run on the VM; screenshots of each step are in `docs/`.
 
 ### 1. Fixtures
 
@@ -105,7 +105,7 @@ EOF
 
 Expected: a translucent 680 pt-wide panel appears centred, slightly above the middle of the screen, with the placeholder `Say what you mean…`, five clickable example chips, `N apps, files and settings indexed` (85 on the VM) and `Jev · one judgment per keystroke` in the footer. `⌥Space` hides and shows it from any app. The menu bar shows a ⚡ item.
 
-If the empty state says `TYPESAFE_API_KEY is not set — local matching only`, the key was not inherited; export it in the same shell or paste it in ⚡ → Settings….
+If the empty state says `OPENROUTER_API_KEY is not set — local matching only`, the key was not inherited; export it in the same shell or paste it in ⚡ → Settings….
 
 Click a chip: the query fills in and the panel grows to fit the rows (56 pt each, at most seven) and shrinks again when the field is cleared.
 
@@ -146,7 +146,7 @@ Do not press ↵ on `sleep` or `Lock Screen` in a remote session unless you can 
 
 ### 5. Failure handling (fuzzy fallback)
 
-- `export TYPESAFE_API_KEY=invalid; ./run.sh --show`, type `dark`: rows appear in fuzzy order with no probabilities or badge, the footer shows `HTTP 401` in red, and the panel never stalls. Type `the pdf I just downloaded`: the two PDFs that tie on fuzzy score keep their index order, which is the difference Jev makes.
+- `export OPENROUTER_API_KEY=invalid; ./run.sh --show`, type `dark`: rows appear in fuzzy order with no probabilities or badge, the footer shows `HTTP 401` in red, and the panel never stalls. Type `the pdf I just downloaded`: the two PDFs that tie on fuzzy score keep their index order, which is the difference Jev makes.
 - Disconnect the network and type: same fuzzy fallback, footer shows the transport error instead. Once requests succeed again the footer returns to the latency line with `(N failed)` in the decision count.
 
 ## Permissions

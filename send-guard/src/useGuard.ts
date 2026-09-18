@@ -7,7 +7,7 @@ export const DEBOUNCE_MS = 120;
 export interface Sample {
   /** Measured in the browser around fetch(): keystroke pause → answers in hand. */
   clientMs: number;
-  /** Measured on the Node proxy around the call to api.typesafe.ai. */
+  /** Measured on the Node proxy around the call to openrouter.ai. */
   apiMs: number;
   judgments: number;
   at: number;

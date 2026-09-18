@@ -3,7 +3,7 @@ import type { Answer, JudgeRequest, JudgeResponse } from "../src/lib/types.ts";
 import { buildRequestBody } from "../src/lib/questions.ts";
 import { mockAnswers } from "./mock.ts";
 
-const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
+const ENDPOINT = "https://openrouter.ai/api/alpha/decisions";
 const MAX_RETRIES = 4;
 const BASE_BACKOFF_MS = 250;
 
@@ -48,7 +48,7 @@ export async function judge(req: JudgeRequest, opts: JevOptions): Promise<JudgeR
     };
   }
 
-  if (!opts.apiKey) throw new JevError(500, "TYPESAFE_API_KEY is not set. Export it and restart `npm run dev`, or run with MOCK=1.");
+  if (!opts.apiKey) throw new JevError(500, "OPENROUTER_API_KEY is not set. Export it and restart `npm run dev`, or run with MOCK=1.");
 
   let attempt = 0;
   for (;;) {

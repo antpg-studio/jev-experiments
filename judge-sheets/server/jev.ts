@@ -1,12 +1,12 @@
 /**
- * The only module that talks to TypeSafe. Everything else (the formula engine,
+ * The only module that talks to Jev. Everything else (the formula engine,
  * the grid, the batcher) deals in the typed shapes below.
  */
 import { performance } from "node:perf_hooks";
 import type { Question, SystemOneResponse } from "./types.ts";
 
-export const TYPESAFE_URL = "https://api.typesafe.ai/v1/systemone";
-export const MODEL = "jev-latest";
+export const JEV_URL = "https://openrouter.ai/api/alpha/decisions";
+export const MODEL = "typesafe/jev-1.13";
 
 export class JevError extends Error {
   status: number;
@@ -40,7 +40,7 @@ export async function systemOne(
     attempt++;
     let res: Response;
     try {
-      res = await f(TYPESAFE_URL, {
+      res = await f(JEV_URL, {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({ state, model: MODEL, questions }),

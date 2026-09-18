@@ -12,7 +12,7 @@ createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
   if (url.pathname === "/api/jev") {
     if (req.method !== "POST") { res.writeHead(405); res.end(); return; }
-    const out = await forwardToJev(await readJevBody(req), process.env.TYPESAFE_API_KEY);
+    const out = await forwardToJev(await readJevBody(req), process.env.OPENROUTER_API_KEY);
     res.writeHead(out.status, { "content-type": "application/json" });
     res.end(out.body);
     return;

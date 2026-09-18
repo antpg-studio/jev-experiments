@@ -32,21 +32,21 @@ baseline shows what the same UI feels like when the model is slow.
 
 ```sh
 cd jev-instant-search
-cp .env.example .env        # put your key in TYPESAFE_API_KEY
+cp .env.example .env        # put your key in OPENROUTER_API_KEY
 npm ci
-TYPESAFE_API_KEY=... npm run dev          # http://localhost:5173
+OPENROUTER_API_KEY=... npm run dev          # http://localhost:5173
 ```
 
 Production-style:
 
 ```sh
 npm run build
-TYPESAFE_API_KEY=... npm run preview      # node server.mjs, serves dist/ on :4173
+OPENROUTER_API_KEY=... npm run preview      # node server.mjs, serves dist/ on :4173
 ```
 
 The browser only ever calls `/api/jev`. In dev a Vite middleware plugin
 (`vite.config.ts` -> `server/jev-proxy.mjs`) forwards it to
-`https://api.typesafe.ai/v1/systemone` with the server-side key; in preview/production
+`https://openrouter.ai/api/alpha/decisions` with the server-side key; in preview/production
 `server.mjs` does the same. The key never reaches the client bundle.
 
 Other scripts: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`,

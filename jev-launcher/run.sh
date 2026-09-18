@@ -1,5 +1,5 @@
 #!/bin/sh
-# Builds the Debug app and launches it from the shell so TYPESAFE_API_KEY is inherited.
+# Builds the Debug app and launches it from the shell so OPENROUTER_API_KEY is inherited.
 # Usage: ./run.sh [--show]
 set -e
 cd "$(dirname "$0")"

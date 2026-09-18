@@ -162,7 +162,7 @@ export default function App() {
           <span className="sub">8 live chats · judged by Jev</span>
         </div>
         {health === null && <span className="pill warn">proxy offline — run `npm run dev`</span>}
-        {health && !health.mock && !health.hasKey && <span className="pill warn">TYPESAFE_API_KEY not set</span>}
+        {health && !health.mock && !health.hasKey && <span className="pill warn">OPENROUTER_API_KEY not set</span>}
         {mock && <span className="pill mock">Mock mode — canned answers, not Jev</span>}
 
         <MetricsBar state={state} total={totalMessages()} />

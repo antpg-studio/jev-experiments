@@ -116,7 +116,7 @@ export default function App() {
         </button>
         <div className="spacer" />
         <span className={`status-pill ${mode !== "jev" ? "" : jevLive ? "live" : k.jev.fallbacks > 0 ? "fallback" : ""}`}>
-          {mode !== "jev" ? MODE_LABEL[mode] : jevLive ? "jev-latest live" : k.jev.requests === 0 ? "jev idle" : "fallback"}
+          {mode !== "jev" ? MODE_LABEL[mode] : jevLive ? "typesafe/jev-1.13 live" : k.jev.requests === 0 ? "jev idle" : "fallback"}
         </span>
         <div className="speed">
           {SPEEDS.map((s) => <button key={s} className={s === speed ? "active" : ""} onClick={() => setSpeed(s)}>{s}×</button>)}

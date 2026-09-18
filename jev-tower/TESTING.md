@@ -11,7 +11,7 @@ npm test            # vitest, src/**/*.test.ts, no network
 npm run build       # tsc -b && vite build
 ```
 
-Node 22.12+ or 24. Lint, typecheck, tests and build need no API key. Running the app or the measurement harness needs `TYPESAFE_API_KEY` in the shell (see `.env.example`); the key is read only by `jev-proxy.mjs` / `server.mjs` / `measure/run.live.ts` and never reaches the browser bundle.
+Node 22.12+ or 24. Lint, typecheck, tests and build need no API key. Running the app or the measurement harness needs `OPENROUTER_API_KEY` in the shell (see `.env.example`); the key is read only by `jev-proxy.mjs` / `server.mjs` / `measure/run.live.ts` and never reaches the browser bundle.
 
 ## Automated coverage (`npm test`)
 
@@ -52,7 +52,7 @@ npx vitest run -c /dev/null -t "deterministic" src/conflict.test.ts
 ## Live measurement
 
 ```sh
-export TYPESAFE_API_KEY=...
+export OPENROUTER_API_KEY=...
 JEV_MODE=rules SPEED=1 npm run measure        # JEV_MODE = rules | jev | slow
 JEV_MODE=jev   SPEED=4 RUSH=1 npm run measure # SEED=<n> DUR=<seconds> also accepted
 ```

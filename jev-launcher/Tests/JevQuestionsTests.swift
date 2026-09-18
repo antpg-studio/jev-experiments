@@ -10,7 +10,7 @@ final class JevQuestionsTests: XCTestCase {
   func testRequestIsOneFanOutWithThreeQuestions() throws {
     let request = JevQuestions.buildRequest(
       query: "wifi off", context: context, candidates: [Fixtures.wifiOff, Fixtures.wifiOn])
-    XCTAssertEqual(request.model, "jev-latest")
+    XCTAssertEqual(request.model, "typesafe/jev-1.13")
     XCTAssertEqual(
       Set(request.questions.keys),
       ["target", "action", "ready", "scope", "match_c0", "match_c1"])

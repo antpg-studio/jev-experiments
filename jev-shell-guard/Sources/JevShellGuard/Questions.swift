@@ -12,7 +12,7 @@ public enum Questions {
 
   public static func request(state: CommandState) -> [String: Any] {
     [
-      "model": "jev-latest",
+      "model": "typesafe/jev-1.13",
       "state": (try? JSONSerialization.jsonObject(with: JSONEncoder().encode(state))) ?? [:],
       "questions": [
         destructive: [

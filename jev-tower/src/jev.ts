@@ -15,7 +15,7 @@ export type Question =
 
 export interface JevRequest {
   state: unknown;
-  model: "jev-latest";
+  model: "typesafe/jev-1.13";
   questions: Record<string, Question>;
 }
 
@@ -203,7 +203,7 @@ export function buildRequest(states: CandidateState[]): JevRequest {
       },
     };
   });
-  return { state: { aircraft: states }, model: "jev-latest", questions };
+  return { state: { aircraft: states }, model: "typesafe/jev-1.13", questions };
 }
 
 export interface ParsedAnswer {

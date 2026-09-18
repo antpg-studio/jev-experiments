@@ -26,7 +26,7 @@ struct LaunchContext: Codable, Equatable, Sendable {
   }
 }
 
-/// Wire format for `POST /v1/systemone`.
+/// Wire format for `POST /api/alpha/decisions`.
 struct JevRequest: Encodable, Sendable {
   struct Question: Encodable, Sendable {
     let type: String
@@ -117,7 +117,7 @@ struct JevJudgment: Equatable, Sendable {
 }
 
 enum JevQuestions {
-  static let model = "jev-latest"
+  static let model = "typesafe/jev-1.13"
   static let noneOption = "none"
   static let maxCandidates = 32
   static let scopeOne = "one"

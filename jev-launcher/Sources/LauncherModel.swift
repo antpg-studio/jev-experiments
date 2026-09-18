@@ -178,7 +178,7 @@ final class LauncherModel: ObservableObject {
   private func describe(_ error: Error) -> String {
     if let failure = error as? JevClient.Failure {
       switch failure {
-      case .missingAPIKey: return "No API key. Set TYPESAFE_API_KEY or add one in Settings."
+      case .missingAPIKey: return "No API key. Set OPENROUTER_API_KEY or add one in Settings."
       case .http(let code): return "HTTP \(code)"
       case .transport(let message): return message
       }

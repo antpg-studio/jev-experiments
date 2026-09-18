@@ -1,7 +1,7 @@
 /**
  * Terminal benchmark: runs the 30 phrasings through Jev (real API) and the
  * fuzzy matcher, printing accuracy@1 and latency stats. Usage:
- *   TYPESAFE_API_KEY=... node --experimental-strip-types server/bench.ts
+ *   OPENROUTER_API_KEY=... node --experimental-strip-types server/bench.ts
  */
 import { BENCHMARK_CASES } from "../src/data/benchmark.ts";
 import { COMMANDS } from "../src/shared/commands.ts";
@@ -11,9 +11,9 @@ import { previewLabel, resolveAnswers } from "../src/shared/resolve.ts";
 import { percentile } from "../src/shared/stats.ts";
 import { systemOne } from "./jev.ts";
 
-const apiKey = process.env.TYPESAFE_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY;
 if (!apiKey) {
-  console.error("TYPESAFE_API_KEY is not set");
+  console.error("OPENROUTER_API_KEY is not set");
   process.exit(1);
 }
 const questions = buildQuestions();

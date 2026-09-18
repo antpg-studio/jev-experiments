@@ -300,7 +300,7 @@ struct StatsFooter: View {
           .foregroundStyle(Theme.danger)
           .lineLimit(1)
       } else if !model.hasAPIKey {
-        Text("TYPESAFE_API_KEY not set")
+        Text("OPENROUTER_API_KEY not set")
           .foregroundStyle(Theme.danger)
       } else if let last = stats.lastMs {
         Text("\(ms(last)) ms")

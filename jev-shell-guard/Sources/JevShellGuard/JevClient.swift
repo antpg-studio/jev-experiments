@@ -14,7 +14,7 @@ public enum JevError: Error, CustomStringConvertible {
 
   public var description: String {
     switch self {
-    case .missingAPIKey: return "TYPESAFE_API_KEY is not set"
+    case .missingAPIKey: return "OPENROUTER_API_KEY is not set"
     case .deadlineExceeded(let ms): return "deadline exceeded (\(Int(ms))ms)"
     case .transport(let m): return "transport: \(m)"
     case .httpStatus(let code, _):
@@ -27,12 +27,12 @@ public enum JevError: Error, CustomStringConvertible {
 /// One synchronous, deadline-bounded POST to Jev. The CLI is one process per command,
 /// so there is no connection reuse; the deadline covers DNS + TLS + inference.
 public final class JevClient {
-  public static let endpoint = URL(string: "https://api.typesafe.ai/v1/systemone")!
+  public static let endpoint = URL(string: "https://openrouter.ai/api/alpha/decisions")!
 
   let apiKey: String
   let session: URLSession
 
-  public init(apiKey: String? = ProcessInfo.processInfo.environment["TYPESAFE_API_KEY"]) throws {
+  public init(apiKey: String? = ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"]) throws {
     guard let key = apiKey, !key.isEmpty else { throw JevError.missingAPIKey }
     self.apiKey = key
     let cfg = URLSessionConfiguration.ephemeral

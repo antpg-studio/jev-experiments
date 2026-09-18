@@ -94,7 +94,7 @@ function renderHover(m: Marker): Node {
   root.className = "hover";
   const head = document.createElement("div");
   head.className = `hover-head sev-${m.severity}`;
-  head.textContent = `${m.severity.toUpperCase()} · ${m.source === "jev" ? "jev-latest" : "heuristic fallback"}`;
+  head.textContent = `${m.severity.toUpperCase()} · ${m.source === "jev" ? "typesafe/jev-1.13" : "heuristic fallback"}`;
   root.appendChild(head);
   for (const k of m.kinds) {
     const row = document.createElement("div");

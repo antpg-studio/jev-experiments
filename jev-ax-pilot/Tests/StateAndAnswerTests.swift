@@ -86,7 +86,7 @@ final class StateBuilderTests: XCTestCase {
       questions: StateBuilder.questions(tree: tree, context: context))
     let data = try JSONEncoder().encode(request)
     let object = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
-    XCTAssertEqual(object["model"] as? String, "jev-latest")
+    XCTAssertEqual(object["model"] as? String, "typesafe/jev-1.13")
     let questions = try XCTUnwrap(object["questions"] as? [String: Any])
     let goalReached = try XCTUnwrap(questions["goal_reached"] as? [String: Any])
     XCTAssertEqual(goalReached["type"] as? String, "noul")

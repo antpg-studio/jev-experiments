@@ -23,7 +23,7 @@ All four must exit 0. Node 20+ (uses `fetch`, `node:crypto`, `Buffer.writeBigUIn
 | `src/pool.test.ts` | bounded in-flight; a fast answer completes while a slower one is still pending (no head-of-line blocking); refill as answers arrive; failures fall back to heuristic; stale/over-age backlog is shed and counted; simulated delay is applied; plus `stats.ts`: percentiles, ring buffer, rate meter, histogram buckets, cost |
 | `src/wsframe.test.ts` | server text-frame encoding for all three length classes round-trips through the decoder; masked client frames are unmasked; coalesced and partial frames across TCP chunks |
 
-Nothing in the test suite opens a socket or reads `TYPESAFE_API_KEY`. The transport is a fake passed into `JudgePool`.
+Nothing in the test suite opens a socket or reads `OPENROUTER_API_KEY`. The transport is a fake passed into `JudgePool`.
 
 ## Deterministic verification (no API key)
 
@@ -43,7 +43,7 @@ The **heuristic only** toggle runs the whole console with zero network calls (in
 ## Golden path against the live API
 
 ```sh
-export TYPESAFE_API_KEY=...   # never committed; the browser never sees it
+export OPENROUTER_API_KEY=...   # never committed; the browser never sees it
 npm run dev                   # open http://localhost:5173
 ```
 
@@ -61,7 +61,7 @@ npm run dev                   # open http://localhost:5173
 ## Offline evaluation
 
 ```sh
-TYPESAFE_API_KEY=... node --experimental-strip-types eval.mjs 400 2024 32
+OPENROUTER_API_KEY=... node --experimental-strip-types eval.mjs 400 2024 32
 ```
 
 Judges 400 seeded messages straight against TypeSafe with 32-way concurrency and prints throughput, latency percentiles, tokens/message, per-category mean probabilities, and mod-queue / streamer-feed precision and recall against the generator's hidden category labels. Every judged message is written to `eval-out.jsonl` (git-ignored) for hand-checking.

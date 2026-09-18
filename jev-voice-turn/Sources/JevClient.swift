@@ -1,6 +1,6 @@
 import Foundation
 
-/// Decoded answers from one `/v1/systemone` call. Only fields the app uses.
+/// Decoded answers from one `/api/alpha/decisions` call. Only fields the app uses.
 struct JevAnswers: Equatable {
   var model: String
   var turnComplete: Double
@@ -52,7 +52,7 @@ enum JevError: Error, LocalizedError {
 
   var errorDescription: String? {
     switch self {
-    case .missingKey: return "TYPESAFE_API_KEY is not set (env var or Settings)"
+    case .missingKey: return "OPENROUTER_API_KEY is not set (env var or Settings)"
     case .http(let code, let body): return "HTTP \(code): \(body.prefix(120))"
     case .malformed(let what): return "Malformed response: \(what)"
     }
@@ -66,8 +66,8 @@ struct JevResult {
 
 /// Thin URLSession client. No SDK: one POST per partial transcript, timed on the wall clock.
 final class JevClient {
-  static let endpoint = URL(string: "https://api.typesafe.ai/v1/systemone")!
-  static let apiKeyDefaultsKey = "typesafeAPIKey"
+  static let endpoint = URL(string: "https://openrouter.ai/api/alpha/decisions")!
+  static let apiKeyDefaultsKey = "openRouterAPIKey"
 
   private let session: URLSession
 
@@ -79,7 +79,7 @@ final class JevClient {
   }
 
   static func apiKey() -> String? {
-    if let env = ProcessInfo.processInfo.environment["TYPESAFE_API_KEY"], !env.isEmpty {
+    if let env = ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"], !env.isEmpty {
       return env
     }
     let stored = UserDefaults.standard.string(forKey: apiKeyDefaultsKey) ?? ""

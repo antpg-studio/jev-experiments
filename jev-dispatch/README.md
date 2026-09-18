@@ -39,11 +39,11 @@ Cost uses the published Jev price of $42 / Btok = $0.042 per million input token
 
 ## Run
 
-Node 22.12+ or 24. The API key stays on the server: the Vite dev middleware and `server.mjs` proxy `/api/jev` to `https://api.typesafe.ai/v1/systemone`; the browser never sees the key.
+Node 22.12+ or 24. The API key stays on the server: the Vite dev middleware and `server.mjs` proxy `/api/jev` to `https://openrouter.ai/api/alpha/decisions`; the browser never sees the key.
 
 ```sh
 cd jev-dispatch
-cp .env.example .env         # or export TYPESAFE_API_KEY=...
+cp .env.example .env         # or export OPENROUTER_API_KEY=...
 npm ci
 npm run dev                  # http://localhost:5173
 ```
@@ -126,7 +126,7 @@ The full 40-row table is what the script prints; the run used for the numbers ab
 
 ## Latency and cost, measured
 
-From the benchmark run above (Node on this machine, direct to `api.typesafe.ai`): p50 **108 ms**, p95 **327 ms**, 275 requests, 0 errors. In the browser (through the Vite proxy) the KPI strip showed p50 110–160 ms and p95 240–400 ms across runs; one earlier run that overlapped a second concurrent stream on the same key hit 429s, which the client now retries with backoff. Tokens: ~1,730–1,770 input per request depending on how many open incidents are nearby, output free; **$0.074 per 1,000 reports**.
+From the benchmark run above (Node on this machine, direct to `openrouter.ai`): p50 **108 ms**, p95 **327 ms**, 275 requests, 0 errors. In the browser (through the Vite proxy) the KPI strip showed p50 110–160 ms and p95 240–400 ms across runs; one earlier run that overlapped a second concurrent stream on the same key hit 429s, which the client now retries with backoff. Tokens: ~1,730–1,770 input per request depending on how many open incidents are nearby, output free; **$0.074 per 1,000 reports**.
 
 ## Limitations
 

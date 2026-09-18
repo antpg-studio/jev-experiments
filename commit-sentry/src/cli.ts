@@ -128,7 +128,7 @@ Flags:
   --command <cmd>       install: command the hooks should run (default: npx commit-sentry)
 
 Environment:
-  TYPESAFE_API_KEY      required unless --mock
+  OPENROUTER_API_KEY      required unless --mock
   MOCK=1                same as --mock
   NO_COLOR / FORCE_COLOR
 `;

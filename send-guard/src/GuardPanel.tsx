@@ -53,7 +53,7 @@ export default function GuardPanel(p: Props) {
           <ShieldCheck size={18} /> Send Guard
         </span>
         <span className="details-model">
-          {p.mock ? <span className="badge badge-mock">MOCK — heuristic answers, not Jev</span> : !p.hasKey ? <span className="badge badge-err">TYPESAFE_API_KEY missing</span> : p.model ? <span className="badge">{p.model}</span> : null}
+          {p.mock ? <span className="badge badge-mock">MOCK — heuristic answers, not Jev</span> : !p.hasKey ? <span className="badge badge-err">OPENROUTER_API_KEY missing</span> : p.model ? <span className="badge">{p.model}</span> : null}
         </span>
         <button className="icon-btn light" onClick={p.onClose} aria-label="Close">
           <Close size={18} />

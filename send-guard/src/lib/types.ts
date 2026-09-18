@@ -53,7 +53,7 @@ export interface JudgeRequest {
 
 export interface JudgeResponse {
   answers: Record<string, Answer>;
-  /** Server-measured round trip to api.typesafe.ai in ms. */
+  /** Server-measured round trip to openrouter.ai in ms. */
   apiMs: number;
   model: string;
   usage: { input_tokens: number; output_tokens: number };

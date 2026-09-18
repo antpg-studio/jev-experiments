@@ -7,16 +7,39 @@ import type { JudgeAnswers, JudgeRequest, JudgeResponse } from "../src/lib/quest
 import { mockAnswers } from "./mock.ts";
 
 export const MOCK = process.env.MOCK === "1";
-export const HAS_KEY = Boolean(process.env.TYPESAFE_API_KEY);
+export const HAS_KEY = Boolean(process.env.OPENROUTER_API_KEY);
 
 const MAX_CONCURRENT = 8;
 const QUESTIONS = buildQuestions(MACRO_SUMMARIES);
+
+/* openrouter-shim:begin */
+/**
+ * OpenRouter's Decisions API speaks the same protocol as TypeSafe's System One, at a different
+ * path. The SDK hardcodes `/v1/systemone`, so rewrite it on the way out and keep the SDK's typed
+ * question builders, retry policy and response parsing.
+ */
+const OPENROUTER_BASE_URL = "https://openrouter.ai";
+const OPENROUTER_MODEL = "typesafe/jev-1.13";
+const openRouterFetch: typeof fetch = (input, init) => {
+  if (typeof input === "string" || input instanceof URL) {
+    return fetch(String(input).replace("/v1/systemone", "/api/alpha/decisions"), init);
+  }
+  return fetch(input, init);
+};
+/* openrouter-shim:end */
 
 let client: TypeSafeClient | null = null;
 function getClient(): TypeSafeClient {
   if (!client) {
     // The SDK retries 429/529/5xx with exponential backoff (500 ms doubling, jittered) by default.
-    client = new TypeSafeClient({ retry: { maxRetries: 4, backoffInitialMs: 300, backoffMaxMs: 4000 }, timeout: 8000 });
+    client = new TypeSafeClient({
+      apiKey: process.env.OPENROUTER_API_KEY,
+      baseURL: OPENROUTER_BASE_URL,
+      defaultModel: OPENROUTER_MODEL,
+      fetch: openRouterFetch,
+      retry: { maxRetries: 4, backoffInitialMs: 300, backoffMaxMs: 4000 },
+      timeout: 8000,
+    });
   }
   return client;
 }

@@ -96,7 +96,7 @@ enum TurnState {
   }
 
   static func requestBody(_ s: TurnSnapshot) -> [String: Any] {
-    ["state": state(s), "model": "jev-latest", "questions": questions(s)]
+    ["state": state(s), "model": "typesafe/jev-1.13", "questions": questions(s)]
   }
 
   private static func selectQuestion(_ instructions: String, candidates: [String], none: String)

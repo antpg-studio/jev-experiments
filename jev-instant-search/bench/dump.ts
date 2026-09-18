@@ -1,12 +1,12 @@
 // Prints the whole 30-candidate shortlist for one query in both columns (live API).
-// Usage: TYPESAFE_API_KEY=... node bench/dump.ts "quiet keyboard for open office"
+// Usage: OPENROUTER_API_KEY=... node bench/dump.ts "quiet keyboard for open office"
 import { generateCatalog } from "../src/catalog.ts";
 import { buildRequest, parseAnswers, type JevResponse } from "../src/jev.ts";
 import { combine, DEFAULT_WEIGHTS, lexicalOnly } from "../src/rank.ts";
 import { createIndex, search } from "../src/retriever.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY not set");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY not set");
 const query = process.argv[2];
 if (!query) throw new Error("usage: node bench/dump.ts <query>");
 
@@ -14,7 +14,7 @@ const catalog = generateCatalog();
 const index = createIndex(catalog);
 const byId = new Map(catalog.map((p) => [p.id, p]));
 const hits = search(index, byId, query);
-const res = await fetch("https://api.typesafe.ai/v1/systemone", {
+const res = await fetch("https://openrouter.ai/api/alpha/decisions", {
   method: "POST",
   headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
   body: JSON.stringify(buildRequest(query, hits.map((h) => h.product))),

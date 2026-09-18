@@ -23,7 +23,7 @@ decisions come from the same probability.
 ## Measured numbers (live run, simulated microphone, 2026-09-17)
 
 One full pass of the scripted demo (10 utterances, 9 completed turns) against
-`https://api.typesafe.ai/v1/systemone`, model `jev-latest`, from the demo VM:
+`https://openrouter.ai/api/alpha/decisions`, model `typesafe/jev-1.13`, from the demo VM:
 
 | Metric | Value |
 | --- | --- |
@@ -151,14 +151,14 @@ Requirements: macOS 14+, Xcode 15+, XcodeGen 2.46.0 (`brew install xcodegen`).
 
 ```sh
 cd jev-voice-turn
-export TYPESAFE_API_KEY=...        # or set it in JevVoiceTurn > Settings
+export OPENROUTER_API_KEY=...        # or set it in JevVoiceTurn > Settings
 xcodegen generate                  # optional; the .xcodeproj is committed
 xcodebuild -project JevVoiceTurn.xcodeproj -scheme JevVoiceTurn -configuration Debug \
   -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 open build/Build/Products/Debug/JevVoiceTurn.app
 ```
 
-Launch from a shell that has `TYPESAFE_API_KEY` exported (Finder-launched apps do not
+Launch from a shell that has `OPENROUTER_API_KEY` exported (Finder-launched apps do not
 inherit shell variables); otherwise paste the key into Settings, where it is stored in
 UserDefaults. The key is never logged or written to the repository.
 

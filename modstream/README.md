@@ -20,7 +20,7 @@ Every number on the HUD is measured in the running process with `performance.now
 
 ## How Jev is used
 
-`server/jev.ts` is the only module that talks to TypeSafe. It POSTs to `https://api.typesafe.ai/v1/systemone` with `model: "jev-latest"`, a small state object (`{context, message: {user, text, recent_duplicates_from_user}}`) and **all seven questions in one request** (fan-out — the judgments are independent, so there is no reason to pay for seven round trips):
+`server/jev.ts` is the only module that talks to TypeSafe. It POSTs to `https://openrouter.ai/api/alpha/decisions` with `model: "typesafe/jev-1.13"`, a small state object (`{context, message: {user, text, recent_duplicates_from_user}}`) and **all seven questions in one request** (fan-out — the judgments are independent, so there is no reason to pay for seven round trips):
 
 | id | type | question (abridged) |
 | --- | --- | --- |
@@ -46,7 +46,7 @@ Other engineering bits: FIFO concurrency limiter (default 16 in flight, adjustab
 
 ## Run
 
-Node 22+. Set `TYPESAFE_API_KEY` in your shell (it stays server-side; the browser only talks to the local WebSocket).
+Node 22+. Set `OPENROUTER_API_KEY` in your shell (it stays server-side; the browser only talks to the local WebSocket).
 
 ```sh
 cd modstream
@@ -65,7 +65,7 @@ npm run typecheck && npm run lint && npm test && npm run build
 
 ## Measured numbers (real API, single Linux VM)
 
-Headless run of the same server (`ws://localhost:8787/ws`, real `jev-latest`, concurrency 16, default thresholds): rate slider at 40 msg/s for 30 s with a 150-message raid at t = 12 s.
+Headless run of the same server (`ws://localhost:8787/ws`, real `typesafe/jev-1.13`, concurrency 16, default thresholds): rate slider at 40 msg/s for 30 s with a 150-message raid at t = 12 s.
 
 | metric | value |
 | --- | --- |

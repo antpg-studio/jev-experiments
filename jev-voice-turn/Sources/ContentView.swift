@@ -125,7 +125,7 @@ struct ContentView: View {
           Text(err).foregroundStyle(Theme.barge).lineLimit(1)
         } else if !engine.hasAPIKey {
           Spacer()
-          Text("TYPESAFE_API_KEY not set").foregroundStyle(Theme.barge)
+          Text("OPENROUTER_API_KEY not set").foregroundStyle(Theme.barge)
         }
       }
       .font(.system(size: 10))

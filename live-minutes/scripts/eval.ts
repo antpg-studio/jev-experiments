@@ -10,9 +10,9 @@ import { summarize } from "../src/lib/stats.ts";
 import { evaluateKeyword } from "../src/lib/keyword.ts";
 import type { JudgeAnswers, JudgeRequest } from "../src/lib/types.ts";
 
-const apiKey = process.env.TYPESAFE_API_KEY?.trim();
+const apiKey = process.env.OPENROUTER_API_KEY?.trim();
 if (!apiKey) {
-  console.error("TYPESAFE_API_KEY is not set");
+  console.error("OPENROUTER_API_KEY is not set");
   process.exit(1);
 }
 const writeMock = process.argv.includes("--write-mock");

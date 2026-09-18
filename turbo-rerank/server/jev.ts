@@ -10,18 +10,38 @@ export const MOCK = process.env.MOCK === "1" || process.argv.includes("--mock");
 /** Number of parallel batches per rerank. 1 = all 50 candidates in a single request. */
 export const BATCHES = Math.max(1, Number(process.env.RERANK_BATCHES ?? "1") || 1);
 
+/* openrouter-shim:begin */
+/**
+ * OpenRouter's Decisions API speaks the same protocol as TypeSafe's System One, at a different
+ * path. The SDK hardcodes `/v1/systemone`, so rewrite it on the way out and keep the SDK's typed
+ * question builders, retry policy and response parsing.
+ */
+const OPENROUTER_BASE_URL = "https://openrouter.ai";
+const OPENROUTER_MODEL = "typesafe/jev-1.13";
+const openRouterFetch: typeof fetch = (input, init) => {
+  if (typeof input === "string" || input instanceof URL) {
+    return fetch(String(input).replace("/v1/systemone", "/api/alpha/decisions"), init);
+  }
+  return fetch(input, init);
+};
+/* openrouter-shim:end */
+
 let client: TypeSafeClient | null = null;
 
 export class MissingKeyError extends Error {
   constructor() {
-    super("TYPESAFE_API_KEY is not set. Export it in your shell (never commit it) or run with MOCK=1.");
+    super("OPENROUTER_API_KEY is not set. Export it in your shell (never commit it) or run with MOCK=1.");
     this.name = "MissingKeyError";
   }
 }
 
 function getClient(): TypeSafeClient {
-  if (!process.env.TYPESAFE_API_KEY) throw new MissingKeyError();
+  if (!process.env.OPENROUTER_API_KEY) throw new MissingKeyError();
   client ??= new TypeSafeClient({
+    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: OPENROUTER_BASE_URL,
+    defaultModel: OPENROUTER_MODEL,
+    fetch: openRouterFetch,
     timeout: 20_000,
     retry: {
       maxRetries: 4,
@@ -44,7 +64,7 @@ export interface RerankOutput {
 
 async function judgeBatch(query: string, passages: Passage[]) {
   const { state, questions, keyToId } = buildRerankRequest(query, passages);
-  const { answers, usage } = await getClient().systemOne({ state, questions, model: "jev-latest" });
+  const { answers, usage } = await getClient().systemOne({ state, questions, model: "typesafe/jev-1.13" });
   const parsed = parseRerankAnswers(answers as Record<string, RawAnswer>, keyToId);
   return { ...parsed, usage };
 }

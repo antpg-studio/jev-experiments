@@ -95,12 +95,12 @@ adds a 6 s per-attempt timeout and exponential backoff on 429 / 529 / 5xx.
 
 ## Run
 
-Requires Node 22+ (uses `--experimental-strip-types`) and `TYPESAFE_API_KEY` in the environment.
+Requires Node 22+ (uses `--experimental-strip-types`) and `OPENROUTER_API_KEY` in the environment.
 
 ```sh
 cd live-minutes
 npm ci
-TYPESAFE_API_KEY=... npm run dev     # proxy on :8787 + Vite on :5173, one command
+OPENROUTER_API_KEY=... npm run dev     # proxy on :8787 + Vite on :5173, one command
 ```
 
 Open http://localhost:5173, press `4` then `s` (or click **[4×]** and **▶ start**).
@@ -113,7 +113,7 @@ Open http://localhost:5173, press `4` then `s` (or click **[4×]** and **▶ sta
 
 ## Measured
 
-Real TypeSafe API (`jev-latest`), Linux VM, 2026-09-17. Fixture: 180 utterances, 50 labelled action items.
+Real TypeSafe API (`typesafe/jev-1.13`), Linux VM, 2026-09-17. Fixture: 180 utterances, 50 labelled action items.
 
 **Browser, 4× replay (screenshot above)**
 

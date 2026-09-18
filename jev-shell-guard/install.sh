@@ -31,5 +31,5 @@ case ":$PATH:" in
   *":$bin_dir:"*) ;;
   *) echo "note: add $bin_dir to PATH before the source line so the hook can find jevsh" ;;
 esac
-[[ -n "${TYPESAFE_API_KEY:-}" ]] || echo "note: export TYPESAFE_API_KEY in your shell; without it jevsh runs the regex fallback"
+[[ -n "${OPENROUTER_API_KEY:-}" ]] || echo "note: export OPENROUTER_API_KEY in your shell; without it jevsh runs the regex fallback"
 echo "open a new shell (or: source $zshrc) to activate"

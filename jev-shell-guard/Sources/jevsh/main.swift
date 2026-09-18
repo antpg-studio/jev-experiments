@@ -282,7 +282,7 @@ func runBench(_ args: [String]) -> Int32 {
   var decisions: [String: Int] = [:]
   let wallStart = Date()
   print(
-    "\(ANSI.dim)mode: \(heuristic ? "heuristic (regex only)" : "jev-latest") · \(count) commands · deadline \(config.deadlineMs)ms\(ANSI.reset)"
+    "\(ANSI.dim)mode: \(heuristic ? "heuristic (regex only)" : "typesafe/jev-1.13") · \(count) commands · deadline \(config.deadlineMs)ms\(ANSI.reset)"
   )
   print("")
   for n in 0..<count {

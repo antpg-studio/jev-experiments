@@ -17,7 +17,7 @@ Node 22.12+ or 24. The key stays server-side: the browser only ever calls `/api/
 ```sh
 cd jev-swarm
 npm ci
-cp .env.example .env         # or: export TYPESAFE_API_KEY=...
+cp .env.example .env         # or: export OPENROUTER_API_KEY=...
 npm run dev                  # http://localhost:5173
 ```
 
@@ -65,7 +65,7 @@ The heuristic bots (`heuristicDecision`) flee the nearest bigger agent within 18
 
 ## Measured run
 
-Live `jev-1.13.0` via `api.typesafe.ai`, Safari on macOS on the same machine as the proxy, defaults (32 Jev agents + human, 8 agents/request, 400 ms tick), captured at 3:02 of run time (screenshot above):
+Live `jev-1.13.0` via `openrouter.ai`, Safari on macOS on the same machine as the proxy, defaults (32 Jev agents + human, 8 agents/request, 400 ms tick), captured at 3:02 of run time (screenshot above):
 
 | metric | value |
 | --- | --- |
@@ -105,6 +105,6 @@ Comparison modes:
 ## Limitations
 
 - Screenshots were taken manually in Safari; there is no automated browser test. The behaviour differences between personalities are visible (aggressive agents hunt and lead the kill table, cautious/greedy ones collect the most pellets) but are not statistically evaluated beyond the leaderboard.
-- Rate limits on `api.typesafe.ai` are dynamic. Bursts of more than ~4–5 requests per second occasionally return 429 (documented as a tokens-per-second bucket); the app treats these as "keep the last decision and back off", which shows up as fallbacks if the pause lasts longer than 4 s. The measured run above had none; earlier runs of the same length saw a handful.
+- Rate limits on `openrouter.ai` are dynamic. Bursts of more than ~4–5 requests per second occasionally return 429 (documented as a tokens-per-second bucket); the app treats these as "keep the last decision and back off", which shows up as fallbacks if the pause lasts longer than 4 s. The measured run above had none; earlier runs of the same length saw a handful.
 - At 64 agents the request rate doubles; a `1000 ms` tick or `16/req` batch keeps the request rate in the range measured above.
 - Cost is computed from `usage.input_tokens` and the published `jev-1.13` price; if pricing changes, `USD_PER_INPUT_TOKEN` in `src/metrics.ts` is the single constant to update.

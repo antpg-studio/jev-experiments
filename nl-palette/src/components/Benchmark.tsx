@@ -155,7 +155,7 @@ export function Benchmark({ appState, onClose }: Props) {
             <div className="meter">
               <span style={{ width: `${(done.length / n) * 100}%` }} />
             </div>
-            <div className="sub muted">{run?.mock ? <em className="mock">MOCK answers (MOCK=1)</em> : run ? "live TypeSafe API · jev-latest" : "press Run"}</div>
+            <div className="sub muted">{run?.mock ? <em className="mock">MOCK answers (MOCK=1)</em> : run ? "live TypeSafe API · typesafe/jev-1.13" : "press Run"}</div>
           </div>
         </section>
 

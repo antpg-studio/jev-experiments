@@ -83,7 +83,7 @@ export interface JudgeAnswers {
 
 export interface JudgeResponse {
   answers: JudgeAnswers;
-  /** Server-measured round trip to api.typesafe.ai in ms */
+  /** Server-measured round trip to openrouter.ai in ms */
   apiMs: number;
   mock: boolean;
   usage?: { input_tokens: number; output_tokens: number };

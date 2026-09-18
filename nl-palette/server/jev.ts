@@ -1,8 +1,8 @@
 import { performance } from "node:perf_hooks";
 import type { Question, SystemOneResponse } from "../src/shared/questions.ts";
 
-const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
-const MODEL = "jev-latest";
+const ENDPOINT = "https://openrouter.ai/api/alpha/decisions";
+const MODEL = "typesafe/jev-1.13";
 const MAX_RETRIES = 4;
 
 export class JevError extends Error {

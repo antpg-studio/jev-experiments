@@ -1,6 +1,6 @@
 import type { Category, Product } from "./catalog.ts";
 
-export const MODEL = "jev-latest";
+export const MODEL = "typesafe/jev-1.13";
 export const PRICE_PER_INPUT_TOKEN_USD = 0.042 / 1_000_000;
 
 export const RELEVANCE_LEVELS = [

@@ -1,12 +1,12 @@
 // Live benchmark: batching vs concurrency for re-ranking 30 candidates.
-// Usage: TYPESAFE_API_KEY=... node bench/latency.ts
+// Usage: OPENROUTER_API_KEY=... node bench/latency.ts
 import { generateCatalog } from "../src/catalog.ts";
 import { buildRequest, type JevRequest, type JevResponse } from "../src/jev.ts";
 import { createIndex, search } from "../src/retriever.ts";
 import { EXAMPLES } from "../src/examples.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY not set");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY not set");
 
 const catalog = generateCatalog();
 const index = createIndex(catalog);
@@ -15,7 +15,7 @@ const byId = new Map(catalog.map((p) => [p.id, p]));
 let rateLimited = 0;
 
 async function call(req: JevRequest, attempt = 0): Promise<JevResponse> {
-  const res = await fetch("https://api.typesafe.ai/v1/systemone", {
+  const res = await fetch("https://openrouter.ai/api/alpha/decisions", {
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify(req),

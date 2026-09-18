@@ -9,7 +9,7 @@ Run from `turbo-rerank/` with Node >=22. Use `npm ci` when dependencies are abse
 
 ## Devin Secrets Needed
 
-- `TYPESAFE_API_KEY`: export into the proxy environment for live requests. Never write the value into source or screenshots.
+- `OPENROUTER_API_KEY`: export into the proxy environment for live requests. Never write the value into source or screenshots.
 
 Maximize Chrome before recording. Search automatically runs after approximately 250 ms without Enter. Search and Benchmark are top navigation tabs. The benchmark runs via `Run benchmark` and streams 40 rows; capture partial progress and completed results. Navigating away unmounts the benchmark, so save completed screenshots before leaving it.
 

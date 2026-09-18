@@ -1,6 +1,6 @@
 // Live evaluation against the Jev API: full-file scan of every sample, precision/recall
 // against the planted issues, and latency stats. Run with:
-//   TYPESAFE_API_KEY=... node scripts/evaluate.ts [sample id]   (Node 22.18+/24 strips types natively)
+//   OPENROUTER_API_KEY=... node scripts/evaluate.ts [sample id]   (Node 22.18+/24 strips types natively)
 // Not part of `npm test` (network).
 
 import { evaluate, pct } from "../src/eval.ts";
@@ -8,11 +8,11 @@ import { Linter } from "../src/linter.ts";
 import { SAMPLES } from "../src/samples.ts";
 import { fmtMs } from "../src/metrics.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY not set");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY not set");
 
 const fetchImpl: typeof fetch = (input, init) =>
-  fetch("https://api.typesafe.ai/v1/systemone", { ...init, headers: { ...(init?.headers as Record<string, string>), authorization: `Bearer ${key}` } });
+  fetch("https://openrouter.ai/api/alpha/decisions", { ...init, headers: { ...(init?.headers as Record<string, string>), authorization: `Bearer ${key}` } });
 
 const only = process.argv[2];
 const rows: string[] = [];

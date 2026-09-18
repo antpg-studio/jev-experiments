@@ -42,12 +42,12 @@ struct SettingsView: View {
 
   var body: some View {
     Form {
-      Section("TypeSafe") {
+      Section("OpenRouter") {
         SecureField("API key", text: $apiKey)
         Text(
-          ProcessInfo.processInfo.environment["TYPESAFE_API_KEY"] == nil
-            ? "TYPESAFE_API_KEY is not set in the environment; the key above is used instead."
-            : "TYPESAFE_API_KEY is set in the environment and takes precedence."
+          ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"] == nil
+            ? "OPENROUTER_API_KEY is not set in the environment; the key above is used instead."
+            : "OPENROUTER_API_KEY is set in the environment and takes precedence."
         )
         .font(.caption)
         .foregroundStyle(.secondary)

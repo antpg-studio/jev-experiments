@@ -40,7 +40,7 @@ export interface JevQuestion {
 
 export interface JevRequest {
   state: Record<string, unknown>;
-  model: "jev-latest";
+  model: "typesafe/jev-1.13";
   questions: Record<string, JevQuestion>;
 }
 
@@ -136,7 +136,7 @@ export function buildRequest(text: string, lang: Language, lines: number[], fns 
     span,
     refs,
     request: {
-      model: "jev-latest",
+      model: "typesafe/jev-1.13",
       state: {
         language: lang,
         function_name: span.name,

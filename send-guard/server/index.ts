@@ -4,10 +4,10 @@ import type { JudgeRequest } from "../src/lib/types.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const MOCK = process.env.MOCK === "1";
-const apiKey = process.env.TYPESAFE_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY;
 
 if (!MOCK && !apiKey) {
-  console.error("\n  TYPESAFE_API_KEY is not set. The UI will show an error until you export it (or run MOCK=1 npm run dev).\n");
+  console.error("\n  OPENROUTER_API_KEY is not set. The UI will show an error until you export it (or run MOCK=1 npm run dev).\n");
 }
 
 const json = (res: http.ServerResponse, status: number, body: unknown) => {

@@ -3,7 +3,7 @@ import XCTest
 @testable import JevLauncher
 
 /// End-to-end probes against the real API over the real local index. Skipped unless
-/// `TYPESAFE_API_KEY` is set and `JEV_LIVE=1`, so the default suite stays offline.
+/// `OPENROUTER_API_KEY` is set and `JEV_LIVE=1`, so the default suite stays offline.
 final class LiveJevTests: XCTestCase {
   let context = LaunchContext(
     frontmostApp: "Finder", recentApps: ["Finder"], clipboardKind: "empty", timeOfDay: "evening",
@@ -12,7 +12,7 @@ final class LiveJevTests: XCTestCase {
   override func setUpWithError() throws {
     try XCTSkipUnless(
       JevClient.apiKey() != nil && ProcessInfo.processInfo.environment["JEV_LIVE"] == "1",
-      "set TYPESAFE_API_KEY and JEV_LIVE=1 to run live probes")
+      "set OPENROUTER_API_KEY and JEV_LIVE=1 to run live probes")
   }
 
   private func judge(_ query: String, index: [Candidate]) async throws -> (

@@ -13,7 +13,7 @@ import {
 
 /** USD per input token for jev-1.13 (docs.typesafe.ai/models: $0.042 per Mtok, output free). */
 export const USD_PER_INPUT_TOKEN = 0.042 / 1_000_000;
-export const MODEL = "jev-latest";
+export const MODEL = "typesafe/jev-1.13";
 
 /** Merge into an open incident only when Jev is at least this sure it is the same event. */
 export const DUPLICATE_THRESHOLD = 0.6;

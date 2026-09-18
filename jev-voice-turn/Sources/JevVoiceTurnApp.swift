@@ -23,19 +23,19 @@ struct JevVoiceTurnApp: App {
 struct SettingsView: View {
   @AppStorage(JevClient.apiKeyDefaultsKey) private var storedKey = ""
   private var envKeySet: Bool {
-    !(ProcessInfo.processInfo.environment["TYPESAFE_API_KEY"] ?? "").isEmpty
+    !(ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"] ?? "").isEmpty
   }
 
   var body: some View {
     Form {
       Section("TypeSafe API key") {
         if envKeySet {
-          Text("Using TYPESAFE_API_KEY from the environment.")
+          Text("Using OPENROUTER_API_KEY from the environment.")
             .foregroundStyle(.secondary)
         }
         SecureField("Fallback key (stored in UserDefaults)", text: $storedKey)
         Text(
-          "The env var takes precedence. The key never leaves this Mac except in the Authorization header to api.typesafe.ai."
+          "The env var takes precedence. The key never leaves this Mac except in the Authorization header to openrouter.ai."
         )
         .font(.caption)
         .foregroundStyle(.secondary)

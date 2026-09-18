@@ -64,7 +64,7 @@ Each run is 500 judgments and ~235k input tokens ≈ $0.01. Try it yourself from
 
 ## What Jev is asked in the triage pass
 
-One `POST https://api.typesafe.ai/v1/systemone` per email, `model: "jev-latest"`, with
+One `POST https://openrouter.ai/api/alpha/decisions` per email, `model: "typesafe/jev-1.13"`, with
 `state = { email: { from, subject, body } }` and these seven questions (verbatim from
 [`server/jev.ts`](server/jev.ts)):
 
@@ -123,7 +123,7 @@ for example:
 ## How it runs
 
 ```
-browser (Vite + React 19)  ──/api/triage──▶  node server (tsx)  ──12 concurrent──▶  api.typesafe.ai
+browser (Vite + React 19)  ──/api/triage──▶  node server (tsx)  ──12 concurrent──▶  openrouter.ai
         ◀── NDJSON stream: one line per email as its judgment lands ──
 ```
 
@@ -151,7 +151,7 @@ browser (Vite + React 19)  ──/api/triage──▶  node server (tsx)  ──
 ```sh
 cd inbox-blitz
 npm ci
-export TYPESAFE_API_KEY=...   # never shipped to the browser
+export OPENROUTER_API_KEY=...   # never shipped to the browser
 npm run dev                   # server on :8787 + Vite on :5173, one command
 ```
 

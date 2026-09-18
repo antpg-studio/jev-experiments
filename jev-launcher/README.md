@@ -46,7 +46,7 @@ The same machinery is not Chrome-specific. `the files I downloaded in the last h
 
 ## Measured numbers
 
-All figures are from real runs on this macOS VM (macOS 26.5, ARM64, Xcode 26.6) against `jev-latest`, which resolved to `jev-1.13.0`. Latency is the full HTTPS round trip measured in the app, including network and inference.
+All figures are from real runs on this macOS VM (macOS 26.5, ARM64, Xcode 26.6) against `typesafe/jev-1.13`, which resolved to `jev-1.13.0`. Latency is the full HTTPS round trip measured in the app, including network and inference.
 
 | Metric | Value |
 |---|---|
@@ -63,7 +63,7 @@ Every question in a request comes back in the same round trip, so five judgments
 
 ## How the Jev request is built
 
-One `POST /v1/systemone` per keystroke with `model: jev-latest`. Jev never generates text; it picks among options the code supplies. Everything else (indexing, fuzzy prefiltering, time parsing, arithmetic, execution) is plain Swift.
+One `POST /api/alpha/decisions` per keystroke with `model: typesafe/jev-1.13`. Jev never generates text; it picks among options the code supplies. Everything else (indexing, fuzzy prefiltering, time parsing, arithmetic, execution) is plain Swift.
 
 **State** (`Sources/JevQuestions.swift`):
 
@@ -122,15 +122,15 @@ The `ready` wording went through several rounds against the five queries plus de
 
 ## Run
 
-Requirements: macOS 14 or later, Xcode 16 or later (built with 26.6), a TypeSafe API key, and [XcodeGen](https://github.com/yonaskolb/XcodeGen) only if you change `project.yml` (the generated project is committed).
+Requirements: macOS 14 or later, Xcode 16 or later (built with 26.6), an OpenRouter API key, and [XcodeGen](https://github.com/yonaskolb/XcodeGen) only if you change `project.yml` (the generated project is committed).
 
 ```sh
 cd jev-launcher
-export TYPESAFE_API_KEY=...        # read from the environment; never hardcoded
+export OPENROUTER_API_KEY=...        # read from the environment; never hardcoded
 ./run.sh --show                    # builds Debug and launches with the panel open
 ```
 
-`run.sh` execs the binary from the shell so the environment variable is inherited. If you launch the `.app` from Finder instead, the key is read from the Settings field (menu bar ⚡, then Settings, stored in `UserDefaults` under `typesafeAPIKey`). With no key the panel still works as a fuzzy launcher and the empty state says so.
+`run.sh` execs the binary from the shell so the environment variable is inherited. If you launch the `.app` from Finder instead, the key is read from the Settings field (menu bar ⚡, then Settings, stored in `UserDefaults` under `openRouterAPIKey`). With no key the panel still works as a fuzzy launcher and the empty state says so.
 
 - **⌥Space** toggles the panel from anywhere (Carbon `RegisterEventHotKey`; no Accessibility permission needed).
 - **↑ / ↓** move the selection, **↵** runs it, **esc** hides the panel. The example chips in the empty state (`dark`, `wifi off`, `15% of 240`, `the pdf I just downloaded`, `links I visited today`) are clickable.
@@ -154,12 +154,12 @@ xcodebuild -project JevLauncher.xcodeproj -scheme JevLauncher -configuration Deb
 xcrun swift-format lint --strict --recursive Sources Tests
 ```
 
-58 tests cover the calculator, fuzzy scorer, prefilter and ranker, request construction and response parsing, latency and cost statistics, recency phrasing, file candidates, Wi-Fi port parsing, Chrome timestamp conversion, reading a copied `History` database, time-window parsing and filtering, set membership, group placement and the `scope` and `match_cN` questions. 53 run offline; `LiveJevTests` (5) hit the real API and are skipped unless `JEV_LIVE=1` and `TYPESAFE_API_KEY` are set in the test runner. See [TESTING.md](TESTING.md) for the manual checklist and fixture setup.
+58 tests cover the calculator, fuzzy scorer, prefilter and ranker, request construction and response parsing, latency and cost statistics, recency phrasing, file candidates, Wi-Fi port parsing, Chrome timestamp conversion, reading a copied `History` database, time-window parsing and filtering, set membership, group placement and the `scope` and `match_cN` questions. 53 run offline; `LiveJevTests` (5) hit the real API and are skipped unless `JEV_LIVE=1` and `OPENROUTER_API_KEY` are set in the test runner. See [TESTING.md](TESTING.md) for the manual checklist and fixture setup.
 
 ## Limitations
 
 - **The list is always shown.** Hiding it on a probabilistic signal felt wrong for a launcher, so readiness is the green ↵ on the top row; Enter always runs the selected row regardless.
-- **Latency is network-bound.** The numbers above are from a US VM; p50 will track your distance to `api.typesafe.ai`.
+- **Latency is network-bound.** The numbers above are from a US VM; p50 will track your distance to `openrouter.ai`.
 - **Fast typists generate stale answers.** Typing far faster than about 10 characters per second produces overlapping requests. The newest answer always wins, but the stale count climbs and p95 rises.
 - **Context is minimal.** `frontmost_app`, `recent_apps`, `clipboard_kind`, `time_of_day` and `weekday` are sent; the app does not read window titles, open browser tabs or clipboard contents. Chrome history is read locally and only the rows that match the query and time window are sent, as title plus host plus relative visit time.
 - **Chrome only, and only visits.** Safari's history is not read (it needs Full Disk Access); the Chrome `downloads` table and open tabs are not used. History is indexed when the panel opens, so a page visited seconds ago appears on the next ⌥Space.

@@ -2,7 +2,7 @@ import Foundation
 
 /// Running request statistics: latency percentiles, throughput, tokens and cost.
 struct LatencyStats: Equatable {
-  /// Published price for jev-latest: $0.042 per million input tokens; output tokens are free.
+  /// Published price for typesafe/jev-1.13: $0.042 per million input tokens; output tokens are free.
   static let usdPerInputToken = 0.042 / 1_000_000
 
   private(set) var latenciesMs: [Double] = []

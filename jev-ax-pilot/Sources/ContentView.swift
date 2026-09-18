@@ -63,7 +63,7 @@ struct ContentView: View {
 
   private var apiKeyPanel: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Label("TYPESAFE_API_KEY not found", systemImage: "key.fill").font(.headline).foregroundStyle(
+      Label("OPENROUTER_API_KEY not found", systemImage: "key.fill").font(.headline).foregroundStyle(
         Theme.warning)
       Text(
         "Set the environment variable before launching, or paste a key here (stored in user defaults)."

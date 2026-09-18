@@ -5,21 +5,21 @@ import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 
-const JEV_URL = "https://api.typesafe.ai/v1/systemone";
+const JEV_URL = "https://openrouter.ai/api/alpha/decisions";
 const PORT = Number(process.env.PORT ?? 4173);
 const DIST = new URL("./dist/", import.meta.url).pathname;
 
 async function loadKey() {
-  if (process.env.TYPESAFE_API_KEY) return process.env.TYPESAFE_API_KEY;
+  if (process.env.OPENROUTER_API_KEY) return process.env.OPENROUTER_API_KEY;
   const envPath = new URL("./.env", import.meta.url).pathname;
   if (!existsSync(envPath)) return undefined;
   const text = await readFile(envPath, "utf8");
-  const line = text.split("\n").find((l) => l.startsWith("TYPESAFE_API_KEY="));
-  return line ? line.slice("TYPESAFE_API_KEY=".length).trim().replace(/^["']|["']$/g, "") : undefined;
+  const line = text.split("\n").find((l) => l.startsWith("OPENROUTER_API_KEY="));
+  return line ? line.slice("OPENROUTER_API_KEY=".length).trim().replace(/^["']|["']$/g, "") : undefined;
 }
 
 const apiKey = await loadKey();
-if (!apiKey) console.warn("TYPESAFE_API_KEY not set: /api/jev will return 503 and the app will use its fallback heuristic");
+if (!apiKey) console.warn("OPENROUTER_API_KEY not set: /api/jev will return 503 and the app will use its fallback heuristic");
 if (!existsSync(DIST)) console.warn("dist/ not found: run `npm run build` first");
 
 const MIME = {
@@ -45,7 +45,7 @@ createServer(async (req, res) => {
     if (req.method !== "POST") return void res.writeHead(405).end();
     if (!apiKey) {
       res.writeHead(503, { "content-type": "application/json" });
-      return void res.end(JSON.stringify({ error: "TYPESAFE_API_KEY is not set on the server" }));
+      return void res.end(JSON.stringify({ error: "OPENROUTER_API_KEY is not set on the server" }));
     }
     try {
       const upstream = await fetch(JEV_URL, {

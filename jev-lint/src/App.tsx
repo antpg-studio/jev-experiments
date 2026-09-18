@@ -118,7 +118,7 @@ export function App() {
         <div className="brand">
           <span className="logo" />
           <span className="name">jev-lint</span>
-          <span className="tag">semantic judgments on every keystroke · jev-latest</span>
+          <span className="tag">semantic judgments on every keystroke · typesafe/jev-1.13</span>
         </div>
         <nav className="tabs">
           {SAMPLES.map((s) => (

@@ -25,7 +25,7 @@ const PORT = Number(process.env.PORT ?? 8787);
 const CONCURRENCY = Number(process.env.JEV_CONCURRENCY ?? 12);
 const MOCK = process.env.MOCK === "1";
 const RECORD = process.env.RECORD === "1";
-const API_KEY = process.env.TYPESAFE_API_KEY ?? "";
+const API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const MOCK_FILE = join(here, "mock-answers.json");
@@ -37,7 +37,7 @@ const recorded: Recorded = existsSync(MOCK_FILE)
 const mode = MOCK ? "mock" : API_KEY ? "live" : "nokey";
 if (mode === "nokey") {
   console.error(
-    "\n  TYPESAFE_API_KEY is not set. Export it (or run with MOCK=1 for a clearly-labelled replay).\n",
+    "\n  OPENROUTER_API_KEY is not set. Export it (or run with MOCK=1 for a clearly-labelled replay).\n",
   );
 }
 
@@ -80,7 +80,7 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/api/judge") {
     if (mode === "nokey") {
       res.writeHead(503, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "TYPESAFE_API_KEY is not set on the server" }));
+      return res.end(JSON.stringify({ error: "OPENROUTER_API_KEY is not set on the server" }));
     }
     let requests: JudgeRequest[];
     try {

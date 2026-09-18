@@ -38,7 +38,7 @@ export function App() {
           <span className="sub">every log line judged by Jev, live</span>
         </div>
         {config?.mock && <span className="mock">MOCK MODE — replaying fixture labels, not calling TypeSafe</span>}
-        {!config?.mock && config && <span className="live">LIVE · TypeSafe jev-latest</span>}
+        {!config?.mock && config && <span className="live">LIVE · TypeSafe typesafe/jev-1.13</span>}
         <span className={`conn ${state.connected ? "on" : "off"}`}>{state.connected ? "stream connected" : "stream disconnected"}</span>
         {state.error && <span className="err" title={state.error}>{state.error}</span>}
         <div className="spacer" />

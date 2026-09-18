@@ -42,7 +42,7 @@ data with no AX API or model calls.
 
 ## Live verification (what was run before the PR)
 
-Prerequisites: `TYPESAFE_API_KEY` in the environment and Accessibility granted to the app (see the
+Prerequisites: `OPENROUTER_API_KEY` in the environment and Accessibility granted to the app (see the
 README section on permissions and the VM limitation).
 
 1. Launch the built app with `JEV_AX_PILOT_TRACE=1` so every step's flattened state and decision go

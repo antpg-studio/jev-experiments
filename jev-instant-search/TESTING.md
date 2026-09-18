@@ -16,14 +16,14 @@ npm run build       # tsc -b && vite build
 Live runs need the key in the environment (never in the bundle, never committed):
 
 ```sh
-TYPESAFE_API_KEY=... npm run dev        # Vite on :5173 with /api/jev middleware
-TYPESAFE_API_KEY=... npm run preview    # node server.mjs serving dist/ on :4173
-TYPESAFE_API_KEY=... npm run bench      # batching vs concurrency table
-TYPESAFE_API_KEY=... npm run eval       # top-5 for the 5 example queries, both columns
-TYPESAFE_API_KEY=... node bench/dump.ts "quiet keyboard for open office"   # all 30 for one query
+OPENROUTER_API_KEY=... npm run dev        # Vite on :5173 with /api/jev middleware
+OPENROUTER_API_KEY=... npm run preview    # node server.mjs serving dist/ on :4173
+OPENROUTER_API_KEY=... npm run bench      # batching vs concurrency table
+OPENROUTER_API_KEY=... npm run eval       # top-5 for the 5 example queries, both columns
+OPENROUTER_API_KEY=... node bench/dump.ts "quiet keyboard for open office"   # all 30 for one query
 ```
 
-Without a key the proxy answers `503 {"error":"TYPESAFE_API_KEY is not set on the server"}`
+Without a key the proxy answers `503 {"error":"OPENROUTER_API_KEY is not set on the server"}`
 and the right column falls back to the deterministic heuristic; the error count on screen
 increments and the UI keeps working.
 
@@ -61,7 +61,7 @@ tests never call the API; they feed hand-built answers into the parser and ranke
 
 ## Golden path in the browser
 
-1. `TYPESAFE_API_KEY=... npm run dev`, open http://localhost:5173.
+1. `OPENROUTER_API_KEY=... npm run dev`, open http://localhost:5173.
 2. Click the chip **something to keep coffee hot on a hike**. It types character by
    character. Expect: left column shows coffee makers; right column shows vacuum bottles
    within ~150–400 ms of the last keystroke; header shows `retriever` under ~2 ms,

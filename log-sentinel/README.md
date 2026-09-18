@@ -49,7 +49,7 @@ within ~200 ms of the line itself, and the backlog stays at ~0.
 
 Exact wording lives in `server/jev.ts` (`questionsFor`). Thresholds: actionable if `P(actionable) ≥ 0.5`.
 
-## Measured numbers (live `jev-latest`, Linux VM, 2026-09-17)
+## Measured numbers (live `typesafe/jev-1.13`, Linux VM, 2026-09-17)
 
 Steady state, default settings (40 lines/s, batch ×8, concurrency 8), measured with `performance.now()` around each
 request:
@@ -83,7 +83,7 @@ Notes from the run:
 ```sh
 cd log-sentinel
 npm ci
-export TYPESAFE_API_KEY=...   # never shipped to the browser; only server/jev.ts reads it
+export OPENROUTER_API_KEY=...   # never shipped to the browser; only server/jev.ts reads it
 npm run dev                   # starts the Node stream server (:8787) and Vite (:5173) together
 ```
 

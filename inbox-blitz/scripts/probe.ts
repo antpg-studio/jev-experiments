@@ -1,11 +1,11 @@
 // Dev helper: judge a sample of the fixture against the real API and print a compact table.
-// Usage: TYPESAFE_API_KEY=... npx tsx scripts/probe.ts [count]
+// Usage: OPENROUTER_API_KEY=... npx tsx scripts/probe.ts [count]
 import { EMAILS } from "../src/data/emails.ts";
 import { judgeEmail } from "../server/jev.ts";
 import { URGENCY_LEVELS, SENTIMENT_LEVELS } from "../src/lib/types.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY missing");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY missing");
 const n = Number(process.argv[2] ?? 40);
 const traps = EMAILS.filter((e) => e.trap);
 const rest = EMAILS.filter((e) => !e.trap).slice(0, n);

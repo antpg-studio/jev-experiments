@@ -1,13 +1,13 @@
 // Offline relevance eval: top-5 for the 5 example queries, lexical-only vs lexical+Jev, using the live API once per query.
-// Usage: TYPESAFE_API_KEY=... node bench/eval.ts
+// Usage: OPENROUTER_API_KEY=... node bench/eval.ts
 import { generateCatalog } from "../src/catalog.ts";
 import { EXAMPLES } from "../src/examples.ts";
 import { buildRequest, parseAnswers, type JevResponse } from "../src/jev.ts";
 import { combine, DEFAULT_WEIGHTS, lexicalOnly, type RankedItem } from "../src/rank.ts";
 import { createIndex, search } from "../src/retriever.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY not set");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY not set");
 
 const catalog = generateCatalog();
 const index = createIndex(catalog);
@@ -24,7 +24,7 @@ for (const query of EXAMPLES) {
   const hits = search(index, byId, query);
   const retrieverMs = performance.now() - t0;
   const t1 = performance.now();
-  const res = await fetch("https://api.typesafe.ai/v1/systemone", {
+  const res = await fetch("https://openrouter.ai/api/alpha/decisions", {
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify(buildRequest(query, hits.map((h) => h.product))),

@@ -34,7 +34,7 @@ export class Store {
   wb: Workbook;
   runner: JevRunner;
   version = 0;
-  health: Health = { ok: false, mode: "offline", model: "jev-latest", concurrency: 0 };
+  health: Health = { ok: false, mode: "offline", model: "typesafe/jev-1.13", concurrency: 0 };
   lastTick = { evaluated: 0, pending: 0, requests: 0, cacheHits: 0 };
   predictions = new Map<string, Prediction>();
   private listeners = new Set<() => void>();
@@ -288,7 +288,7 @@ export class Store {
       const j = (await res.json()) as Health;
       this.health = { ...j, ok: true };
     } catch {
-      this.health = { ok: false, mode: "offline", model: "jev-latest", concurrency: 0 };
+      this.health = { ok: false, mode: "offline", model: "typesafe/jev-1.13", concurrency: 0 };
     }
     this.emit();
   }

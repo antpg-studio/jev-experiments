@@ -113,7 +113,7 @@ function answers(over: Record<string, unknown> = {}) {
 describe("jev request / answer parsing", () => {
   it("builds a fan-out request with all seven questions and the nearby incidents in state", () => {
     const req = buildRequest(report("fire!"), nearby);
-    expect(req.model).toBe("jev-latest");
+    expect(req.model).toBe("typesafe/jev-1.13");
     expect(Object.keys(req.questions).sort()).toEqual(["caller_in_danger_now", "category", "hazmat_or_fire_spread", "is_duplicate_of_open_incident", "multiple_victims", "severity", "units_needed"]);
     expect(req.questions).toBe(QUESTIONS);
     const state = req.state as { report: { text: string }; nearby_open_incidents: { id: string; distance_m: number }[] };

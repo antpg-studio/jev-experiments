@@ -46,12 +46,12 @@ const server = createServer(async (req, res) => {
     return res.end();
   }
   if (req.method === "GET" && url.pathname === "/api/health") {
-    return send(res, 200, { ok: true, mock: MOCK, hasKey: HAS_KEY, model: "jev-latest" });
+    return send(res, 200, { ok: true, mock: MOCK, hasKey: HAS_KEY, model: "typesafe/jev-1.13" });
   }
   if (req.method === "POST" && url.pathname === "/api/judge") {
     if (!MOCK && !HAS_KEY) {
       return send(res, 503, {
-        error: "TYPESAFE_API_KEY is not set. Export it before starting the server, or run with MOCK=1 for canned answers.",
+        error: "OPENROUTER_API_KEY is not set. Export it before starting the server, or run with MOCK=1 for canned answers.",
       });
     }
     try {
@@ -70,6 +70,6 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  const mode = MOCK ? "MOCK answers (no API calls)" : HAS_KEY ? "live Jev (jev-latest)" : "NO API KEY — /api/judge will return 503";
+  const mode = MOCK ? "MOCK answers (no API calls)" : HAS_KEY ? "live Jev (typesafe/jev-1.13)" : "NO API KEY — /api/judge will return 503";
   console.log(`[agent-assist] proxy listening on http://localhost:${PORT}  mode: ${mode}`);
 });

@@ -23,7 +23,7 @@ staged diff is judged in roughly one round-trip.
 
 ## Measured run (real API, `npm run demo`)
 
-The run recorded above, on a Linux VM, `jev-latest`, concurrency 16:
+The run recorded above, on a Linux VM, `typesafe/jev-1.13`, concurrency 16:
 
 | Metric | Value |
 | --- | --- |
@@ -73,7 +73,7 @@ is the code-built summary of each hunk (file, Jev's `kind` and `risk`, first add
 | `message_quality` | score | placeholder / vague / adequate / excellent |
 
 Requests run through `mapWithConcurrency(hunks, 16, …)`; 429/529/5xx get exponential backoff
-(honouring `retry-after`). A missing `TYPESAFE_API_KEY` prints a one-line explanation and exits 2.
+(honouring `retry-after`). A missing `OPENROUTER_API_KEY` prints a one-line explanation and exits 2.
 
 ### Policy (code, [`src/policy.ts`](src/policy.ts))
 
@@ -92,7 +92,7 @@ Requests run through `mapWithConcurrency(hunks, 16, …)`; 429/529/5xx get expon
 ```sh
 cd commit-sentry
 npm ci
-export TYPESAFE_API_KEY=...   # never committed; read from process.env only
+export OPENROUTER_API_KEY=...   # never committed; read from process.env only
 npm run demo                  # builds the fixture repo in a temp dir, judges it, exits 1 (blocked)
 npm run demo -- --strict      # stricter thresholds
 npm run demo -- --report      # also writes commit-sentry-report.json

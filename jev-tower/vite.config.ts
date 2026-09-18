@@ -14,7 +14,7 @@ function jevProxy(): Plugin {
           return;
         }
         const body = await readJevBody(req);
-        const out = await forwardToJev(body, process.env.TYPESAFE_API_KEY);
+        const out = await forwardToJev(body, process.env.OPENROUTER_API_KEY);
         res.statusCode = out.status;
         res.setHeader("content-type", "application/json");
         res.end(out.body);

@@ -15,14 +15,14 @@ final class JevClient {
 
     var errorDescription: String? {
       switch self {
-      case .missingKey: return "TYPESAFE_API_KEY is not set"
+      case .missingKey: return "OPENROUTER_API_KEY is not set"
       case .http(let status, let body): return "HTTP \(status): \(body.prefix(200))"
       }
     }
   }
 
-  static let endpoint = URL(string: "https://api.typesafe.ai/v1/systemone")!
-  static let defaultsKey = "typesafeAPIKey"
+  static let endpoint = URL(string: "https://openrouter.ai/api/alpha/decisions")!
+  static let defaultsKey = "openRouterAPIKey"
 
   private let session: URLSession
   private let encoder = JSONEncoder()
@@ -37,7 +37,7 @@ final class JevClient {
 
   /// Environment first, then the Settings field; never a literal in the source.
   static func apiKey() -> String? {
-    if let key = ProcessInfo.processInfo.environment["TYPESAFE_API_KEY"], !key.isEmpty {
+    if let key = ProcessInfo.processInfo.environment["OPENROUTER_API_KEY"], !key.isEmpty {
       return key
     }
     if let key = UserDefaults.standard.string(forKey: defaultsKey), !key.isEmpty { return key }

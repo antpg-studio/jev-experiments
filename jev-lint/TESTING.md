@@ -11,16 +11,16 @@ npm test              # vitest run, 46 tests, no network
 npm run build         # tsc -b && vite build
 ```
 
-Node 22.12+ or 24. None of the above needs `TYPESAFE_API_KEY`. Running the app does:
+Node 22.12+ or 24. None of the above needs `OPENROUTER_API_KEY`. Running the app does:
 
 ```sh
-export TYPESAFE_API_KEY=...   # or put it in .env (see .env.example)
+export OPENROUTER_API_KEY=...   # or put it in .env (see .env.example)
 npm run dev                   # http://localhost:5173
 # or
 npm run build && npm run preview   # server.mjs on http://localhost:4173, PORT overrides
 ```
 
-The key is read by the Node process (Vite middleware or `server.mjs`) and never sent to the browser. With no key the proxy answers `500 {"error":"TYPESAFE_API_KEY is not set on the server"}` and the editor falls back to heuristic markers, which is visible as `fallback` rows in the request log.
+The key is read by the Node process (Vite middleware or `server.mjs`) and never sent to the browser. With no key the proxy answers `500 {"error":"OPENROUTER_API_KEY is not set on the server"}` and the editor falls back to heuristic markers, which is visible as `fallback` rows in the request log.
 
 ## Automated coverage
 
@@ -31,8 +31,8 @@ The key is read by the Node process (Vite middleware or `server.mjs`) and never 
 ## Live evaluation (network)
 
 ```sh
-TYPESAFE_API_KEY=... node scripts/evaluate.ts          # all six samples
-TYPESAFE_API_KEY=... node scripts/evaluate.ts rs       # one sample: ts, py, go, sql, sh, rs
+OPENROUTER_API_KEY=... node scripts/evaluate.ts          # all six samples
+OPENROUTER_API_KEY=... node scripts/evaluate.ts rs       # one sample: ts, py, go, sql, sh, rs
 ```
 
 Prints, per file: burst wall-clock, request count, questions, input tokens, every TP / FP / MISS line with its probabilities, then a markdown table and the overall precision/recall. Expect results within a few points of the README table; Nouls near the 0.60 threshold flip between runs.

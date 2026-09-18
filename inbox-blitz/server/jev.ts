@@ -1,8 +1,8 @@
 import type { Category, Email, Judgment } from "../src/lib/types.ts";
 import { CATEGORIES, SENTIMENT_LEVELS, URGENCY_LEVELS } from "../src/lib/types.ts";
 
-const ENDPOINT = "https://api.typesafe.ai/v1/systemone";
-export const MODEL = "jev-latest";
+const ENDPOINT = "https://openrouter.ai/api/alpha/decisions";
+export const MODEL = "typesafe/jev-1.13";
 
 type Description = string | Record<string, unknown> | unknown[];
 

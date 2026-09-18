@@ -76,7 +76,7 @@ Ready to buy?    → RATE  "How strong is the sender's intent to purchase our pr
 The intent classifier itself is one `choice` question over the 14 schema descriptions,
 with the header and sample rows as `state`.
 
-## Measured run (real API, `jev-latest`, 12 concurrent lanes, Linux VM)
+## Measured run (real API, `typesafe/jev-1.13`, 12 concurrent lanes, Linux VM)
 
 | Scenario | Rows | Wall time | p50 | p95 | Throughput | Per-cell LLM @ 4 s |
 |---|---|---|---|---|---|---|
@@ -100,7 +100,7 @@ furious reviews about a defect get *urgent*/*high* urgency, happy ones *no follo
 ```sh
 cd judge-sheets
 npm ci
-export TYPESAFE_API_KEY=...      # server-side only; never reaches the browser
+export OPENROUTER_API_KEY=...      # server-side only; never reaches the browser
 npm run dev                      # proxy on :8787 + Vite on :5173
 ```
 
@@ -114,7 +114,7 @@ handle, Ctrl+Shift+D fill-down, drag column borders to resize, `SUM/AVERAGE/COUN
 
 `MOCK=1 npm run dev` replays deterministic answers without an API key; the title-bar badge
 says **Mock mode — replayed answers**. Without a key and without `MOCK=1` the proxy answers
-503 and the badge says **No API key — set TYPESAFE_API_KEY**.
+503 and the badge says **No API key — set OPENROUTER_API_KEY**.
 
 ```sh
 npm test          # vitest: parser, dependency graph, fill-down, batching, metrics, intent → formula
@@ -127,7 +127,7 @@ npm run build     # tsc -b && vite build
 
 ```
 server/index.ts    node:http proxy: /api/health, /api/judge (NDJSON stream), pool, mock
-server/jev.ts      the only module that talks to api.typesafe.ai; timing + backoff
+server/jev.ts      the only module that talks to openrouter.ai; timing + backoff
 server/types.ts    typed question builders: noul(), choice(), score()
 src/engine/        tokenizer, parser, evaluator, workbook (dep graph, dirty set, Jev cache)
 src/lib/predict.ts schema catalog, header-intent question, header → formula

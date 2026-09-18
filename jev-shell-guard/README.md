@@ -40,7 +40,7 @@ wrappers such as `sudo`, `env`, `time` and `VAR=value` prefixes.
 
 ## The five questions (one request)
 
-All five are asked in a single `POST /v1/systemone` call; the answers are independent.
+All five are asked in a single `POST /api/alpha/decisions` call; the answers are independent.
 
 | id | type | asks |
 |---|---|---|
@@ -107,7 +107,7 @@ is printed. The shell never waits longer than the deadline.
 ## Measured numbers
 
 Real `jevsh bench` run (50 varied commands, sequential, one process per command, from a macOS
-VM to `api.typesafe.ai`; model `jev-1.13.0`):
+VM to `openrouter.ai`; model `jev-1.13.0`):
 
 ```
 latency    p50 119ms · p95 209ms · mean 134ms · min 69ms · max 303ms
@@ -133,7 +133,7 @@ the same summary over every real check since install (`~/.local/state/jevsh/stat
 
 ## Install
 
-Requires macOS 14+, Xcode 16+ command-line tools (Swift 5.9+), zsh, and `TYPESAFE_API_KEY`
+Requires macOS 14+, Xcode 16+ command-line tools (Swift 5.9+), zsh, and `OPENROUTER_API_KEY`
 exported in your shell.
 
 ```sh

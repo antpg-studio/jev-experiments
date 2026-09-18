@@ -33,7 +33,7 @@ describe("jev request/response", () => {
   test("one request batches three questions per aircraft over shared state", () => {
     const states = [mkAircraft({ id: 1 }), mkAircraft({ id: 2 }), mkAircraft({ id: 3 })].map((a) => candidateState(a, [], new Map([[a.id, a]]), 0, FIX_MAP));
     const req: JevRequest = buildRequest(states);
-    expect(req.model).toBe("jev-latest");
+    expect(req.model).toBe("typesafe/jev-1.13");
     expect(Object.keys(req.questions)).toHaveLength(9);
     expect(req.questions.a2_instruction.type).toBe("choice");
     expect(req.questions.a2_urgency.type).toBe("score");

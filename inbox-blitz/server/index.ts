@@ -11,7 +11,7 @@ const MAX_INTENT_CHARS = 200;
 const PORT = Number(process.env.PORT ?? 8787);
 const MOCK = process.env.MOCK === "1";
 const RECORD_MOCK = process.env.RECORD_MOCK === "1";
-const API_KEY = process.env.TYPESAFE_API_KEY ?? "";
+const API_KEY = process.env.OPENROUTER_API_KEY ?? "";
 const MOCK_PATH = join(dirname(fileURLToPath(import.meta.url)), "mock-answers.json");
 
 type Recorded = Record<string, Omit<JudgeOutcome, "model">>;
@@ -26,7 +26,7 @@ function loadMock(): Recorded {
 const mockAnswers: Recorded | null = MOCK ? loadMock() : null;
 
 if (!MOCK && !API_KEY) {
-  console.error("\n  TYPESAFE_API_KEY is not set. Export it (or run with MOCK=1 to replay recorded answers).\n");
+  console.error("\n  OPENROUTER_API_KEY is not set. Export it (or run with MOCK=1 to replay recorded answers).\n");
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -69,7 +69,7 @@ async function handleTriage(req: IncomingMessage, res: ServerResponse) {
     return;
   }
   if (!MOCK && !API_KEY) {
-    json(res, 500, { error: "TYPESAFE_API_KEY is not set on the server. Export it and restart `npm run dev`." });
+    json(res, 500, { error: "OPENROUTER_API_KEY is not set on the server. Export it and restart `npm run dev`." });
     return;
   }
 
@@ -149,7 +149,7 @@ async function handleLabel(req: IncomingMessage, res: ServerResponse) {
     return;
   }
   if (!API_KEY) {
-    json(res, 500, { error: "TYPESAFE_API_KEY is not set on the server. Export it and restart `npm run dev`." });
+    json(res, 500, { error: "OPENROUTER_API_KEY is not set on the server. Export it and restart `npm run dev`." });
     return;
   }
 

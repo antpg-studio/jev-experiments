@@ -23,10 +23,10 @@ if (MOCK) {
   jev = createMockJevClient(lookupTruth);
   console.log("[modstream] MOCK=1 — replaying canned judgments, no TypeSafe calls");
 } else {
-  const key = process.env.TYPESAFE_API_KEY;
+  const key = process.env.OPENROUTER_API_KEY;
   if (!key) {
     console.error(
-      "\n[modstream] TYPESAFE_API_KEY is not set.\n  export TYPESAFE_API_KEY=...   (real Jev judgments, the default)\n  MOCK=1 npm run dev           (offline canned judgments, clearly labelled in the UI)\n",
+      "\n[modstream] OPENROUTER_API_KEY is not set.\n  export OPENROUTER_API_KEY=...   (real Jev judgments, the default)\n  MOCK=1 npm run dev           (offline canned judgments, clearly labelled in the UI)\n",
     );
     process.exit(1);
   }

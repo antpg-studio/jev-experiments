@@ -2,8 +2,25 @@ import { TypeSafeClient, choice, noul, score, type Questions } from "@typesafe-a
 import { performance } from "node:perf_hooks";
 import { CATEGORIES, SEVERITIES, type Category, type LogEvent, type Severity } from "../shared/types.ts";
 
+
+/* openrouter-shim:begin */
 /**
- * The only module that talks to TypeSafe. Everything else in the server treats Jev as a function
+ * OpenRouter's Decisions API speaks the same protocol as TypeSafe's System One, at a different
+ * path. The SDK hardcodes `/v1/systemone`, so rewrite it on the way out and keep the SDK's typed
+ * question builders, retry policy and response parsing.
+ */
+const OPENROUTER_BASE_URL = "https://openrouter.ai";
+const OPENROUTER_MODEL = "typesafe/jev-1.13";
+const openRouterFetch: typeof fetch = (input, init) => {
+  if (typeof input === "string" || input instanceof URL) {
+    return fetch(String(input).replace("/v1/systemone", "/api/alpha/decisions"), init);
+  }
+  return fetch(input, init);
+};
+/* openrouter-shim:end */
+
+/**
+ * The only module that talks to Jev. Everything else in the server treats Jev as a function
  * from a list of log events to a list of typed verdicts plus a measured round-trip time.
  */
 export interface Verdict {
@@ -110,8 +127,8 @@ export interface JevJudge {
 
 export function createJev(): JevJudge {
   if (process.env.MOCK === "1") return new MockJev();
-  if (!process.env.TYPESAFE_API_KEY) {
-    throw new Error("TYPESAFE_API_KEY is not set. Export it (or run with MOCK=1 for the clearly-labelled mock mode).");
+  if (!process.env.OPENROUTER_API_KEY) {
+    throw new Error("OPENROUTER_API_KEY is not set. Export it (or run with MOCK=1 for the clearly-labelled mock mode).");
   }
   return new RealJev();
 }
@@ -119,6 +136,10 @@ export function createJev(): JevJudge {
 class RealJev implements JevJudge {
   readonly mock = false;
   private client = new TypeSafeClient({
+    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: OPENROUTER_BASE_URL,
+    defaultModel: OPENROUTER_MODEL,
+    fetch: openRouterFetch,
     timeout: 15000,
     retry: { maxRetries: 4 },
   });

@@ -1,5 +1,5 @@
 // Shared by the Vite dev middleware and server.mjs. The API key never leaves this process.
-const JEV_URL = "https://api.typesafe.ai/v1/systemone";
+const JEV_URL = "https://openrouter.ai/api/alpha/decisions";
 
 /** @param {import("node:http").IncomingMessage} req */
 export function readJevBody(req) {
@@ -18,7 +18,7 @@ export function readJevBody(req) {
  */
 export async function forwardToJev(body, apiKey) {
   if (!apiKey) {
-    return { status: 503, body: JSON.stringify({ error: "TYPESAFE_API_KEY is not set on the server" }) };
+    return { status: 503, body: JSON.stringify({ error: "OPENROUTER_API_KEY is not set on the server" }) };
   }
   try {
     const r = await fetch(JEV_URL, {

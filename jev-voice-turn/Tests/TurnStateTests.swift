@@ -55,7 +55,7 @@ final class TurnStateTests: XCTestCase {
     let snap = TurnState.snapshot(
       words: words("text mom I'll be late"), now: 2, assistantSpeaking: nil)
     let body = TurnState.requestBody(snap)
-    XCTAssertEqual(body["model"] as? String, "jev-latest")
+    XCTAssertEqual(body["model"] as? String, "typesafe/jev-1.13")
     let data = try JSONSerialization.data(withJSONObject: body)
     XCTAssertGreaterThan(data.count, 100)
     let q = body["questions"] as? [String: Any]

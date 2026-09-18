@@ -8,7 +8,7 @@ import { JevError, judgeUtterance } from "./jev.ts";
 
 const PORT = Number(process.env.PORT ?? 8787);
 const MOCK = process.env.MOCK === "1";
-const apiKey = process.env.TYPESAFE_API_KEY?.trim() ?? "";
+const apiKey = process.env.OPENROUTER_API_KEY?.trim() ?? "";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const mockPath = join(here, "mock-answers.json");
@@ -18,7 +18,7 @@ const mockAnswers: Record<string, JudgeAnswers> =
 export const hashUtterance = (text: string) => createHash("sha1").update(text.trim()).digest("hex").slice(0, 16);
 
 if (!MOCK && !apiKey) {
-  console.error("\n  TYPESAFE_API_KEY is not set. Export it and restart, or run with MOCK=1 for recorded answers.\n");
+  console.error("\n  OPENROUTER_API_KEY is not set. Export it and restart, or run with MOCK=1 for recorded answers.\n");
 }
 if (MOCK) console.log(`  MOCK mode: ${Object.keys(mockAnswers).length} recorded answers loaded (no real API calls).`);
 
@@ -66,7 +66,7 @@ async function handleJudge(req: IncomingMessage, res: ServerResponse) {
     const out: JudgeResponse = { answers, apiMs: performance.now() - t0, mock: true };
     return json(res, 200, out);
   }
-  if (!apiKey) return json(res, 503, { error: "TYPESAFE_API_KEY is not set on the server" });
+  if (!apiKey) return json(res, 503, { error: "OPENROUTER_API_KEY is not set on the server" });
 
   try {
     const r = await judgeUtterance(body, apiKey);

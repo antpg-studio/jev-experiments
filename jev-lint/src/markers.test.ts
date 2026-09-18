@@ -22,7 +22,7 @@ describe("buildRequest", () => {
     const q = Object.keys(built!.request.questions);
     expect(q).toHaveLength(12);
     expect(q.filter((k) => k.endsWith(".severity"))).toHaveLength(2);
-    expect(built!.request.model).toBe("jev-latest");
+    expect(built!.request.model).toBe("typesafe/jev-1.13");
     const state = built!.request.state;
     expect(state.language).toBe("typescript");
     expect(state.function_name).toBe("f");

@@ -60,7 +60,7 @@ Computed in code from those answers (`src/shared/resolve.ts`):
   `is_destructive ≥ 0.5` → a confirmation dialog before running.
 
 Question builders live in `src/shared/questions.ts`; the only TypeSafe call is
-`server/jev.ts` (`POST /v1/systemone`, `model: "jev-latest"`, retries on 429/529 with
+`server/jev.ts` (`POST /api/alpha/decisions`, `model: "typesafe/jev-1.13"`, retries on 429/529 with
 backoff). The API key never leaves the Node proxy.
 
 ## The editor
@@ -86,7 +86,7 @@ in `src/shared/commands.ts` and executed by `src/editor/execute.ts`.
 
 ## Measured results
 
-Live TypeSafe API (`jev-latest`), Linux VM, run from the in-app Benchmark button:
+Live TypeSafe API (`typesafe/jev-1.13`), Linux VM, run from the in-app Benchmark button:
 
 | approach          | accuracy@1     | args          | mean latency | p50    | p95    | total (30 queries, concurrency 8) |
 | ----------------- | -------------- | ------------- | ------------ | ------ | ------ | --------------------------------- |
@@ -104,7 +104,7 @@ p95 210 ms. Each request is ~3.2 k input tokens (66 criteria + 5 more questions)
 ```sh
 cd nl-palette
 npm ci
-export TYPESAFE_API_KEY=...   # never shipped to the browser; read only by server/
+export OPENROUTER_API_KEY=...   # never shipped to the browser; read only by server/
 npm run dev                   # Node proxy on :8787 + Vite on :5173
 ```
 

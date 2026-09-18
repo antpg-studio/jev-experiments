@@ -41,7 +41,7 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", `http://localhost:${PORT}`);
   try {
     if (url.pathname === "/api/health") {
-      return json(res, 200, { ok: true, mock: MOCK, corpusSize, batches: BATCHES, hasKey: Boolean(process.env.TYPESAFE_API_KEY) });
+      return json(res, 200, { ok: true, mock: MOCK, corpusSize, batches: BATCHES, hasKey: Boolean(process.env.OPENROUTER_API_KEY) });
     }
     if (url.pathname === "/api/bm25") {
       const q = url.searchParams.get("q")?.trim() ?? "";
@@ -96,7 +96,7 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(
     `[server] turbo-rerank proxy on http://localhost:${PORT} — corpus ${corpusSize} passages, ` +
-      (MOCK ? "MOCK MODE (no API calls)" : process.env.TYPESAFE_API_KEY ? "TypeSafe key loaded" : "WARNING: TYPESAFE_API_KEY not set") +
+      (MOCK ? "MOCK MODE (no API calls)" : process.env.OPENROUTER_API_KEY ? "TypeSafe key loaded" : "WARNING: OPENROUTER_API_KEY not set") +
       `, batches=${BATCHES}`,
   );
 });

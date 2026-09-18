@@ -44,14 +44,14 @@ questions = {
 - Each `score` answer is a probability distribution over the four levels; the code computes an expected relevance `Σ p·level ∈ [0,3]` and sorts by it (ties broken by BM25 order). Jev never generates text — all ordering, rank deltas and metrics are plain code.
 - The `noul` drives the **"No good answer in the corpus"** banner (shown when `P(true) < 0.5`), so the UI can stop pretending the top result is an answer.
 - All 50 questions go in **one request** (`RERANK_BATCHES=1`). Set `RERANK_BATCHES=2` or `3` to split into parallel requests instead; measured, one request of ~14k input tokens is fine and fastest.
-- The SDK client retries 408/429/5xx/529 with exponential backoff; a missing `TYPESAFE_API_KEY` yields a clear 500 and a red pill in the UI.
+- The SDK client retries 408/429/5xx/529 with exponential backoff; a missing `OPENROUTER_API_KEY` yields a clear 500 and a red pill in the UI.
 
 ## Run it
 
 ```sh
 cd turbo-rerank
 npm ci
-export TYPESAFE_API_KEY=...   # server-side only, never shipped to the browser
+export OPENROUTER_API_KEY=...   # server-side only, never shipped to the browser
 npm run dev                   # Node proxy on :8787 + Vite on :5173 (proxies /api)
 npm run bench                 # CLI benchmark, same 40 queries
 ```
@@ -68,7 +68,7 @@ The **Benchmark** view streams the 40-query evaluation into a table with accurac
 
 ## Measured results
 
-`npm run bench`, 40 hand-labelled queries (25 of them paraphrases), 598-passage corpus, model `jev-latest`, from a Linux VM:
+`npm run bench`, 40 hand-labelled queries (25 of them paraphrases), 598-passage corpus, model `typesafe/jev-1.13`, from a Linux VM:
 
 | | BM25 | BM25 + Jev |
 |---|---|---|

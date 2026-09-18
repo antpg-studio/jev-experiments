@@ -10,7 +10,7 @@ import https from "node:https";
 //                     slow answer never holds up the fast ones behind it.
 // The key never leaves this process.
 
-const UPSTREAM = new URL("https://api.typesafe.ai/v1/systemone");
+const UPSTREAM = new URL("https://openrouter.ai/api/alpha/decisions");
 const agent = new https.Agent({ keepAlive: true, maxSockets: 512, maxFreeSockets: 256, timeout: 30_000 });
 
 function callJev(key, body) {
@@ -83,8 +83,8 @@ function send(res, status, obj) {
 }
 
 export async function handleJev(req, res) {
-  const key = process.env.TYPESAFE_API_KEY;
-  if (!key) return send(res, 500, { error: "TYPESAFE_API_KEY is not set on the server" });
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) return send(res, 500, { error: "OPENROUTER_API_KEY is not set on the server" });
   if (req.method !== "POST") return send(res, 405, { error: "POST only" });
   let parsed;
   try {
@@ -101,7 +101,7 @@ export async function handleJev(req, res) {
 }
 
 async function judgeItem(key, questions, it) {
-  const r = await callJevWithRetry(key, { state: it.state, model: "jev-latest", questions });
+  const r = await callJevWithRetry(key, { state: it.state, model: "typesafe/jev-1.13", questions });
   return { id: it.id, ok: r.ok, status: r.status, ms: r.ms, retries: r.retries, answers: r.answers, usage: r.usage, error: r.error };
 }
 
@@ -220,10 +220,10 @@ function handleSocket(socket, key) {
 export function attachJevSocket(httpServer, path = "/api/jev/ws") {
   httpServer.on("upgrade", (req, socket) => {
     if (new URL(req.url, "http://x").pathname !== path) return;
-    const key = process.env.TYPESAFE_API_KEY;
+    const key = process.env.OPENROUTER_API_KEY;
     const wsKey = req.headers["sec-websocket-key"];
     if (!key || !wsKey || req.headers.upgrade?.toLowerCase() !== "websocket") {
-      socket.end(`HTTP/1.1 ${key ? 400 : 500} ${key ? "Bad Request" : "TYPESAFE_API_KEY is not set"}\r\n\r\n`);
+      socket.end(`HTTP/1.1 ${key ? 400 : 500} ${key ? "Bad Request" : "OPENROUTER_API_KEY is not set"}\r\n\r\n`);
       return;
     }
     const accept = createHash("sha1").update(wsKey + WS_MAGIC).digest("base64");

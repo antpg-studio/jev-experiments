@@ -173,7 +173,7 @@ export function App() {
             <Stat
               label="Tokens · est. cost"
               value={isNet ? `${fmtTokens(tm.inputTokens)} in / ${fmtTokens(tm.outputTokens)} out` : "—"}
-              sub={isNet ? `$${tm.costUsd.toFixed(5)} at $0.042 / M input · ${tm.model ?? "jev-latest"}` : ""}
+              sub={isNet ? `$${tm.costUsd.toFixed(5)} at $0.042 / M input · ${tm.model ?? "typesafe/jev-1.13"}` : ""}
             />
             {tm.lastError && <div className="error">last error: {tm.lastError}</div>}
           </div>

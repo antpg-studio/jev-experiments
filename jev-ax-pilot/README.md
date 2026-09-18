@@ -81,7 +81,7 @@ errors or is low confidence.
 
 ### The Jev questions
 
-Each step sends one `POST /v1/systemone` with `model: "jev-latest"` and these questions over the
+Each step sends one `POST /api/alpha/decisions` with `model: "typesafe/jev-1.13"` and these questions over the
 state above (see `Sources/StateBuilder.swift`):
 
 | id | type | what it decides |
@@ -138,19 +138,19 @@ with a yellow rectangle in a transparent overlay window positioned from the elem
 
 ## Run
 
-Requirements: macOS 14+, Xcode 16+, XcodeGen 2.46.0 (`brew install xcodegen`), a TypeSafe API key.
+Requirements: macOS 14+, Xcode 16+, XcodeGen 2.46.0 (`brew install xcodegen`), an OpenRouter API key.
 
 ```sh
 cd jev-ax-pilot
-export TYPESAFE_API_KEY=...            # or paste it into the app's key field (stored in UserDefaults)
+export OPENROUTER_API_KEY=...            # or paste it into the app's key field (stored in UserDefaults)
 xcodegen generate                      # only if you edited project.yml
 xcodebuild -project JevAXPilot.xcodeproj -scheme JevAXPilot -configuration Debug \
   -destination 'platform=macOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 open build/Build/Products/Debug/JevAXPilot.app
 ```
 
-The app reads the key from `TYPESAFE_API_KEY` first and falls back to the in-app field. The key is
-sent only to `api.typesafe.ai` from the native process; it is never written to disk by the app
+The app reads the key from `OPENROUTER_API_KEY` first and falls back to the in-app field. The key is
+sent only to `openrouter.ai` from the native process; it is never written to disk by the app
 other than UserDefaults when you paste it, and never logged. Set `JEV_AX_PILOT_TRACE=1` to log the
 flattened state and every decision to stderr.
 
@@ -201,7 +201,7 @@ Sources/
   TextCandidates.swift     goal-string spans, URLs, arithmetic evaluation
   StateBuilder.swift       state JSON + batched questions
   AnswerHandler.swift      thresholds, fallback heuristic, destructive guard
-  JevClient.swift          POST /v1/systemone, key lookup, sequence numbers
+  JevClient.swift          POST /api/alpha/decisions, key lookup, sequence numbers
   JevTypes.swift           request/response types, JSONValue, pricing constant
   Metrics.swift            latency percentiles, steps/sec, tokens, cost
   Pilot.swift              observe -> ask -> act loop, deadline race, execution, Escape hotkey

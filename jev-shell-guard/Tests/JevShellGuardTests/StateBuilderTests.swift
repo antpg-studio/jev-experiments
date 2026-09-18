@@ -127,7 +127,7 @@ final class StateBuilderTests: XCTestCase {
       git: .init(inRepo: false, branch: nil, workingTreeDirty: nil, onDefaultBranch: false),
       toolFound: true, previousCommands: [], probe: probe)
     let request = Questions.request(state: state)
-    XCTAssertEqual(request["model"] as? String, "jev-latest")
+    XCTAssertEqual(request["model"] as? String, "typesafe/jev-1.13")
     let questions = request["questions"] as? [String: Any]
     XCTAssertEqual(
       Set(questions?.keys.map { $0 } ?? []), Set(Questions.noulIDs + [Questions.verdict]))

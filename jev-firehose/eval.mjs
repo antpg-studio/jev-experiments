@@ -1,5 +1,5 @@
 // Offline evaluation of the Jev questions against the seeded corpus.
-// Usage: TYPESAFE_API_KEY=... node eval.mjs [count=300] [seed=2024] [concurrency=32]
+// Usage: OPENROUTER_API_KEY=... node eval.mjs [count=300] [seed=2024] [concurrency=32]
 // Prints per-category mean probabilities, mod-queue precision/recall against the
 // generator's hidden labels, and dumps every judged message to eval-out.jsonl
 // so a human can hand-check a sample.
@@ -9,8 +9,8 @@ import { createGenerator } from "./src/generator.ts";
 import { buildState, parseJudgment, questions } from "./src/jev.ts";
 import { defaultThresholds, inModQueue, isStreamerQuestion } from "./src/policy.ts";
 
-const key = process.env.TYPESAFE_API_KEY;
-if (!key) throw new Error("TYPESAFE_API_KEY not set");
+const key = process.env.OPENROUTER_API_KEY;
+if (!key) throw new Error("OPENROUTER_API_KEY not set");
 const count = Number(process.argv[2] ?? 300);
 const seed = Number(process.argv[3] ?? 2024);
 const conc = Number(process.argv[4] ?? 32);
@@ -27,10 +27,10 @@ await Promise.all(
     while (next < msgs.length) {
       const m = msgs[next++];
       const s = performance.now();
-      const r = await fetch("https://api.typesafe.ai/v1/systemone", {
+      const r = await fetch("https://openrouter.ai/api/alpha/decisions", {
         method: "POST",
         headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-        body: JSON.stringify({ state: buildState(m), model: "jev-latest", questions }),
+        body: JSON.stringify({ state: buildState(m), model: "typesafe/jev-1.13", questions }),
       });
       const ms = performance.now() - s;
       if (r.status !== 200) {
