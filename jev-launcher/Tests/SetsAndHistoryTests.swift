@@ -214,7 +214,9 @@ final class SetRankingTests: XCTestCase {
       HistoryFixtures.ambassador3.id: 0.81, HistoryFixtures.github.id: 0.12,
       HistoryFixtures.youtube.id: 0.02, Ranker.webSearchID: 0.9,
     ]
-    let hits = Ranker.rank(prefiltered, judgment: judgment(set: 0.92, matches: matches))
+    let hits = Ranker.rank(
+      prefiltered,
+      judgment: judgment(set: 0.92, matches: matches, target: [Ranker.webSearchID: 0.8]))
     let top = hits[0]
     XCTAssertTrue(top.isGroup)
     XCTAssertEqual(top.candidate.title, "Open all 3 links")
@@ -228,6 +230,8 @@ final class SetRankingTests: XCTestCase {
         HistoryFixtures.ambassador3.id,
       ])
     XCTAssertEqual(hits.filter(\.inSet).count, 3)
+    XCTAssertTrue(hits[1...3].allSatisfy(\.inSet), "members sit right under the group row")
+    XCTAssertEqual(hits.last?.id, Ranker.webSearchID)
     XCTAssertFalse(hits.first { $0.id == HistoryFixtures.github.id }?.inSet ?? true)
     XCTAssertFalse(hits.first { $0.id == Ranker.webSearchID }?.inSet ?? true)
   }
@@ -244,6 +248,18 @@ final class SetRankingTests: XCTestCase {
     XCTAssertTrue(hits[1].isGroup)
     XCTAssertEqual(hits[1].candidate.title, "Open all 2 files")
     XCTAssertTrue(hits[0].inSet)
+  }
+
+  func testClearlySingularQueryOffersNoGroupEvenWhenSeveralRowsFit() {
+    let prefiltered = Ranker.prefilter(
+      query: "pdf downloads", index: HistoryFixtures.index, now: now)
+    let hits = Ranker.rank(
+      prefiltered,
+      judgment: judgment(
+        set: 0.05, matches: [Fixtures.roadmap.id: 0.9, Fixtures.invoice.id: 0.85],
+        target: [Fixtures.roadmap.id: 0.9]))
+    XCTAssertFalse(hits.contains(where: \.isGroup))
+    XCTAssertFalse(hits.contains(where: \.inSet))
   }
 
   func testNoGroupRowForASingleMatch() {

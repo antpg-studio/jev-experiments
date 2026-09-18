@@ -25,6 +25,8 @@ enum Ranker {
   /// With a time window the query describes a period, so more rows are shown to Jev.
   static let windowedPrefilterLimit = 30
   static let minimumFuzzy = 0.15
+  /// The window already bounds the set in code, so a weaker description still gets a row in.
+  static let windowedMinimumFuzzy = 0.05
   static let webSearchID = "web:search"
   static let calculationID = "calc:result"
   static let groupID = "group:all"
@@ -33,6 +35,8 @@ enum Ranker {
   static let setThreshold = 0.5
   /// A candidate is part of the set when Jev is at least this sure it fits the description.
   static let memberThreshold = 0.6
+  /// Below this the query reads as clearly singular and no group row is offered at all.
+  static let offerThreshold = 0.15
   /// With `one` intent, a group row is still offered (below the top hit) when this many rows fit.
   static let minimumSetSize = 2
   static let maximumSetSize = 25
@@ -61,6 +65,7 @@ enum Ranker {
     let windowOnly =
       window != nil && Fuzzy.tokens(matchQuery).allSatisfy { Fuzzy.stopwords.contains($0) }
     let limit = window == nil ? prefilterLimit : windowedPrefilterLimit
+    let floor = window == nil ? minimumFuzzy : windowedMinimumFuzzy
 
     var scored: [(Candidate, Double)] = []
     scored.reserveCapacity(index.count)
@@ -76,7 +81,7 @@ enum Ranker {
       } else {
         score = Fuzzy.score(query: matchQuery, candidate: candidate)
       }
-      if score >= minimumFuzzy { scored.append((candidate, score)) }
+      if score >= floor { scored.append((candidate, score)) }
     }
     scored.sort { lhs, rhs in
       if lhs.1 != rhs.1 { return lhs.1 > rhs.1 }
@@ -110,10 +115,13 @@ enum Ranker {
   static let targetWeight = 0.65
   static let actionWeight = 0.20
   static let fuzzyWeight = 0.15
+  /// Set members rise with the strength of the "all of them" reading so they sit together.
+  static let setMemberWeight = 0.25
 
   /// Merges fuzzy scores with Jev's judgment. With no judgment the order is pure fuzzy.
   /// When Jev finds several rows that fit the description, a group row is added: on top when
-  /// Jev reads the query as "all of them", otherwise just below the single best hit.
+  /// Jev reads the query as "all of them", just below the single best hit when it could go
+  /// either way, and not at all when the query is clearly about one item.
   static func rank(_ prefiltered: Prefiltered, judgment: JevJudgment?) -> [RankedHit] {
     let members = setMembers(prefiltered, judgment: judgment)
     var hits = prefiltered.candidates.map { candidate -> RankedHit in
@@ -125,22 +133,29 @@ enum Ranker {
       }
       let target = judgment.targetProbabilities[candidate.id] ?? 0
       let action = judgment.actionProbabilities[candidate.kind] ?? 0
-      let score = targetWeight * target + actionWeight * action + fuzzyWeight * fuzzy
+      let match = judgment.matchProbabilities[candidate.id]
+      let inSet = members.contains(candidate.id)
+      var score = targetWeight * target + actionWeight * action + fuzzyWeight * fuzzy
+      if inSet { score += setMemberWeight * judgment.setProbability * (match ?? 0) }
       return RankedHit(
-        candidate: candidate, fuzzy: fuzzy, jevProbability: target,
-        matchProbability: judgment.matchProbabilities[candidate.id],
-        inSet: members.contains(candidate.id), score: score)
+        candidate: candidate, fuzzy: fuzzy, jevProbability: target, matchProbability: match,
+        inSet: inSet, score: score)
     }
     hits.sort { lhs, rhs in
       if lhs.score != rhs.score { return lhs.score > rhs.score }
       return lhs.candidate.title < rhs.candidate.title
     }
-    guard let judgment, members.count >= minimumSetSize else { return hits }
+    guard let judgment, !members.isEmpty else { return hits }
     let ordered = hits.filter { members.contains($0.candidate.id) }.map(\.candidate)
     let group = RankedHit(
       candidate: groupCandidate(ordered), fuzzy: 0, jevProbability: judgment.setProbability,
       matchProbability: nil, inSet: false, score: judgment.setProbability)
     if judgment.setProbability >= setThreshold {
+      // With no single target to pick, the target Choice leaks onto the web-search fallback;
+      // keep it as the last resort so the members sit under the group row.
+      if let web = hits.firstIndex(where: { $0.id == webSearchID }) {
+        hits.append(hits.remove(at: web))
+      }
       hits.insert(group, at: 0)
     } else {
       hits.insert(group, at: min(1, hits.count))
@@ -148,9 +163,10 @@ enum Ranker {
     return hits
   }
 
-  /// Candidate ids Jev judged to fit the description, best first, bounded in size.
+  /// Candidate ids Jev judged to fit the description, bounded in size. Empty unless a group is
+  /// worth offering: at least two members and a query that is not clearly about one item.
   static func setMembers(_ prefiltered: Prefiltered, judgment: JevJudgment?) -> Set<String> {
-    guard let judgment else { return [] }
+    guard let judgment, judgment.setProbability >= offerThreshold else { return [] }
     let eligible = prefiltered.candidates.filter { candidate in
       candidate.id != webSearchID && candidate.id != calculationID
         && (judgment.matchProbabilities[candidate.id] ?? 0) >= memberThreshold
@@ -158,6 +174,7 @@ enum Ranker {
     let sorted = eligible.sorted {
       (judgment.matchProbabilities[$0.id] ?? 0) > (judgment.matchProbabilities[$1.id] ?? 0)
     }
+    guard sorted.count >= minimumSetSize else { return [] }
     return Set(sorted.prefix(maximumSetSize).map(\.id))
   }
 

@@ -26,6 +26,7 @@
 		D8B05EF6F16144F72EAFBA2A /* Calculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11F9739CE18CF22459CEF03 /* Calculator.swift */; };
 		D9B426A897460853DD0863F9 /* LauncherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8691C35182559D9EA1BF1175 /* LauncherModel.swift */; };
 		DFFD9F58A57B977DB52D3D0D /* LocalIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3611FA2E6B7D612B0B19F1 /* LocalIndex.swift */; };
+		F50F6EA6FB53D29F0769E9DF /* LiveJevTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADA6C961165670773398F6A1 /* LiveJevTests.swift */; };
 		F7788AB8E529DF9AC18D6B7D /* RankingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */; };
 		F9198A994AC8E40D74BACD3B /* Executor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FAB00F4D64BADE280B59A3 /* Executor.swift */; };
 /* End PBXBuildFile section */
@@ -58,6 +59,7 @@
 		9EC08356D4BB9015E71450EC /* CalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTests.swift; sourceTree = "<group>"; };
 		A4AE5996EE56BBE0F79713E4 /* HotKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKey.swift; sourceTree = "<group>"; };
 		A7B956AE5A913ECE64ED1A37 /* SetsAndHistoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetsAndHistoryTests.swift; sourceTree = "<group>"; };
+		ADA6C961165670773398F6A1 /* LiveJevTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveJevTests.swift; sourceTree = "<group>"; };
 		B11F9739CE18CF22459CEF03 /* Calculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calculator.swift; sourceTree = "<group>"; };
 		B6AE5CA94C19B94A7654FA7B /* ChromeHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeHistory.swift; sourceTree = "<group>"; };
 		B6FAB00F4D64BADE280B59A3 /* Executor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Executor.swift; sourceTree = "<group>"; };
@@ -72,6 +74,7 @@
 			children = (
 				9EC08356D4BB9015E71450EC /* CalculatorTests.swift */,
 				85AC05631A30C27624B4F7A5 /* JevQuestionsTests.swift */,
+				ADA6C961165670773398F6A1 /* LiveJevTests.swift */,
 				4BB9E7EFC5892AB34F485E34 /* RankingTests.swift */,
 				A7B956AE5A913ECE64ED1A37 /* SetsAndHistoryTests.swift */,
 				CAAC05428581023BC4B1D23D /* StatsAndIndexTests.swift */,
@@ -204,6 +207,7 @@
 			files = (
 				0A3131FD056A9BB77AE2531C /* CalculatorTests.swift in Sources */,
 				7422E3AACC95E38E9CAD294C /* JevQuestionsTests.swift in Sources */,
+				F50F6EA6FB53D29F0769E9DF /* LiveJevTests.swift in Sources */,
 				F7788AB8E529DF9AC18D6B7D /* RankingTests.swift in Sources */,
 				5C278B0DA6719F02D2F14713 /* SetsAndHistoryTests.swift in Sources */,
 				1CEBFF657F1C9BD8042BE33B /* StatsAndIndexTests.swift in Sources */,
