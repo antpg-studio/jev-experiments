@@ -105,7 +105,6 @@
   $("s-steps").innerHTML = C.text.steps
     .map((s, i) => `<div class="step ${i === 2 ? "working" : "done"}" id="step-${i}"><i></i><span>${s}</span></div>`)
     .join("");
-  $("launch-line").innerHTML = C.text.launchLine.split(" ").map((w) => `<span>${w}</span>`).join("");
   $("url").textContent = C.text.url;
 
   // Swift excerpt from Silverroom's ImageEngine.swift, tokenised as [class, text] pairs.
@@ -126,7 +125,8 @@
     [["", "    }"]],
     [["", "  "], ["k", "let"], ["", " filmContrast: "], ["t", "Double"], ["", " = settings.film == .noir ? "], ["n", "1.23"], ["", " : "], ["n", "1"]],
     [["", "  image = image."], ["f", "applyingFilter"], ["", "("], ["s", "\"CIColorControls\""], ["", ","]],
-    [["", "    parameters: ["], ["t", "kCIInputSaturationKey"], ["", ": saturation, "], ["t", "kCIInputContrastKey"], ["", ": filmContrast])"]],
+    [["", "    parameters: ["], ["t", "kCIInputSaturationKey"], ["", ": saturation,"]],
+    [["", "                 "], ["t", "kCIInputContrastKey"], ["", ": filmContrast])"]],
   ];
   const codeTotal = CODE.reduce((n, line) => n + line.reduce((m, tok) => m + tok[1].length, 0), 0);
   const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -211,10 +211,10 @@
       [
         [0, { x: chipC.x, y: chipC.y - 34, z: 2.9 }],
         [T.headlineOut, { x: chipC.x + 10, y: chipC.y - 30, z: 2.7 }],
-        [T.apertureToComposer[1] + 0.12, { x: boxC.x, y: boxC.y + 6, z: 1.3 }],
-        [T.typeStart, { x: boxC.x, y: boxC.y + 6, z: 1.3 }],
-        [T.typeEnd, { x: boxC.x + 46, y: boxC.y - 10, z: 1.24 }],
-        [T.submitPress + 0.2, { x: boxC.x + 60, y: boxC.y + 8, z: 1.28 }],
+        [T.apertureToComposer[1] + 0.12, { x: boxC.x, y: boxC.y + 6, z: 1.14 }],
+        [T.typeStart, { x: boxC.x, y: boxC.y + 6, z: 1.14 }],
+        [T.typeEnd, { x: boxC.x + 40, y: boxC.y - 8, z: 1.1 }],
+        [T.submitPress + 0.2, { x: boxC.x + 50, y: boxC.y + 8, z: 1.13 }],
       ],
       t
     );
@@ -246,14 +246,14 @@
     renderCode(chars);
     const camera = track(
       [
-        [T.codeOpen[0], { x: W / 2, y: H / 2 - 20, z: 1.0 }],
-        [T.apertureClose2[1], { x: W / 2 + 14, y: H / 2 + 6, z: 1.06 }],
+        [T.codeOpen[0], { x: W / 2, y: H / 2, z: 1.06 }],
+        [T.apertureClose2[1], { x: W / 2 + 12, y: H / 2 + 8, z: 1.12 }],
       ],
       t,
       lin
     );
     applyCamera(camera);
-    const ed = pad(rectToScreen(camera, R.editor), 26, 22);
+    const ed = pad(rectToScreen(camera, R.editor), 20, 18);
     const keys = [
       [T.codeOpen[0], zeroAt(center(ed))],
       [T.codeOpen[1], ed],
@@ -266,32 +266,38 @@
   // Touch points on the app screen as fractions of the phone screen (u across, v down).
   const P = (u, v) => ({ x: R.screen.x + u * R.screen.w, y: R.screen.y + v * R.screen.h });
 
+  // The whole Devin session stays on screen; pushes are gentle so the sidebar, tabs and Live pill
+  // remain visible at the edges. At z = 1 the camera is centred on the full session view.
+  const ZMAX = 1.34;
   function sessionCamera(f) {
-    const Z0 = 1.68, Z1 = 1.98;
-    const k = (u, v, z) => ({ x: P(u, v).x, y: P(u, v).y, z });
+    const k = (u, v, z) => {
+      const p = P(u, v);
+      const s = ((z - 1) / (ZMAX - 1)) * 0.86;
+      return { x: W / 2 + (p.x - W / 2) * s, y: H / 2 + (p.y - H / 2) * s, z };
+    };
     return track(
       [
-        [-0.5, k(0.5, 0.5, 1.3)],
-        [0.15, k(0.5, 0.5, 1.3)],
-        [0.75, k(0.5, 0.56, Z1)], // tap the photo
-        [1.7, k(0.5, 0.42, Z0 + 0.05)], // image develops
-        [2.3, k(0.5, 0.42, Z0 + 0.05)],
-        [2.95, k(0.56, 0.7, Z1)], // Noir in the Looks strip
-        [3.6, k(0.56, 0.7, Z1)],
-        [4.2, k(0.5, 0.7, Z1 - 0.1)], // Adjust tab
-        [4.9, k(0.53, 0.74, Z1)], // exposure slider
-        [5.7, k(0.55, 0.74, Z1)],
-        [6.9, k(0.5, 0.5, Z0)],
-        [8.0, k(0.5, 0.5, Z0)],
-        [8.6, k(0.6, 0.45, Z1 - 0.1)], // hold to compare
-        [10.1, k(0.6, 0.45, Z1 - 0.1)],
-        [11.0, k(0.5, 0.56, Z0)],
-        [11.15, k(0.5, 0.56, Z0)],
-        [11.7, k(0.62, 0.66, Z1 - 0.15)], // Frame tools
-        [12.9, k(0.62, 0.66, Z1 - 0.15)],
-        [13.4, k(0.42, 0.55, Z0 + 0.05)], // rotate
-        [14.9, k(0.42, 0.55, Z0 + 0.05)],
-        [15.4, k(0.55, 0.6, Z0 + 0.1)], // square crop
+        [-0.5, k(0.5, 0.5, 1.0)],
+        [0.35, k(0.5, 0.5, 1.0)],
+        [0.95, k(0.5, 0.5, 1.07)], // tap the photo, full phone in view
+        [1.7, k(0.5, 0.45, 1.05)], // image develops
+        [2.4, k(0.5, 0.45, 1.05)],
+        [3.0, k(0.55, 0.6, 1.08)], // Noir in the Looks strip, full phone in view
+        [3.7, k(0.55, 0.6, 1.08)],
+        [4.3, k(0.5, 0.7, 1.22)], // Adjust tab
+        [5.0, k(0.53, 0.74, ZMAX)], // exposure slider
+        [5.8, k(0.55, 0.74, ZMAX)],
+        [6.9, k(0.5, 0.5, 1.0)],
+        [8.0, k(0.5, 0.5, 1.0)],
+        [8.7, k(0.58, 0.45, 1.26)], // hold to compare
+        [10.1, k(0.58, 0.45, 1.26)],
+        [11.0, k(0.5, 0.55, 1.02)],
+        [11.15, k(0.5, 0.55, 1.02)],
+        [11.7, k(0.6, 0.66, 1.3)], // Frame tools
+        [12.9, k(0.6, 0.66, 1.3)],
+        [13.4, k(0.42, 0.55, 1.16)], // rotate
+        [14.9, k(0.42, 0.55, 1.16)],
+        [15.4, k(0.55, 0.6, 1.24)], // square crop
       ],
       f
     );
@@ -323,33 +329,35 @@
     if (f > o0) camera = mix(camera, { x: W / 2, y: H / 2, z: 1 }, seg(f, o0, o1, eInOut));
     applyCamera(camera);
 
-    // Aperture: a portrait window on the app that trails the camera slightly and widens with every push.
+    // Aperture: opens as a portrait window on the whole phone, then widens with every push across the
+    // Devin session (sidebar, tabs, Live pill) while trailing the camera slightly.
     const lagCam = f > o0 ? camera : sessionCamera(Math.min(f, o0) - 0.05);
-    const scr = rectToScreen(lagCam, R.screen);
-    const grow = track(
+    const phoneR = pad(rectToScreen(lagCam, R.phone), 44, 34);
+    const inset = track(
       [
-        [-0.5, [8, 0.085, 0.03]], // side pad, top inset (fraction of screen h), bottom inset
-        [0.5, [14, 0.085, 0.03]],
-        [2.9, [40, 0.08, 0.03]],
-        [4.9, [90, 0.07, 0.02]],
-        [8.6, [170, 0.03, 0.0]],
-        [11.7, [270, -0.03, -0.03]],
-        [13.4, [360, -0.06, -0.06]],
-        [15.4, [430, -0.08, -0.08]],
+        [2.2, 52],
+        [5.0, 48],
+        [8.7, 46],
+        [11.7, 40],
+        [15.4, 36],
       ],
       Math.min(f, o0)
     );
-    let ap = {
-      x: scr.x - grow[0],
-      y: scr.y + grow[1] * scr.h,
-      w: scr.w + 2 * grow[0],
-      h: scr.h * (1 - grow[1] - grow[2]),
-    };
-    let radius = null;
+    const wideR = { x: inset, y: inset, w: W - 2 * inset, h: H - 2 * inset };
+    const wide = track(
+      [
+        [-0.5, 0],
+        [0.6, 0],
+        [2.2, 1],
+      ],
+      Math.min(f, o0)
+    );
+    let ap = mix(phoneR, wideR, wide);
+    let radius = lerp(46, 24, wide);
     if (f > o0) {
       const x = seg(f, o0, o1, eInOut);
       ap = mix(ap, FULL, x);
-      radius = lerp(clamp(Math.min(ap.w, ap.h) * 0.13, 0, 46), 0, x);
+      radius = lerp(radius, 0, x);
     }
     const openIn = seg(t, T.footageOpen[0], T.footageOpen[1]);
     if (openIn < 1) ap = mix(zeroAt(center(ap)), ap, openIn);
@@ -368,16 +376,9 @@
     $("outro-logo").style.opacity = li;
     $("outro-logo").style.transform = `scale(${(0.82 + 0.18 * li) * drift})`;
 
-    const words = $("launch-line").children;
-    for (let i = 0; i < words.length; i++) {
-      const a = seg(t, T.wordsStart + i * T.wordStep, T.wordsStart + i * T.wordStep + 0.36);
-      words[i].style.opacity = a;
-      words[i].style.transform = `translateY(${14 * (1 - a)}px)`;
-    }
-    const u = seg(t, T.urlIn, T.urlIn + 0.4);
-    $("url").style.opacity = u * 0.72 + u * 0.28 * 0.0;
-    $("url").style.transform = `translateY(${10 * (1 - u)}px)`;
-    $("launch-line").style.transform = `scale(${drift})`;
+    const u = seg(t, T.urlIn, T.urlIn + 0.45);
+    $("url").style.opacity = u;
+    $("url").style.transform = `translateY(${12 * (1 - u)}px) scale(${drift})`;
   }
 
   function headlineState(t) {

@@ -2,7 +2,7 @@
 
 Devin launch video for "macOS in Devin Cloud", direction 7. Light theme. 1920x1080, 30 fps, H.264 (yuv420p), 29.8 s, silent.
 
-One rounded aperture in a paper matte changes shape for the whole film while the product sits behind it: a slit on the environment selector of a reconstructed Devin composer, the full composer, a Swift editor, a portrait window on the genuine Silverroom Simulator take, the full session view, then the dark brand field with the white Devin lockup, a launch line and devin.ai.
+One rounded aperture in a paper matte changes shape for the whole film while the product sits behind it: a slit on the environment selector of a reconstructed Devin composer, the full composer, a Swift editor, a portrait window on the genuine Silverroom Simulator take inside the reconstructed Devin session (the aperture then widens across the session with every camera push), the full session view, then the dark brand field with the white Devin lockup and devin.ai.
 
 ## Layout
 
@@ -49,7 +49,7 @@ Everything tunable lives in `composition/config.js`:
 
 - `fps`, `duration`, `width`, `height`
 - `colors` (paper matte, page, ink, blue chip, success, working, dark field)
-- `text` (headline, typed prompt, session title, Devin reply, timeline steps, launch line, URL)
+- `text` (headline, typed prompt, session title, Devin reply, timeline steps, URL)
 - `media` (logo paths, take frames directory and count)
 - `t` (every beat of the timeline in seconds: aperture openings and closings, menu, typing, submit, code, footage start, outro)
 

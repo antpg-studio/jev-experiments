@@ -37,7 +37,6 @@ window.CONFIG = {
       "Launched the iOS Simulator",
       "Testing Noir, exposure and frame tools",
     ],
-    launchLine: "Build, run and test native apps on Devin's Mac.",
     url: "devin.ai",
   },
 
@@ -65,15 +64,13 @@ window.CONFIG = {
     submitPress: 7.45,
     apertureClose1: [7.55, 7.95],
     codeOpen: [7.95, 8.4],
-    codeType: [8.0, 9.6],
+    codeType: [7.95, 9.1],
     apertureClose2: [9.6, 9.95],
     footageOpen: [9.95, 10.45],
     footageStart: 10.2, // first take frame appears here; the take then plays at 1x
     outroFullCanvas: [25.35, 26.15],
     outroToDark: [26.65, 27.45],
     logoIn: [27.25, 27.85],
-    wordsStart: 27.95,
-    wordStep: 0.11,
-    urlIn: 29.05,
+    urlIn: 28.25,
   },
 };
