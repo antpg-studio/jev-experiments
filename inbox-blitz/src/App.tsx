@@ -63,7 +63,14 @@ export default function App() {
   const [replyFlag, setReplyFlag] = useState<Set<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string>(EMAILS[0].id);
   const [health, setHealth] = useState<{ hasKey: boolean; mock: boolean; model: string } | null>(null);
+  const [rerankTick, setRerankTick] = useState(0);
+  const [banner, setBanner] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const updateWeight = (k: keyof Weights, v: number) => {
+    setWeights((w) => ({ ...w, [k]: v }));
+    if (phase === "done") setRerankTick((t) => t + 1);
+  };
 
   useEffect(() => {
     fetch("/api/health")
@@ -83,6 +90,23 @@ export default function App() {
   );
 
   const sorted = useMemo(() => (phase === "done" ? rank(rows, weights) : rows), [rows, weights, phase]);
+
+  const done = phase === "done";
+  useEffect(() => {
+    if (!done) return;
+    setRerankTick((t) => t + 1);
+    setBanner(`${stats.processed} emails · ${stats.judgments.toLocaleString()} judgments in ${fmtMs(stats.elapsedMs)} — inbox re-ranked by priority`);
+    const id = setTimeout(() => setBanner(null), 4500);
+    return () => clearTimeout(id);
+    // Only fire on completion; stats are read once at that moment.
+  }, [done]);
+
+  // Every re-rank (completion, slider, reset) jumps to the new top of the queue.
+  useEffect(() => {
+    if (rerankTick === 0) return;
+    if (sorted[0]) setSelectedId(sorted[0].email.id);
+    listRef.current?.scrollTo({ top: 0 });
+  }, [rerankTick]);
 
   const laneCounts = useMemo(() => {
     const c: Record<LaneFilter, number> = { all: 0, priority: 0, human: 0, fyi: 0, spam: 0, archived: 0, disagree: 0 };
@@ -186,101 +210,120 @@ export default function App() {
   const isMock = meta?.mock ?? health?.mock ?? false;
   const modelLabel = meta?.model ?? health?.model ?? "jev-latest";
   const running = phase === "running";
+  const pct = (stats.processed / Math.max(1, stats.total)) * 100;
 
   return (
     <div className={`app ${isMock ? "mock" : ""}`}>
       <header className="topbar">
-        <div className="brand">
-          <span className="logo">⚡</span>
-          <span className="name">Inbox Blitz</span>
+        <div className="tb-left">
+          <button className="ib" aria-label="Main menu">
+            <Icon d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </button>
+          <a className="brand" href="./">
+            <Logo />
+            <span className="wordmark">Sift</span>
+          </a>
+        </div>
+        <div className="tb-mid">
+          <div className="search">
+            <button className="ib" aria-label="Search">
+              <Icon d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+            </button>
+            <input type="text" placeholder="Search mail" readOnly />
+            <button className="ib" aria-label="Show search options">
+              <Icon d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z" />
+            </button>
+          </div>
+        </div>
+        <div className="tb-right">
           <span className={`mode ${isMock ? "mode-mock" : "mode-live"}`} title={isMock ? "Replaying recorded answers — no live inference" : "Live TypeSafe inference"}>
-            {isMock ? "MOCK REPLAY" : "LIVE"} · {modelLabel}
+            {isMock ? "Mock replay" : "Live"} · {modelLabel}
           </span>
           {health && !health.hasKey && !health.mock && <span className="warn">TYPESAFE_API_KEY not set on server</span>}
-        </div>
-        <div className="controls">
-          <label className="conc">
-            concurrency
+          <label className="conc" title="Parallel requests in flight">
+            <Icon d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
             <select value={concurrency} onChange={(e) => setConcurrency(Number(e.target.value))} disabled={running}>
               {[4, 8, 12, 16, 24, 32].map((n) => (
                 <option key={n} value={n}>
-                  {n}
+                  {n} parallel
                 </option>
               ))}
             </select>
           </label>
-          {running ? (
-            <button className="big stop" onClick={triage.stop}>
-              Stop
-            </button>
-          ) : (
-            <button className="big" onClick={() => void triage.start(concurrency)}>
-              {phase === "idle" ? "Triage inbox" : "Re-run triage"} <span className="sub">{EMAILS.length} emails · {QUESTIONS_PER_EMAIL} judgments each</span>
-            </button>
-          )}
+          <button className="ib" aria-label="Google apps">
+            <Icon d="M6 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6-4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-6 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+          </button>
+          <span className="avatar">N</span>
         </div>
       </header>
 
-      <section className="hud">
-        <Metric label="processed" value={`${stats.processed}`} sub={`/ ${stats.total}${stats.errors ? ` · ${stats.errors} err` : ""}`} />
-        <Metric label="judgments" value={stats.judgments.toLocaleString()} sub={`${QUESTIONS_PER_EMAIL} per email`} />
-        <Metric label="emails / sec" value={stats.perSecond.toFixed(1)} hot />
-        <Metric label="p50 latency" value={fmtMs(stats.p50)} sub="per request, server-measured" />
-        <Metric label="p95 latency" value={fmtMs(stats.p95)} />
-        <Metric label="elapsed" value={fmtMs(stats.elapsedMs)} hot={running} />
-        <Metric label="est. cost" value={fmtUsd(stats.costUsd)} sub={`${stats.inputTokens.toLocaleString()} input tok`} />
-        <div className="progress">
-          <div className="bar" style={{ width: `${(stats.processed / Math.max(1, stats.total)) * 100}%` }} />
-        </div>
-      </section>
-
       {fatal && <div className="fatal">{fatal}</div>}
+      {banner && <div className="banner">{banner}</div>}
 
       <main className="body">
-        <aside className="side">
-          <div className="lanes">
-            <LaneButton id="all" label="Inbox" count={laneCounts.all} active={laneFilter} set={setLaneFilter} />
-            <LaneButton id="priority" label="Priority queue" count={laneCounts.priority} active={laneFilter} set={setLaneFilter} accent="pri" />
-            <LaneButton id="human" label={`Needs human (conf < ${HUMAN_CONFIDENCE})`} count={laneCounts.human} active={laneFilter} set={setLaneFilter} accent="hum" />
-            <LaneButton id="fyi" label="FYI / no reply" count={laneCounts.fyi} active={laneFilter} set={setLaneFilter} />
-            <LaneButton id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={setLaneFilter} />
-            <LaneButton id="archived" label="Archived" count={laneCounts.archived} active={laneFilter} set={setLaneFilter} />
-            {rulesOn && <LaneButton id="disagree" label="Rules ≠ Jev" count={laneCounts.disagree} active={laneFilter} set={setLaneFilter} accent="dis" />}
+        <nav className="nav">
+          {running ? (
+            <button className="compose stop" onClick={triage.stop}>
+              <Icon d="M6 6h12v12H6z" />
+              <span>Stop</span>
+            </button>
+          ) : (
+            <button className="compose" onClick={() => void triage.start(concurrency)} title={`${EMAILS.length} emails · ${QUESTIONS_PER_EMAIL} judgments each`}>
+              <Icon d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z" />
+              <span>{phase === "idle" ? "Triage" : "Re-triage"}</span>
+            </button>
+          )}
+          <div className="nav-list">
+            <NavItem id="all" label="Inbox" count={laneCounts.all} active={laneFilter} set={setLaneFilter} icon="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h3.56c.69 1.19 1.97 2 3.45 2h1.98c1.48 0 2.75-.81 3.45-2H20v6zm0-8h-5.99c0 1.1-.9 2-2 2h-2c-1.1 0-2-.9-2-2H4V6h16v4z" />
+            <NavItem id="priority" label="Priority" count={laneCounts.priority} active={laneFilter} set={setLaneFilter} icon="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            <NavItem id="human" label="Needs review" count={laneCounts.human} active={laneFilter} set={setLaneFilter} icon="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            <NavItem id="fyi" label="FYI" count={laneCounts.fyi} active={laneFilter} set={setLaneFilter} icon="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z" />
+            <NavItem id="spam" label="Spam" count={laneCounts.spam} active={laneFilter} set={setLaneFilter} icon="M15.73 3H8.27L3 8.27v7.46L8.27 21h7.46L21 15.73V8.27L15.73 3zM12 17.3c-.72 0-1.3-.58-1.3-1.3 0-.72.58-1.3 1.3-1.3.72 0 1.3.58 1.3 1.3 0 .72-.58 1.3-1.3 1.3zm1-4.3h-2V7h2v6z" />
+            <NavItem id="archived" label="Archived" count={laneCounts.archived} active={laneFilter} set={setLaneFilter} icon="M20.54 5.23l-1.39-1.68C18.88 3.21 18.47 3 18 3H6c-.47 0-.88.21-1.16.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6.5c0-.48-.17-.93-.46-1.27zM12 17.5L6.5 12H10v-2h4v2h3.5L12 17.5zM5.12 5l.81-1h12l.94 1H5.12z" />
+            {rulesOn && <NavItem id="disagree" label="Rules ≠ Sift" count={laneCounts.disagree} active={laneFilter} set={setLaneFilter} icon="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />}
           </div>
 
-          <div className="panel">
-            <div className="panel-title">
-              Priority weights <span className="hint">re-ranks instantly, no inference</span>
+          <div className="nav-section">
+            <div className="nav-h">
+              <span>Priority weights</span>
+              <button
+                className="ib sm"
+                title="Reset weights"
+                onClick={() => {
+                  setWeights(DEFAULT_WEIGHTS);
+                  if (phase === "done") setRerankTick((t) => t + 1);
+                }}
+              >
+                <Icon d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+              </button>
             </div>
+            <div className="nav-hint">Re-ranks instantly · no inference</div>
             {(Object.keys(weights) as Array<keyof Weights>).map((k) => (
               <label key={k} className="slider">
                 <span>{WEIGHT_LABELS[k]}</span>
-                <input type="range" min={0} max={100} value={weights[k]} onChange={(e) => setWeights({ ...weights, [k]: Number(e.target.value) })} />
                 <b>{weights[k]}</b>
+                <input type="range" min={0} max={100} value={weights[k]} onChange={(e) => updateWeight(k, Number(e.target.value))} />
               </label>
             ))}
-            <button className="link" onClick={() => setWeights(DEFAULT_WEIGHTS)}>
-              reset
-            </button>
           </div>
 
-          <div className="panel">
-            <label className="toggle">
+          <div className="nav-section">
+            <label className="nav-item toggle">
               <input type="checkbox" checked={rulesOn} onChange={(e) => setRulesOn(e.target.checked)} />
-              <span>Keyword rules baseline</span>
+              <span className="lbl">Keyword rules</span>
               <kbd>b</kbd>
             </label>
             {rulesOn && (
               <div className="agree">
                 {agree.compared === 0 ? (
-                  <div className="hint">Run triage to compare regex rules with Jev on the same {EMAILS.length} emails.</div>
+                  <div className="nav-hint">Run triage to compare regex rules with Sift on the same {EMAILS.length} emails.</div>
                 ) : (
                   <>
                     <div className="agree-big">
                       {(agree.overall * 100).toFixed(1)}% <span>agreement</span>
                     </div>
-                    <div className="hint">
-                      {agree.fullyAgree}/{agree.compared} emails identical on all {DIMENSIONS.length} dimensions
+                    <div className="nav-hint">
+                      {agree.fullyAgree}/{agree.compared} identical on all {DIMENSIONS.length} dimensions
                     </div>
                     {DIMENSIONS.map((d) => (
                       <div key={d} className="agree-row">
@@ -294,61 +337,123 @@ export default function App() {
               </div>
             )}
           </div>
+        </nav>
 
-          <div className="panel keys">
-            <div className="panel-title">Keys</div>
-            <div>
-              <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>e</kbd> archive · <kbd>r</kbd> reply-needed · <kbd>b</kbd> rules · <kbd>↵</kbd> triage
+        <section className="card">
+          <div className="toolbar">
+            <div className="tb-l">
+              <span className="cb" />
+              <button className="ib" aria-label="Refresh">
+                <Icon d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+              </button>
+              <button className="ib" aria-label="More">
+                <Icon d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+              </button>
             </div>
+            <div className="tb-r">
+              <span className="count">
+                1–{Math.min(50, visible.length)} of {visible.length.toLocaleString()}
+              </span>
+              <button className="ib" aria-label="Newer" disabled>
+                <Icon d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+              </button>
+              <button className="ib" aria-label="Older">
+                <Icon d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+              </button>
+            </div>
+            {running && <div className="loading" style={{ width: `${pct}%` }} />}
           </div>
+
+          <div className={`hud ${running ? "live" : ""}`}>
+            <Metric label="Processed" value={`${stats.processed}`} sub={`of ${stats.total}${stats.errors ? ` · ${stats.errors} err` : ""}`} />
+            <Metric label="Judgments" value={stats.judgments.toLocaleString()} sub={`${QUESTIONS_PER_EMAIL} per email`} />
+            <Metric label="Emails / sec" value={stats.perSecond.toFixed(1)} hot />
+            <Metric label="p50 latency" value={fmtMs(stats.p50)} sub="per request" />
+            <Metric label="p95 latency" value={fmtMs(stats.p95)} />
+            <Metric label="Elapsed" value={fmtMs(stats.elapsedMs)} hot={running} />
+            <Metric label="Cost" value={fmtUsd(stats.costUsd)} sub={`${stats.inputTokens.toLocaleString()} tok`} />
+          </div>
+
+          <div className="list" ref={listRef}>
+            {visible.length === 0 && <div className="empty">Nothing here{phase === "idle" ? " yet — press Triage" : ""}.</div>}
+            {visible.map((r, i) => (
+              <EmailRow
+                key={`${rerankTick}:${r.email.id}`}
+                index={i}
+                row={r}
+                selected={r.email.id === selectedId}
+                onSelect={() => setSelectedId(r.email.id)}
+                weights={weights}
+                rulesOn={rulesOn}
+                error={errors.get(r.email.id)}
+                replyFlag={replyFlag.has(r.email.id)}
+                archived={archived.has(r.email.id)}
+                done={done}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="reader">{selected ? <Preview row={selected} rulesOn={rulesOn} weights={weights} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} /> : null}</section>
+
+        <aside className="rail">
+          <span className="rail-ic" style={{ background: "#1a73e8" }}>
+            <Icon d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+          </span>
+          <span className="rail-ic" style={{ background: "#fbbc04" }}>
+            <Icon d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z" />
+          </span>
+          <span className="rail-ic" style={{ background: "#1e8e3e" }}>
+            <Icon d="M22 5.18 10.59 16.6l-4.24-4.24 1.41-1.41 2.83 2.83 10-10L22 5.18z" />
+          </span>
+          <span className="rail-ic" style={{ background: "#1a73e8" }}>
+            <Icon d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </span>
+          <span className="rail-sep" />
+          <span className="rail-ic plus">
+            <Icon d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </span>
         </aside>
-
-        <div className="list" ref={listRef}>
-          <div className="list-head">
-            <span className="c-from">From</span>
-            <span className="c-subj">Subject</span>
-            <span className="c-badges">Judgments</span>
-            <span className="c-pri">Prio</span>
-            <span className="c-lat">ms</span>
-            <span className="c-age">Age</span>
-          </div>
-          {visible.length === 0 && <div className="empty">Nothing here{phase === "idle" ? " yet — press Triage inbox" : ""}.</div>}
-          {visible.map((r) => (
-            <EmailRow
-              key={r.email.id}
-              row={r}
-              selected={r.email.id === selectedId}
-              onSelect={() => setSelectedId(r.email.id)}
-              weights={weights}
-              rulesOn={rulesOn}
-              error={errors.get(r.email.id)}
-              replyFlag={replyFlag.has(r.email.id)}
-              archived={archived.has(r.email.id)}
-            />
-          ))}
-        </div>
-
-        <aside className="preview">{selected ? <Preview row={selected} rulesOn={rulesOn} weights={weights} replyFlag={replyFlag.has(selected.email.id)} error={errors.get(selected.email.id)} /> : null}</aside>
       </main>
     </div>
+  );
+}
+
+function Icon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path d={d} fill="currentColor" />
+    </svg>
+  );
+}
+
+function Logo() {
+  return (
+    <svg className="logo" viewBox="0 0 40 40" width="40" height="40" aria-hidden="true">
+      <path d="M6 9h28l-11 12v9l-6 3V21L6 9z" fill="#0b57d0" />
+      <path d="M6 9h28l-3 3H9z" fill="#4285f4" />
+    </svg>
   );
 }
 
 function Metric({ label, value, sub, hot }: { label: string; value: string; sub?: string; hot?: boolean }) {
   return (
     <div className={`metric ${hot ? "hot" : ""}`}>
-      <div className="m-label">{label}</div>
       <div className="m-value">{value}</div>
-      {sub && <div className="m-sub">{sub}</div>}
+      <div className="m-label">
+        {label}
+        {sub && <span className="m-sub"> · {sub}</span>}
+      </div>
     </div>
   );
 }
 
-function LaneButton({ id, label, count, active, set, accent }: { id: LaneFilter; label: string; count: number; active: LaneFilter; set: (l: LaneFilter) => void; accent?: string }) {
+function NavItem({ id, label, count, active, set, icon }: { id: LaneFilter; label: string; count: number; active: LaneFilter; set: (l: LaneFilter) => void; icon: string }) {
   return (
-    <button className={`lane ${active === id ? "active" : ""} ${accent ?? ""}`} onClick={() => set(id)}>
-      <span>{label}</span>
-      <b>{count}</b>
+    <button className={`nav-item ${active === id ? "active" : ""}`} onClick={() => set(id)}>
+      <Icon d={icon} />
+      <span className="lbl">{label}</span>
+      <b>{count ? count.toLocaleString() : ""}</b>
     </button>
   );
 }
@@ -373,13 +478,15 @@ function JudgmentBadges({ j, compact }: { j: Judgment; compact?: boolean }) {
       <Badge kind={`urg urg-${u}`} title={`urgency ${j.urgency.toFixed(2)} / 3`}>
         {URGENCY_LEVELS[u]}
       </Badge>
-      <Badge kind={`sent sent-${s}`} title={`sentiment ${j.sentiment.toFixed(2)} / 3`}>
-        {SENTIMENT_LEVELS[s]}
-      </Badge>
-      {yes(j.isPhishingOrScam) && <Badge kind="flag phish">phishing</Badge>}
-      {yes(j.mentionsChurnOrCancel) && <Badge kind="flag churn">churn</Badge>}
-      {yes(j.asksForRefund) && <Badge kind="flag refund">refund</Badge>}
-      {!compact && yes(j.needsReply) && <Badge kind="flag reply">reply</Badge>}
+      {(s >= 2 || !compact) && (
+        <Badge kind={`sent sent-${s}`} title={`sentiment ${j.sentiment.toFixed(2)} / 3`}>
+          {SENTIMENT_LEVELS[s]}
+        </Badge>
+      )}
+      {yes(j.isPhishingOrScam) && <Badge kind="flag phish">Phishing</Badge>}
+      {yes(j.mentionsChurnOrCancel) && <Badge kind="flag churn">Churn</Badge>}
+      {yes(j.asksForRefund) && <Badge kind="flag refund">Refund</Badge>}
+      {!compact && yes(j.needsReply) && <Badge kind="flag reply">Reply</Badge>}
     </>
   );
 }
@@ -390,43 +497,57 @@ function RuleBadges({ r }: { r: RuleVerdict }) {
       <Badge kind={`cat cat-${r.category}`}>{CATEGORY_LABEL[r.category]}</Badge>
       <Badge kind={`urg urg-${r.urgency}`}>{URGENCY_LEVELS[r.urgency]}</Badge>
       <Badge kind={`sent sent-${r.sentiment}`}>{SENTIMENT_LEVELS[r.sentiment]}</Badge>
-      {r.isPhishingOrScam && <Badge kind="flag phish">phishing</Badge>}
-      {r.mentionsChurnOrCancel && <Badge kind="flag churn">churn</Badge>}
-      {r.asksForRefund && <Badge kind="flag refund">refund</Badge>}
-      {r.needsReply && <Badge kind="flag reply">reply</Badge>}
+      {r.isPhishingOrScam && <Badge kind="flag phish">Phishing</Badge>}
+      {r.mentionsChurnOrCancel && <Badge kind="flag churn">Churn</Badge>}
+      {r.asksForRefund && <Badge kind="flag refund">Refund</Badge>}
+      {r.needsReply && <Badge kind="flag reply">Reply</Badge>}
     </>
   );
 }
 
-function EmailRow({ row, selected, onSelect, weights, rulesOn, error, replyFlag, archived }: { row: Row; selected: boolean; onSelect: () => void; weights: Weights; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean }) {
+function clock(iso: string): string {
+  const d = new Date(iso);
+  let h = d.getUTCHours();
+  const m = d.getUTCMinutes().toString().padStart(2, "0");
+  const ap = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${m} ${ap}`;
+}
+
+function EmailRow({ row, index, selected, onSelect, weights, rulesOn, error, replyFlag, archived, done }: { row: Row; index: number; selected: boolean; onSelect: () => void; weights: Weights; rulesOn: boolean; error?: string; replyFlag: boolean; archived: boolean; done: boolean }) {
   const { email, judgment, result } = row;
   const dis = rulesOn && row.disagree.length > 0;
   const needsReply = replyFlag || (judgment ? yes(judgment.needsReply) : false);
+  const unread = !judgment || needsReply;
+  const style = index < 40 ? { animationDelay: `${index * 18}ms` } : undefined;
+  const snippet = email.body.replace(/\s+/g, " ").slice(0, 140);
   return (
-    <div className={`row ${selected ? "selected" : ""} ${judgment ? "judged" : ""} ${dis ? "disagree" : ""} ${archived ? "archived" : ""} ${error ? "errored" : ""}`} data-id={email.id} onClick={onSelect}>
-      <span className="c-from">
-        <i className={`dot ${needsReply ? "on" : ""}`} title={needsReply ? "needs reply" : ""} />
-        {email.from}
+    <div className={`row ${selected ? "selected" : ""} ${judgment ? "judged" : ""} ${dis ? "disagree" : ""} ${archived ? "archived" : ""} ${error ? "errored" : ""} ${unread ? "unread" : ""}`} data-id={email.id} onClick={onSelect} style={style}>
+      <span className="cb" />
+      <span className={`star ${judgment && priority(judgment, weights) >= 90 ? "on" : ""}`}>
+        <Icon d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z" />
       </span>
-      <span className="c-subj">
+      <span className="from">{email.from}</span>
+      <span className="text">
+        <span className="labels">
+          {judgment ? <JudgmentBadges j={judgment} compact /> : error ? <Badge kind="err">error</Badge> : null}
+          {dis && (
+            <Badge kind="dis" title={`rules disagree on: ${row.disagree.map((d) => DIM_LABEL[d]).join(", ")}`}>
+              ≠ rules
+            </Badge>
+          )}
+        </span>
         <span className="subj">{email.subject}</span>
-        <span className="snip">{email.body.replace(/\s+/g, " ").slice(0, 110)}</span>
+        <span className="snip"> - {snippet}</span>
       </span>
-      <span className="c-badges">
-        {judgment ? <JudgmentBadges j={judgment} compact /> : error ? <Badge kind="err">error</Badge> : <span className="pending">—</span>}
-        {dis && (
-          <Badge kind="dis" title={`rules disagree on: ${row.disagree.map((d) => DIM_LABEL[d]).join(", ")}`}>
-            ≠ {row.disagree.length}
-          </Badge>
-        )}
+      <span className="meta">
+        {judgment && done && <span className="prio" title="priority score (computed locally from the judgments)">{priority(judgment, weights).toFixed(0)}</span>}
+        {result && <span className="lat" title="request latency, server-measured">{result.latencyMs.toFixed(0)} ms</span>}
       </span>
-      <span className="c-pri">{judgment ? priority(judgment, weights).toFixed(0) : ""}</span>
-      <span className="c-lat">{result ? result.latencyMs.toFixed(0) : ""}</span>
-      <span className="c-age">{timeAgo(email.receivedAt)}</span>
+      <span className="date">{clock(email.receivedAt)}</span>
     </div>
   );
 }
-
 function Prob({ label, p }: { label: string; p: number }) {
   return (
     <div className="prob">
@@ -442,18 +563,33 @@ function Preview({ row, rulesOn, weights, replyFlag, error }: { row: Row; rulesO
   const dis = new Set(row.disagree);
   return (
     <div className="pv">
-      <div className="pv-head">
-        <div className="pv-subject">{email.subject}</div>
-        <div className="pv-from">
-          <b>{email.from}</b> &lt;{email.fromEmail}&gt; · {timeAgo(email.receivedAt)} ago {email.threadId && <span className="thread">thread</span>}
-        </div>
+      <div className="pv-subject">
+        <h2>{email.subject}</h2>
+        {judgment && (
+          <span className="pv-labels">
+            <Badge kind={`cat cat-${judgment.category}`}>{CATEGORY_LABEL[judgment.category]}</Badge>
+            <Badge kind="inbox">Inbox</Badge>
+          </span>
+        )}
       </div>
-      {email.trap && <div className="trap">Why regex fails here: {email.trap}</div>}
+      <div className="pv-head">
+        <span className="pv-avatar" style={{ background: avatarColor(email.from) }}>
+          {email.from[0]}
+        </span>
+        <div className="pv-who">
+          <div>
+            <b>{email.from}</b> <span className="pv-addr">&lt;{email.fromEmail}&gt;</span>
+          </div>
+          <div className="pv-to">to me {email.threadId && <span className="thread">· thread</span>}</div>
+        </div>
+        <div className="pv-when">{timeAgo(email.receivedAt)} ago</div>
+      </div>
+      {email.trap && <div className="trap">Why keyword rules fail here: {email.trap}</div>}
       <pre className="pv-body">{email.body}</pre>
 
       <div className="pv-judg">
         <div className="pv-title">
-          Jev judgments{" "}
+          Sift judgments
           {result && (
             <span className="hint">
               {result.latencyMs.toFixed(0)} ms · {result.inputTokens} tok{result.retries ? ` · ${result.retries} retries` : ""} · priority {judgment ? priority(judgment, weights).toFixed(1) : ""}
@@ -468,13 +604,20 @@ function Preview({ row, rulesOn, weights, replyFlag, error }: { row: Row; rulesO
               {replyFlag && <Badge kind="flag manual">marked reply (r)</Badge>}
             </div>
             <div className={`dims ${rulesOn ? "with-rules" : ""}`}>
-              <Dim name="category" dis={dis.has("category")} jev={`${CATEGORY_LABEL[judgment.category]} (${(judgment.categoryConfidence * 100).toFixed(0)}% conf)`} rule={rulesOn ? CATEGORY_LABEL[rule.category] : undefined} />
-              <Dim name="needs reply" dis={dis.has("needsReply")} jev={`${yes(judgment.needsReply) ? "yes" : "no"} (${(judgment.needsReply * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.needsReply ? "yes" : "no") : undefined} />
-              <Dim name="urgency" dis={dis.has("urgency")} jev={`${URGENCY_LEVELS[Math.round(judgment.urgency)]} (${judgment.urgency.toFixed(2)})`} rule={rulesOn ? URGENCY_LEVELS[rule.urgency] : undefined} />
-              <Dim name="sentiment" dis={dis.has("sentiment")} jev={`${SENTIMENT_LEVELS[Math.round(judgment.sentiment)]} (${judgment.sentiment.toFixed(2)})`} rule={rulesOn ? SENTIMENT_LEVELS[rule.sentiment] : undefined} />
-              <Dim name="phishing" dis={dis.has("isPhishingOrScam")} jev={`${yes(judgment.isPhishingOrScam) ? "yes" : "no"} (${(judgment.isPhishingOrScam * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.isPhishingOrScam ? "yes" : "no") : undefined} />
-              <Dim name="churn / cancel" dis={dis.has("mentionsChurnOrCancel")} jev={`${yes(judgment.mentionsChurnOrCancel) ? "yes" : "no"} (${(judgment.mentionsChurnOrCancel * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.mentionsChurnOrCancel ? "yes" : "no") : undefined} />
-              <Dim name="asks refund" dis={dis.has("asksForRefund")} jev={`${yes(judgment.asksForRefund) ? "yes" : "no"} (${(judgment.asksForRefund * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.asksForRefund ? "yes" : "no") : undefined} />
+              {rulesOn && (
+                <div className="dim head">
+                  <span className="d-name" />
+                  <span className="d-jev">Sift</span>
+                  <span className="d-rule">Rules</span>
+                </div>
+              )}
+              <Dim name="Category" dis={dis.has("category")} jev={`${CATEGORY_LABEL[judgment.category]} (${(judgment.categoryConfidence * 100).toFixed(0)}%)`} rule={rulesOn ? CATEGORY_LABEL[rule.category] : undefined} />
+              <Dim name="Needs reply" dis={dis.has("needsReply")} jev={`${yes(judgment.needsReply) ? "Yes" : "No"} (${(judgment.needsReply * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.needsReply ? "Yes" : "No") : undefined} />
+              <Dim name="Urgency" dis={dis.has("urgency")} jev={`${URGENCY_LEVELS[Math.round(judgment.urgency)]} (${judgment.urgency.toFixed(2)})`} rule={rulesOn ? URGENCY_LEVELS[rule.urgency] : undefined} />
+              <Dim name="Sentiment" dis={dis.has("sentiment")} jev={`${SENTIMENT_LEVELS[Math.round(judgment.sentiment)]} (${judgment.sentiment.toFixed(2)})`} rule={rulesOn ? SENTIMENT_LEVELS[rule.sentiment] : undefined} />
+              <Dim name="Phishing" dis={dis.has("isPhishingOrScam")} jev={`${yes(judgment.isPhishingOrScam) ? "Yes" : "No"} (${(judgment.isPhishingOrScam * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.isPhishingOrScam ? "Yes" : "No") : undefined} />
+              <Dim name="Churn / cancel" dis={dis.has("mentionsChurnOrCancel")} jev={`${yes(judgment.mentionsChurnOrCancel) ? "Yes" : "No"} (${(judgment.mentionsChurnOrCancel * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.mentionsChurnOrCancel ? "Yes" : "No") : undefined} />
+              <Dim name="Asks refund" dis={dis.has("asksForRefund")} jev={`${yes(judgment.asksForRefund) ? "Yes" : "No"} (${(judgment.asksForRefund * 100).toFixed(0)}%)`} rule={rulesOn ? (rule.asksForRefund ? "Yes" : "No") : undefined} />
             </div>
             <div className="pv-title">Category distribution</div>
             <div className="probs">
@@ -500,6 +643,13 @@ function Preview({ row, rulesOn, weights, replyFlag, error }: { row: Row; rulesO
       </div>
     </div>
   );
+}
+
+const AVATAR_COLORS = ["#1a73e8", "#d93025", "#188038", "#e37400", "#9334e6", "#007b83", "#c5221f", "#3c4043"];
+function avatarColor(name: string): string {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
 function Dim({ name, jev, rule, dis }: { name: string; jev: string; rule?: string; dis: boolean }) {
